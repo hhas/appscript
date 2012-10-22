@@ -1032,20 +1032,11 @@ static int AE_GetCFStringRef(PyObject *v, CFStringRef *p_itself)
 		return 1;
 	}
 	if (PyUnicode_Check(v)) {
-#ifdef Py_UNICODE_WIDE
-	CFIndex size = PyUnicode_GET_DATA_SIZE(v);
-	UTF32Char *unichars = PyUnicode_AsUnicode(v);
-	*p_itself = CFStringCreateWithBytes((CFAllocatorRef)NULL,
-										unichars,
-										size,
-										kCFStringEncodingUTF32, // 10.4+
-										false); // ?
-#else
-		CFIndex size = PyUnicode_GetSize(v);
-		UniChar *unichars = PyUnicode_AsUnicode(v);
-		if (!unichars) return 0;
-		*p_itself = CFStringCreateWithCharacters((CFAllocatorRef)NULL, unichars, size);
-#endif
+		char *cStr;
+		if (!PyArg_Parse(v, "es", NULL, &cStr))
+			return 0;
+		*p_itself = CFStringCreateWithCString((CFAllocatorRef)NULL, cStr, kCFStringEncodingUTF8);
+		PyMem_Free(cStr);
 		return 1;
 	}
 	PyErr_SetString(PyExc_TypeError, "str/unicode required");

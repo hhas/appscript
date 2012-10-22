@@ -14,7 +14,7 @@ else:
 
 setup(
 		name = "appscript",
-		version = "1.0.0",
+		version = "1.0.1",
 		description = "Control AppleScriptable applications from Python.",
 		url='http://appscript.sourceforge.net',
 		license='Public Domain',
