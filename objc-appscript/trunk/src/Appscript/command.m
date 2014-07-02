@@ -42,7 +42,7 @@ static NSAppleEventDescriptor *defaultIgnore;
 	ASRelaunchMode relaunchPolicy = [appData relaunchMode];
 	if (relaunchPolicy != kASRelaunchNever && [target targetType] == kAEMTargetFileURL
 			&& ![AEMApplication processExistsForPID: [[target descriptor] int32Value]]) {
-		if (relaunchPolicy == kASRelaunchAlways || classCode == kCoreEventClass && code == kAEOpenApplication) {
+		if (relaunchPolicy == kASRelaunchAlways || (classCode == kCoreEventClass && code == kAEOpenApplication)) {
 			BOOL success = [target reconnectWithError: &targetError];
 			if (!success) goto fail;
 		}
@@ -86,17 +86,18 @@ fail:
 }
 
 - (id)waitForReply {
-	sendMode = sendMode & ~kAENoReply & ~kAEQueueReply | kAEWaitReply;
+	sendMode = (sendMode & ~kAENoReply & ~kAEQueueReply) | kAEWaitReply;
 	return self;
 }
 
+
 - (id)ignoreReply {
-	sendMode = sendMode & ~kAEWaitReply & ~kAEQueueReply | kAENoReply;
+	sendMode = (sendMode & ~kAEWaitReply & ~kAEQueueReply) | kAENoReply;
 	return self;
 }
 
 - (id)queueReply {
-	sendMode = sendMode & ~kAENoReply & ~kAEWaitReply | kAEQueueReply;
+	sendMode = (sendMode & ~kAENoReply & ~kAEWaitReply) | kAEQueueReply;
 	return self;
 }
 
@@ -178,22 +179,22 @@ fail:
 		if (!(considsAndIgnoresFlags && kAECaseConsiderMask))
 			[ignoreListDesc insertDescriptor: [NSAppleEventDescriptor descriptorWithEnumCode: kAECase] 
 									 atIndex: 0];
-		if (considsAndIgnoresFlags && kAEDiacriticIgnoreMask)
+		if (considsAndIgnoresFlags & kAEDiacriticIgnoreMask)
 			[ignoreListDesc insertDescriptor: [NSAppleEventDescriptor descriptorWithEnumCode: kAEDiacritic] 
 									 atIndex: 0];
-		if (considsAndIgnoresFlags && kAEWhiteSpaceIgnoreMask)
+		if (considsAndIgnoresFlags & kAEWhiteSpaceIgnoreMask)
 			[ignoreListDesc insertDescriptor: [NSAppleEventDescriptor descriptorWithEnumCode: kAEWhiteSpace] 
 									 atIndex: 0];
-		if (considsAndIgnoresFlags && kAEHyphensIgnoreMask)
+		if (considsAndIgnoresFlags& kAEHyphensIgnoreMask)
 			[ignoreListDesc insertDescriptor: [NSAppleEventDescriptor descriptorWithEnumCode: kAEHyphens] 
 									 atIndex: 0];
-		if (considsAndIgnoresFlags && kAEExpansionIgnoreMask)
+		if (considsAndIgnoresFlags & kAEExpansionIgnoreMask)
 			[ignoreListDesc insertDescriptor: [NSAppleEventDescriptor descriptorWithEnumCode: kAEExpansion] 
 									 atIndex: 0];
-		if (considsAndIgnoresFlags && kAEPunctuationIgnoreMask)
+		if (considsAndIgnoresFlags & kAEPunctuationIgnoreMask)
 			[ignoreListDesc insertDescriptor: [NSAppleEventDescriptor descriptorWithEnumCode: kAEPunctuation] 
 									 atIndex: 0];
-		if (considsAndIgnoresFlags && kASNumericStringsIgnoreMask)
+		if (considsAndIgnoresFlags & kASNumericStringsIgnoreMask)
 			[ignoreListDesc insertDescriptor: [NSAppleEventDescriptor descriptorWithEnumCode: kASNumericStrings] 
 									 atIndex: 0];
 		[AS_event setAttribute: ignoreListDesc forKeyword: enumConsiderations];
@@ -283,9 +284,9 @@ fail:
 	}
 	// format attributes
 	if (timeout != kAEDefaultTimeout)
-		result = [NSString stringWithFormat: @"[%@ timeout: %i]", result, timeout / 60];
+		result = [NSString stringWithFormat: @"[%@ timeout: %li]", result, timeout / 60];
 	if (sendMode != (kAEWaitReply | kAECanSwitchLayer)) {
-		if (sendMode & ~(kAEWaitReply | kAEQueueReply | kAENoReply) == kAECanSwitchLayer) {
+		if ((sendMode & ~(kAEWaitReply | kAEQueueReply | kAENoReply)) == kAECanSwitchLayer) {
 			if (sendMode & kAENoReply)
 				result = [NSString stringWithFormat: @"[%@ ignoreReply]", result];
 			if (sendMode & kAEQueueReply)

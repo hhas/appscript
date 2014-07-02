@@ -11,7 +11,7 @@
 
 @interface AEMQuery : NSObject <AEMSelfPackingProtocol> {
 	NSAppleEventDescriptor *cachedDesc;
-	unsigned cachedHash;
+	NSUInteger cachedHash;
 }
 
 // set cached descriptor; performance optimisation, used internally by AEMCodecs

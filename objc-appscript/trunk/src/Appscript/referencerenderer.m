@@ -329,7 +329,7 @@
 					return self;
 			}
 		}
-		[result appendFormat: @"<%@Application invalid target (error=%i)>", [self prefix], [error code]];
+		[result appendFormat: @"<%@Application invalid target (error=%li)>", [self prefix], (long)[error code]];
 		return self;
 	}
 	[result appendFormat: @"%@App", [self prefix]];

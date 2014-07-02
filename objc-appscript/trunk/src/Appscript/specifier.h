@@ -256,6 +256,9 @@ void disposeSpecifierModule(void);
 
 
 @interface AEMAllElementsSpecifier : AEMMultipleElementsSpecifier
+
+- (id)initWithContainer:(AEMSpecifier *)container_ wantCode:(OSType)wantCode_;
+
 @end
 
 

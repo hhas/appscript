@@ -816,16 +816,16 @@ void disposeSpecifierModule(void) {
 	// (note: doesn't bother to check if references are app- or con-based;
 	//	will assume users are smart enough not to try passing its-based references)
 	if ([startReference isKindOfClass: [AEMSpecifier class]] 
-			|| [startReference isKindOfClass: [NSAppleEventDescriptor class]] 
-			&& [startReference descriptorType] == typeObjectSpecifier)
+			|| ([startReference isKindOfClass: [NSAppleEventDescriptor class]] 
+			&& [startReference descriptorType] == typeObjectSpecifier))
 		startReference_ = startReference;
 	else if ([startReference isKindOfClass: [NSString class]])
 		startReference_ = [[AEMCon elements: wantCode] byName: startReference];
 	else
 		startReference_ = [[AEMCon elements: wantCode] byIndex: startReference];
 	if ([stopReference isKindOfClass: [AEMSpecifier class]] 
-			|| [stopReference isKindOfClass: [NSAppleEventDescriptor class]] 
-			&& [stopReference descriptorType] == typeObjectSpecifier)
+			|| ([stopReference isKindOfClass: [NSAppleEventDescriptor class]] 
+			&& [stopReference descriptorType] == typeObjectSpecifier))
 		stopReference_ = stopReference;
 	else if ([stopReference isKindOfClass: [NSString class]])
 		stopReference_ = [[AEMCon elements: wantCode] byName: stopReference];

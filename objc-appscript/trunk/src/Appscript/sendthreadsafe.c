@@ -359,7 +359,7 @@ OSStatus AEMSendMessageThreadSafe(
     assert(eventPtr != NULL);
     assert(replyPtr != NULL);
     
-	if (sendMode && kAEWaitReply) {
+	if (sendMode & kAEWaitReply) {
 		replyPort = MACH_PORT_NULL;
 		
 		// Set up the reply port if necessary.

@@ -460,7 +460,7 @@
 
 - (id)unpackAEList:(NSAppleEventDescriptor *)desc {
 	NSMutableArray *result;
-	int i, length;
+	NSInteger i, length;
 	
 	result = [NSMutableArray array];
 	length = [desc numberOfItems];
@@ -476,7 +476,7 @@
 	AEKeyword key;
 	const AEDesc *record;
 	AEDesc valueAEDesc;
-	int i, j, length, length2;
+	NSInteger i, j, length, length2;
 	id value;
 	
 	result = [NSMutableDictionary dictionary];
