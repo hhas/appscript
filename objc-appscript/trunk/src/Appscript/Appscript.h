@@ -1,7 +1,21 @@
-/*
- *  Appscript.h
- *
- */
+//
+//  Appscript.h
+//  Appscript
+//
+//  Created by has on 02/07/2014.
+//  Copyright (c) 2014 has. All rights reserved.
+//
+
+#import <Cocoa/Cocoa.h>
+
+//! Project version number for Appscript.
+FOUNDATION_EXPORT double AppscriptVersionNumber;
+
+//! Project version string for Appscript.
+FOUNDATION_EXPORT const unsigned char AppscriptVersionString[];
+
+// In this header, you should import all the public headers of your framework using statements like #import <Appscript/PublicHeader.h>
+
 
 // aem
 #import "application.h"
