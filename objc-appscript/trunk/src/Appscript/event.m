@@ -293,11 +293,11 @@ static ASEventAttributeDescription attributeKeys[] = {
 					nil];
 			if (errorString)
 				[errorInfo setValue: errorString forKey: kASErrorStringKey];
-			if (errorMessage = [replyData paramDescriptorForKeyword: kOSAErrorBriefMessage])
+			if ((errorMessage = [replyData paramDescriptorForKeyword: kOSAErrorBriefMessage]))
 				[errorInfo setValue: [errorMessage stringValue] forKey: kASErrorBriefMessageKey];
-			if (errorObject = [replyData paramDescriptorForKeyword: kOSAErrorOffendingObject])
+			if ((errorObject = [replyData paramDescriptorForKeyword: kOSAErrorOffendingObject]))
 				[errorInfo setValue: [codecs unpack: errorObject] forKey: kASErrorOffendingObjectKey];
-			if (errorType = [replyData paramDescriptorForKeyword: kOSAErrorExpectedType])
+			if ((errorType = [replyData paramDescriptorForKeyword: kOSAErrorExpectedType]))
 				[errorInfo setValue: [codecs unpack: errorType] forKey: kASErrorExpectedTypeKey];
 			*error = [NSError errorWithDomain: kASErrorDomain code: errorNumber userInfo: errorInfo];
 		}
@@ -323,7 +323,7 @@ static ASEventAttributeDescription attributeKeys[] = {
 		if (resultType != typeWildCard) {
 			NSMutableArray *resultList;
 			NSAppleEventDescriptor *item;
-			int i, length;
+			NSInteger i, length;
 			resultList = [NSMutableArray array];
 			length = [result numberOfItems];
 			for (i = 1; i <= length; i++) {
@@ -333,8 +333,8 @@ static ASEventAttributeDescription attributeKeys[] = {
 					item = [item coerceToDescriptorType: resultType];
 					if (!item) { // a coercion error occurred
 						if (error) {
-							errorDescription = [NSString stringWithFormat: @"Couldn't coerce item %i of returned list to type '%@': %@", 
-																			i, [AEMObjectRenderer formatOSType: resultType], result];
+							errorDescription = [NSString stringWithFormat: @"Couldn't coerce item %li of returned list to type '%@': %@", 
+																			(long)i, [AEMObjectRenderer formatOSType: resultType], result];
 							errorInfo = [NSDictionary dictionaryWithObjectsAndKeys:
 									[NSAppleEventDescriptor descriptorWithTypeCode: resultType],	kASErrorExpectedTypeKey,
 									originalItem,													kASErrorOffendingObjectKey,

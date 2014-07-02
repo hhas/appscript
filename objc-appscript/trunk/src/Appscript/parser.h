@@ -14,7 +14,7 @@
 @interface ASParserDef : NSObject {
 	NSString *name;
 	OSType code;
-	unsigned hash;
+	NSUInteger hash;
 }
 
 - (id)initWithName:(NSString*)name_ code:(OSType)code_;

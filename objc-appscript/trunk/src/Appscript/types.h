@@ -134,7 +134,7 @@ enum { typeFSS = 'fss ' };
 /**********************************************************************/
 
 // abstract base class for AEMType, AEMEnum, AEMProperty, AEMKeyword
-@interface AEMTypeBase : NSObject <AEMSelfPackingProtocol> {
+@interface AEMTypeBase : NSObject <NSCopying, AEMSelfPackingProtocol> {
 	DescType type;
 	OSType code;
 	NSAppleEventDescriptor *cachedDesc;

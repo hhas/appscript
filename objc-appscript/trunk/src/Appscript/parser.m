@@ -20,13 +20,13 @@
 #define SKIP_STRING cursor += (unsigned char)aeteData[cursor]; cursor += 1;
 
 // realign aete data cursor after reading strings
-#define ALIGN cursor += cursor & 1;
+#define ALIGN_CURSOR cursor += cursor & 1;
 
 // perform a bounds check on aete data cursor to protect against malformed aete data
 #define CHECK_CURSOR \
 	if (cursor > aeteSize) \
 		[NSException raise: @"Bad aete" \
-					format: @"Data ended prematurely (%i bytes expected, %i bytes read)", \
+					format: @"Data ended prematurely (%li bytes expected, %li bytes read)", \
 							aeteSize, cursor];
 
 
@@ -218,7 +218,7 @@
 		NSLog(@"Parse Command %@\n", name);
 	#endif
 	SKIP_STRING;		// description
-	ALIGN;
+	ALIGN_CURSOR;
 	classCode = [self word];
 	code = [self word];
 	commandDef = [[ASParserCommandDef alloc] initWithName: name 
@@ -227,12 +227,12 @@
 	// skip result
 	SKIP_OSTYPE;		// datatype
 	SKIP_STRING;		// description
-	ALIGN;
+	ALIGN_CURSOR;
 	SKIP_UINT16;		// flags
 	// skip direct parameter
 	SKIP_OSTYPE;		// datatype
 	SKIP_STRING;		// description
-	ALIGN;
+	ALIGN_CURSOR;
 	SKIP_UINT16;		// flags
 	// parse keyword parameters
 	/* Note: overlapping command definitions (e.g. InDesign) should be processed as follows:
@@ -242,17 +242,17 @@
 	*/
 	otherCommandDef = [commands objectForKey: name];
 	if (!otherCommandDef
-			|| [commandDef eventClass] == [otherCommandDef eventClass]
-			&& [commandDef eventID] == [otherCommandDef eventID])
+			|| ([commandDef eventClass] == [otherCommandDef eventClass]
+			&& [commandDef eventID] == [otherCommandDef eventID]))
 		[commands setObject: commandDef forKey: name];
 	n = [self integer];
 	for (i = 0; i < n; i++) {
 		paramName = [self name];
-		ALIGN;
+		ALIGN_CURSOR;
 		paramDef = [[ASParserDef alloc] initWithName: paramName code: [self word]];
 		SKIP_OSTYPE;	// datatype
 		SKIP_STRING;	// description
-		ALIGN;
+		ALIGN_CURSOR;
 		SKIP_UINT16;	// flags
 		[commandDef addParameter: paramDef];
 		[paramDef release];
@@ -276,10 +276,10 @@
 	#ifdef DEBUG
 		NSLog(@"Parse Class %@\n", className);
 	#endif
-	ALIGN;
+	ALIGN_CURSOR;
 	classCode = [self word];
 	SKIP_STRING;		// description
-	ALIGN;
+	ALIGN_CURSOR;
 	// properties
 	n = [self integer];
 	for (i = 0; i < n; i++) {
@@ -287,11 +287,11 @@
 		#ifdef DEBUG
 			NSLog(@"    property: %@\n", propertyName);
 		#endif
-		ALIGN;
+		ALIGN_CURSOR;
 		propertyCode = [self word];
 		SKIP_OSTYPE;	// datatype
 		SKIP_STRING;	// description
-		ALIGN;
+		ALIGN_CURSOR;
 		flags = [self integer];
 		if (propertyCode != kASAEInheritedProperties) {
 			// it's a normal property definition, not a superclass  definition
@@ -339,15 +339,15 @@
 
 - (void)parseComparison { // comparison info isn't used
 	SKIP_STRING;		// name
-	ALIGN;
+	ALIGN_CURSOR;
 	SKIP_OSTYPE;		// code
 	SKIP_STRING;		// description
-	ALIGN;
+	ALIGN_CURSOR;
 }
 
 - (void)parseEnumeration {
 	NSString *name;
-	ASParserDef *enumeratorDef;
+	ASParserDef *enumeratorDef = nil;
 	int i, n;
 	
 	SKIP_OSTYPE;		// code
@@ -358,13 +358,13 @@
 	// enumerators
 	for (i = 0; i < n; i++) {
 		name = [self name];
-		ALIGN;
+		ALIGN_CURSOR;
 		#ifdef DEBUG
 			NSLog(@"enum: %@\n", [enumeratorDef name]);
 		#endif
 		enumeratorDef = [[ASParserDef alloc] initWithName: name code: [self word]];
 		SKIP_STRING;	// description
-		ALIGN;
+		ALIGN_CURSOR;
 		if (![enumerators containsObject: enumeratorDef])
 			[enumerators addObject: enumeratorDef];
 		[enumeratorDef release];
@@ -382,7 +382,7 @@
 		SKIP_STRING;	// name string
 	#endif	
 	SKIP_STRING;		// description
-	ALIGN;
+	ALIGN_CURSOR;
 	SKIP_OSTYPE;		// code
 	SKIP_UINT16;		// level
 	SKIP_UINT16;		// version

@@ -57,7 +57,7 @@
 			target = [[aemApplicationClass alloc] initWithURL: targetData error: error];
 			break;
 		case kASTargetPID:
-			target = [[aemApplicationClass alloc] initWithPID: [targetData unsignedLongValue]];
+			target = [[aemApplicationClass alloc] initWithPID: [targetData unsignedIntValue]];
 			break;
 		case kASTargetDescriptor:
 			target = [[aemApplicationClass alloc] initWithDescriptor: targetData];
@@ -90,7 +90,7 @@
 				result = [AEMApplication processExistsForEppcURL: targetData];
 			break;
 		case kASTargetPID:
-			result = [AEMApplication processExistsForPID: [targetData unsignedLongValue]];
+			result = [AEMApplication processExistsForPID: [targetData unsignedIntValue]];
 			break;
 		case kASTargetDescriptor:
 			result = [AEMApplication processExistsForDescriptor: targetData];
@@ -118,6 +118,10 @@
 		case kASTargetURL:
 			if ([targetData isFileURL])
 				fileURL = targetData;
+            break;
+        default:
+            *error = [NSError errorWithDomain: kASErrorDomain code: 1 userInfo: nil];
+            return NO;
 	}
 	if (fileURL) {
 		[AEMApplication launchApplication: fileURL error: error];

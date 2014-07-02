@@ -21,6 +21,7 @@ enum {
 
 /**********************************************************************/
 
+// TO DO: figure out where AEMCodecs instances are/might be copied
 
 @interface AEMCodecs : NSObject <NSCopying, AEMCodecsProtocol> {
 	id applicationRootDescriptor;

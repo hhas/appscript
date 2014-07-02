@@ -168,7 +168,7 @@
 	OSType code;
 	NSAppleEventDescriptor *desc;
 	NSDictionary *defaultTypeByName;
-	unsigned len, i;
+	NSUInteger len, i;
 	
 	defaultTypeByName = [defaultTerms typeByNameTable];
 	len = [definitions count];
@@ -220,7 +220,7 @@
 						   codeTable:(NSMutableDictionary *)codeTable {
 	ASParserDef *parserDef;
 	NSString *name, *convertedName;
-	unsigned len, i;
+	NSUInteger len, i;
 	
 	len = [definitions count];
 	for (i = 0; i < len; i++) {
@@ -258,7 +258,7 @@
 	NSString *name, *convertedName, *parameterName;
 	NSDictionary *defaultCommandByName;
 	OSType eventClass, eventID;
-	unsigned len, i;
+	NSUInteger len, i;
 
 	defaultCommandByName = [defaultTerms commandByNameTable];
 	// To handle synonyms, if two commands have same name but different codes, only the first
