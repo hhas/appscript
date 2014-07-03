@@ -8,43 +8,43 @@
 
 /* Begin PBXBuildFile section */
 		4F1083CD19642DC500ABB9B4 /* Appscript.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1083CC19642DC500ABB9B4 /* Appscript.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		4F1083F919642FCB00ABB9B4 /* application.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1083E719642FCB00ABB9B4 /* application.h */; };
+		4F1083F919642FCB00ABB9B4 /* application.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1083E719642FCB00ABB9B4 /* application.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4F1083FA19642FCB00ABB9B4 /* application.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F1083E819642FCB00ABB9B4 /* application.m */; };
-		4F1083FB19642FCB00ABB9B4 /* base.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1083E919642FCB00ABB9B4 /* base.h */; };
+		4F1083FB19642FCB00ABB9B4 /* base.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1083E919642FCB00ABB9B4 /* base.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4F1083FC19642FCB00ABB9B4 /* base.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F1083EA19642FCB00ABB9B4 /* base.m */; };
-		4F1083FD19642FCB00ABB9B4 /* codecs.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1083EB19642FCB00ABB9B4 /* codecs.h */; };
+		4F1083FD19642FCB00ABB9B4 /* codecs.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1083EB19642FCB00ABB9B4 /* codecs.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4F1083FE19642FCB00ABB9B4 /* codecs.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F1083EC19642FCB00ABB9B4 /* codecs.m */; };
-		4F1083FF19642FCB00ABB9B4 /* event.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1083ED19642FCB00ABB9B4 /* event.h */; };
+		4F1083FF19642FCB00ABB9B4 /* event.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1083ED19642FCB00ABB9B4 /* event.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4F10840019642FCB00ABB9B4 /* event.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F1083EE19642FCB00ABB9B4 /* event.m */; };
 		4F10840119642FCB00ABB9B4 /* sendthreadsafe.c in Sources */ = {isa = PBXBuildFile; fileRef = 4F1083EF19642FCB00ABB9B4 /* sendthreadsafe.c */; };
-		4F10840219642FCB00ABB9B4 /* sendthreadsafe.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1083F019642FCB00ABB9B4 /* sendthreadsafe.h */; };
-		4F10840319642FCB00ABB9B4 /* specifier.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1083F119642FCB00ABB9B4 /* specifier.h */; };
+		4F10840219642FCB00ABB9B4 /* sendthreadsafe.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1083F019642FCB00ABB9B4 /* sendthreadsafe.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4F10840319642FCB00ABB9B4 /* specifier.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1083F119642FCB00ABB9B4 /* specifier.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4F10840419642FCB00ABB9B4 /* specifier.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F1083F219642FCB00ABB9B4 /* specifier.m */; };
-		4F10840519642FCB00ABB9B4 /* types.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1083F319642FCB00ABB9B4 /* types.h */; };
+		4F10840519642FCB00ABB9B4 /* types.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1083F319642FCB00ABB9B4 /* types.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4F10840619642FCB00ABB9B4 /* types.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F1083F419642FCB00ABB9B4 /* types.m */; };
-		4F10840719642FCB00ABB9B4 /* unittype.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1083F519642FCB00ABB9B4 /* unittype.h */; };
+		4F10840719642FCB00ABB9B4 /* unittype.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1083F519642FCB00ABB9B4 /* unittype.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4F10840819642FCB00ABB9B4 /* unittype.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F1083F619642FCB00ABB9B4 /* unittype.m */; };
-		4F10840919642FCB00ABB9B4 /* utils.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1083F719642FCB00ABB9B4 /* utils.h */; };
+		4F10840919642FCB00ABB9B4 /* utils.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1083F719642FCB00ABB9B4 /* utils.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4F10840A19642FCB00ABB9B4 /* utils.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F1083F819642FCB00ABB9B4 /* utils.m */; };
-		4F1084171964304200ABB9B4 /* appdata.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F10840B1964304200ABB9B4 /* appdata.h */; };
+		4F1084171964304200ABB9B4 /* appdata.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F10840B1964304200ABB9B4 /* appdata.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4F1084181964304200ABB9B4 /* appdata.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F10840C1964304200ABB9B4 /* appdata.m */; };
-		4F1084191964304200ABB9B4 /* command.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F10840D1964304200ABB9B4 /* command.h */; };
+		4F1084191964304200ABB9B4 /* command.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F10840D1964304200ABB9B4 /* command.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4F10841A1964304200ABB9B4 /* command.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F10840E1964304200ABB9B4 /* command.m */; };
-		4F10841B1964304200ABB9B4 /* objectrenderer.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F10840F1964304200ABB9B4 /* objectrenderer.h */; };
+		4F10841B1964304200ABB9B4 /* objectrenderer.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F10840F1964304200ABB9B4 /* objectrenderer.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4F10841C1964304200ABB9B4 /* objectrenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F1084101964304200ABB9B4 /* objectrenderer.m */; };
-		4F10841D1964304200ABB9B4 /* reference.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1084111964304200ABB9B4 /* reference.h */; };
+		4F10841D1964304200ABB9B4 /* reference.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1084111964304200ABB9B4 /* reference.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4F10841E1964304200ABB9B4 /* reference.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F1084121964304200ABB9B4 /* reference.m */; };
-		4F10841F1964304200ABB9B4 /* referencerenderer.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1084131964304200ABB9B4 /* referencerenderer.h */; };
+		4F10841F1964304200ABB9B4 /* referencerenderer.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1084131964304200ABB9B4 /* referencerenderer.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4F1084201964304200ABB9B4 /* referencerenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F1084141964304200ABB9B4 /* referencerenderer.m */; };
-		4F1084211964304200ABB9B4 /* test.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1084151964304200ABB9B4 /* test.h */; };
+		4F1084211964304200ABB9B4 /* test.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1084151964304200ABB9B4 /* test.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4F1084221964304200ABB9B4 /* test.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F1084161964304200ABB9B4 /* test.m */; };
-		4F1084251964305E00ABB9B4 /* constant.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1084231964305E00ABB9B4 /* constant.h */; };
+		4F1084251964305E00ABB9B4 /* constant.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1084231964305E00ABB9B4 /* constant.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4F1084261964305E00ABB9B4 /* constant.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F1084241964305E00ABB9B4 /* constant.m */; };
-		4F10842D1964309500ABB9B4 /* bridgedata.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1084271964309500ABB9B4 /* bridgedata.h */; };
+		4F10842D1964309500ABB9B4 /* bridgedata.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1084271964309500ABB9B4 /* bridgedata.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4F10842E1964309500ABB9B4 /* bridgedata.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F1084281964309500ABB9B4 /* bridgedata.m */; };
-		4F10842F1964309500ABB9B4 /* parser.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1084291964309500ABB9B4 /* parser.h */; };
+		4F10842F1964309500ABB9B4 /* parser.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F1084291964309500ABB9B4 /* parser.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4F1084301964309500ABB9B4 /* parser.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F10842A1964309500ABB9B4 /* parser.m */; };
-		4F1084311964309500ABB9B4 /* terminology.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F10842B1964309500ABB9B4 /* terminology.h */; };
+		4F1084311964309500ABB9B4 /* terminology.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F10842B1964309500ABB9B4 /* terminology.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4F1084321964309500ABB9B4 /* terminology.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F10842C1964309500ABB9B4 /* terminology.m */; };
 /* End PBXBuildFile section */
 
@@ -457,6 +457,7 @@
 				4F1083DF19642DC500ABB9B4 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
