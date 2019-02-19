@@ -32,15 +32,13 @@
 
 <h2>3. The <code>File</code> class</h2>
 
-<p>The <code>File</code> class represents a fixed filesystem location. This may be deterministic (i.e. existing locations only) or non-deterministic depending on how the object is created.</p>
+<p>The <code>File</code> class represents a fixed filesystem location which may or may not already exist.</p>
 
 <h3>Methods</h3>
 
-<pre><code>File -- A reference to a fixed filesystem location. May be
-        deterministic/non-deterministic depending on the type of
-        object it's constructed from. Provides a variety of
-        properties and constructors for converting to and from
-        other Python types.
+<pre><code>File -- A reference to a fixed filesystem location which may or may not 
+        already exist. Provides a variety of properties and constructors
+        for converting to and from other Python types.
 
     Constructors:
 
@@ -51,7 +49,7 @@
         File.makewithurl(url) -- make File object from file URL
 
         File.makewithdesc(desc) -- make File object from
-                aem.ae.AEDesc of typeFSS, typeFSRef, typeFileURL
+                aem.ae.AEDesc of typeFileURL
 
     Properties:
 
@@ -94,30 +92,7 @@ app('TextEdit').documents[1].save(in_=f)
 
 <p>When comparing <code>File</code> objects for equality, <code>File.__eq__</code> will perform a case-sensitive comparison of their file paths. Client that need to perform (for example) case-insensitive comparisons should obtain path strings from each <code>File</code> object, then normalise and compare those values as necessary.</p>
 
-<p>Unlike the <code>Alias</code> class which represents <code>typeAlias</code> values only, the <code>File</code> class provides a uniform wrapper for several file-related types that may be returned by applications:</p>
-
-<ul>
-<li>AEDescs of <code>typeFileURL</code> can represent both existing and non-existing locations, although may not be recognised by some older Carbon-based applications.</li>
-
-<li>AEDescs of <code>typeFSRef</code> can represent existing filesystem locations only.</li>
-
-<li>AEDescs of <code>typeFSS</code> (FSSpecs) can represent non-existing items in existing locations. However, they are deprecated on Mac OS X and not fully supported on 64-bit due to lack of proper Unicode and long filename support, and are retained for backwards compatibility with older applications only.</li>
-</ul>
-
-
-<p>When used in an application command, a <code>File</code> object returned by appscript will always pack into the same <code>typeFSRef</code>, <code>typeFileURL</code> or <code>typeFSS</code> AEDesc it was created from. A <code>File</code> object created using the default constructor or the <code>Alias.file</code> or <code>File.file</code> methods will always pack into an AEDesc of <code>typeFileURL</code>.</p>
-
-
-<p>When passing <code>File</code> values to applications, you should not normally need to worry about which value type a <code>File</code> object contains as well-designed applications will ask the Apple Event Manager to coerce the given value to the desired type as necessary. If dealing with a not-so-well-designed application that only accepts an AEDesc of a specific type (<code>typeFSRef</code>, <code>typeFSS</code> or <code>typeFileURL</code>), first obtain an AEDesc via the <code>File</code> object's <code>desc</code> method, then coerce it to the desired type before using it in an application command. For example:
-
-<pre><code>from appscript import *
-from aem import kae
-
-fileurl = mactypes.File('/Users/foo/some file')
-fssdesc = fileurl.desc.coerce(kae.typeFSS)
-
-app('older app').documents[1].save(in_=fssdesc)</code></pre>
-
+<p>The <code>File</code> class normally wraps AEDescs of <code>typeFileURL</code>, which can represent both existing and non-existing locations. For legacy compatibility with older Carbon apps, it can also wrap existing AEDescs of <code>typeFSRef</code> or <code>typeFSS</code>, although these obsolete Carbon types are long since deprecated and should not be used now.</p>
 
 </div>
 

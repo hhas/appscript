@@ -134,7 +134,7 @@ module Appscript
 		def packDictionary(val)
 			record = NSAppleEventDescriptor.recordDescriptor
 			desired_type_obj = val.objectForKey(:class_)
-			desired_type_obj = val.objectForKey(:class_) if desired_type_obj == nil
+			desired_type_obj = val.objectForKey(ClassType) if desired_type_obj == nil
 			if desired_type_obj
 				case desired_type_obj
 					when Symbol
@@ -232,7 +232,7 @@ module Appscript
 				when KAE::TypeApplicationURL
 					Appscript.app.by_url(self.unpackApplicationURL(desc))
 				when KAE::TypeApplSignature
-					Appscript.app.by_creator([self.unpackApplicationURL(desc)].pack('I'))
+					Appscript.app.by_creator([self.unpackApplicationSignature(desc)].pack('I'))
 				when KAE::TypeKernelProcessID
 					Appscript.app.by_pid(self.unpackProcessID(desc))
 				when KAE::TypeProcessSerialNumber
