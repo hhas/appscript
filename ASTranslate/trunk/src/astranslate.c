@@ -57,7 +57,7 @@ static PyObject *ASTranslate(PyObject* self, PyObject* args)
 	
 	err = OSASetSendProc(ci,
 						 upp_GenericSendFunction,
-						 (long)handler);
+						 (SRefCon)handler);
 	if (err) goto cleanup;
 	
 	err = OSAExecute(ci,

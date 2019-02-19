@@ -1,8 +1,6 @@
 """
 Requirements (available from PyPI except where noted):
 
-- distribute 0.6.14+
-
 - py-appscript 0.22.0+
 
 - py-osaterminology 0.14.6+ (from appscript svn repository)

@@ -3,7 +3,7 @@ About ASDictionary
 
 ASDictionary exports scriptable Mac applications' dictionaries in plain text 
 or HTML format. It can also be used to generate application 'glues' for use 
-with objc-appscript. Requires Mac OS X 10.4 or later. 
+with objc-appscript. Requires Mac OS X 10.6 or later. 
 
 
 Exporting application dictionaries

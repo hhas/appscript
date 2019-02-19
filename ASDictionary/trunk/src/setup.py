@@ -1,8 +1,6 @@
 """
 Requirements (available from PyPI except where noted):
 
-- distribute 0.6.14+
-
 - HTMLTemplate 1.5.0+
 
 - py-appscript 0.22.0+
@@ -29,12 +27,8 @@ from plistlib import Plist
 import os
 
 name = 'ASDictionary'
-version='0.13.1'
+version='0.13.2'
 
-os.system('''
-sdp -fa %s.sdef;
-Rez %sScripting.r -o %s.rsrc -useDF
-''' % ((name,) * 3))
 
 setup(
 	app=[name+".py"],
@@ -49,6 +43,7 @@ setup(
 				CFBundleShortVersionString=version,
 				NSHumanReadableCopyright="",
 				CFBundleIdentifier="net.sourceforge.appscript.asdictionary",
+				OSAScriptingDefinition=name+'.sdef',
 				CFBundleDocumentTypes = [
 					dict(
 						CFBundleTypeExtensions=["*"],
@@ -57,7 +52,7 @@ setup(
 					),
 				]
 			),
-			resources=[name+'.icns', name+'.rsrc'],
+			resources=[name+'.icns', name+'.sdef'],
 			iconfile=name+'.icns'
 		)
 	)

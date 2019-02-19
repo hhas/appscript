@@ -32,7 +32,7 @@ class ASTranslateDocument(NSDocument):
 
 #	import osax; osax.ScriptingAddition().display_dialog('add to all %r'%val)
 	
-	def _addResult(self, kind, val):
+	def _addResult_to_(self, kind, val):
 		if kind == kLangAll:
 			for lang in self._resultStores:
 				lang.append(val)
@@ -59,12 +59,12 @@ class ASTranslateDocument(NSDocument):
 		try:
 			sourceDesc = _standardCodecs.pack(self.codeView.string())
 			handler = eventformatter.makeCustomSendProc(
-					self._addResult, _userDefaults.boolForKey_('sendEvents'))
+					self._addResult_to_, _userDefaults.boolForKey_('sendEvents'))
 			result = astranslate.translate(sourceDesc, handler) # returns tuple; first item indicates if ok
 			if result[0]: # script result
 				script, result = (_standardCodecs.unpack(desc) for desc in result[1:])
 				self.codeView.setString_(script)
-				self._addResult(kLangAll, u'OK')
+				self._addResult_to_(kLangAll, u'OK')
 			else: # script error info
 				script, errorNum, errorMsg, pos = (_standardCodecs.unpack(desc) for desc in result[1:])
 				start, end = (pos[aem.AEType(k)] for k in ['srcs', 'srce'])
@@ -73,11 +73,11 @@ class ASTranslateDocument(NSDocument):
 					self.codeView.setString_(script)
 				else:
 					errorKind = 'Compilation'
-				self._addResult(kLangAll, 
+				self._addResult_to_(kLangAll, 
 						u'%s Error:\n%s (%i)' % (errorKind, errorMsg, errorNum))
 				self.codeView.setSelectedRange_((start, end - start))
 		except aem.ae.MacOSError, e:
-			self._addResult(kLangAll, u'OS Error: %i' % e.args[0])
+			self._addResult_to_(kLangAll, u'OS Error: %i' % e.args[0])
 	
 	@objc.IBAction
 	def selectStyle_(self, sender):

@@ -1,5 +1,6 @@
 """ASDictionary"""
 
+
 import os
 
 import objc
@@ -7,7 +8,7 @@ from AppKit import *
 from PyObjCTools.KeyValueCoding import *
 from PyObjCTools import AppHelper
 
-import osax, mactypes, aemreceive
+import appscript, osax, mactypes, aemreceive
 from osaterminology.makeglue.objcappscript import nametoprefix
 
 import appscriptsupport, osaxfinder, dictionaryexporter
@@ -19,7 +20,7 @@ import appscriptsupport, osaxfinder, dictionaryexporter
 class _AEOMApplication:
 	def __init__(self, result):
 		self._result = result
-	
+
 	def property(self, code):
 		key = {'pnam': u'CFBundleDisplayName', 'vers': u'CFBundleShortVersionString'}[code]
 		self._result['result'] = NSBundle.mainBundle().infoDictionary()[key]
@@ -51,7 +52,7 @@ class ArrayToBooleanTransformer(NSValueTransformer):
 # TO DO: refactor this into separate classes
 
 class ASDictionary(NSDocument):
-	
+
 	mainWindow = objc.IBOutlet('mainWindow')
 	filenameTableView = objc.IBOutlet('filenameTableView')
 	selectedFilesController = objc.IBOutlet('selectedFilesController')
@@ -61,7 +62,7 @@ class ASDictionary(NSDocument):
 	logDrawer = objc.IBOutlet('logDrawer')
 	logTextView = objc.IBOutlet('logTextView')
 	objcPrefixColumn = objc.IBOutlet('objcPrefixColumn')
-	
+
 	def init(self):
 		self = super(ASDictionary, self).init()
 		if self is None: return
@@ -73,7 +74,7 @@ class ASDictionary(NSDocument):
 		NSValueTransformer.setValueTransformer_forName_(
 				ArrayToBooleanTransformer.alloc().init(), u"ArrayToBoolean")
 		return self
-	
+
 	def applicationDidFinishLaunching_(self, sender):
 		for m in [appscriptsupport, osaxfinder, dictionaryexporter]:
 			m.init()
@@ -81,7 +82,7 @@ class ASDictionary(NSDocument):
 		aemreceive.installeventhandler(handle_get,'coregetd', 
 				('----', 'ref', aemreceive.kae.typeObjectSpecifier))
 
-	
+
 	def awakeFromNib(self):
 		userDefaults = NSUserDefaults.standardUserDefaults()
 		NSNotificationCenter.defaultCenter().addObserver_selector_name_object_(
@@ -94,17 +95,17 @@ class ASDictionary(NSDocument):
 		self.selectedFilesController.setSortDescriptors_([
 				NSSortDescriptor.alloc().initWithKey_ascending_selector_(u'name', True, 'caseInsensitiveCompare:'),
 				NSSortDescriptor.alloc().initWithKey_ascending_selector_(u'path', True, 'caseInsensitiveCompare:')])
-	
-	
+
+
 	def applicationWillTerminate_(self, notification):
 		userDefaults = NSUserDefaults.standardUserDefaults()
 		userDefaults.setObject_forKey_(list(self.logDrawer.contentSize()), u'LogDrawer')
 
-	
+
 	#######
 	# Update enabled/disabled status of 'Export' window's checkboxes and 'Export' button when
 	# chosen files list or preferences change
-	
+
 	def _updateLocks(self):
 		userDefaults = NSUserDefaults.standardUserDefaults()
 		self.setHtmlOptionsEnabled_(userDefaults.boolForKey_(u'singleHTML') or userDefaults.boolForKey_(u'frameHTML'))
@@ -120,53 +121,53 @@ class ASDictionary(NSDocument):
 			self.objcPrefixColumn.setHidden_(not willExportGlue) # 10.5+
 		except:
 			pass
-	
+
 	@objc.IBAction
 	def notifyPreferencesChanged_(self, sender):
 		self._updateLocks()
-	
-	
+
+
 	#######
 	# delete items in files list
-	
+
 	@objc.IBAction
 	def delete_(self, sender):
 		self.selectedFilesController.removeObjects_(self.selectedFilesController.selectedObjects())
 		self._updateLocks()
-	
+
 	@objc.IBAction
 	def clear_(self, sender):
 		self.selectedFilesController.removeObjects_(self.selectedFilesController.content())
 		self._updateLocks()
-	
-	
+
+
 	#######
 	# drag-n-drop support
-	
+
 	def application_openFile_(self, application, filename):
-		self._addPathToSelectedFiles(filename)
+		self._addPathToSelectedFiles_(filename)
 		return True
-	
+
 	def tableView_validateDrop_proposedRow_proposedDropOperation_(self, tableView, info, row, operation):
 		return NSDragOperationLink
-	
+
 	def tableView_acceptDrop_row_dropOperation_(self, tableView, info, row, operation):
 		for path in info.draggingPasteboard().propertyListForType_(NSFilenamesPboardType):
-			self._addPathToSelectedFiles(path)
+			self._addPathToSelectedFiles_(path)
 		return True
-	
-	
+
+
 	#######
 	# show/hide export log drawer
-	
+
 	@objc.IBAction
 	def showLog_(self, sender):
 		pass
-	
-	
+
+
 	#######
 	# files list controller bindings
-	
+
 	def selectedFiles(self):
 		return self._selectedFiles
 
@@ -176,11 +177,11 @@ class ASDictionary(NSDocument):
 	def countOfSelectedFiles(self):
 		return len(self._selectedFiles)
 	countOfSelectedFiles = objc.accessor(countOfSelectedFiles)
-	
+
 	def objectInSelectedFilesAtIndex_(self, idx):
 		return self._selectedFiles[idx]
 	objectInSelectedFilesAtIndex_ = objc.accessor(objectInSelectedFilesAtIndex_)
-	
+
 	def insertObject_inSelectedFilesAtIndex_(self, obj, idx):
 		self._selectedFiles.insert(idx, obj)
 	insertObject_inSelectedFilesAtIndex_ = objc.accessor(insertObject_inSelectedFilesAtIndex_)
@@ -188,40 +189,40 @@ class ASDictionary(NSDocument):
 	def removeObjectFromSelectedFilesAtIndex_(self, idx):
 		del self._selectedFiles[idx]
 	removeObjectFromSelectedFilesAtIndex_ = objc.accessor(removeObjectFromSelectedFilesAtIndex_)
-	
+
 	def replaceObjectInSelectedFilesAtIndex_withObject_(self, idx, obj):
 		self._selectedFiles[idx] = obj
 	replaceObjectInSelectedFilesAtIndex_withObject_ = objc.accessor(replaceObjectInSelectedFilesAtIndex_withObject_)
-	
-	
+
+
 	#######
 	# 'Export' window checkbox bindings
-	
+
 	def canExport(self):
 		return self._canExport
-	
+
 	def setCanExport_(self, value):
 		self._canExport = value
-	
+
 	def htmlOptionsEnabled(self):
 		return self._htmlOptionsEnabled
-	
+
 	def setHtmlOptionsEnabled_(self, value):
 		self._htmlOptionsEnabled = value
-	
-	
+
+
 	#######
 	# 'Dictionary' menu methods
-	
-	def _addPathToSelectedFiles(self, path):
+
+	def _addPathToSelectedFiles_(self, path):
 		name = os.path.splitext(os.path.basename(path.rstrip('/')))[0]
 		item = {'objcPrefix': nametoprefix(name), 'name': name, 'path': path}
 		if item not in self.selectedFiles():
 			self.insertObject_inSelectedFilesAtIndex_(item, self.countOfSelectedFiles())
 		self._updateLocks()
-	
+
 	##
-	
+
 	@objc.IBAction
 	def chooseFromFileBrowser_(self, sender):
 		try:
@@ -233,8 +234,8 @@ class ASDictionary(NSDocument):
 			else:
 				raise
 		for alias in selection:
-			self._addPathToSelectedFiles(alias.path)
-	
+			self._addPathToSelectedFiles_(alias.path)
+
 	@objc.IBAction
 	def chooseFromApplicationList_(self, sender):
 		try:
@@ -247,8 +248,8 @@ class ASDictionary(NSDocument):
 			else:
 				raise
 		for alias in selection:
-			self._addPathToSelectedFiles(alias.path)
-	
+			self._addPathToSelectedFiles_(alias.path)
+
 	@objc.IBAction
 	def chooseRunningApplications_(self, sender):
 		from appscript import app # TO DO: use NSWorkspace
@@ -262,27 +263,29 @@ class ASDictionary(NSDocument):
 		if selection == False:
 			return
 		for name in selection:
-			fileobj = sysev.application_processes[name].file()
-			if fileobj:
-				self._addPathToSelectedFiles(fileobj.path)
-	
+			fileobj = sysev.application_processes[name].file() # Apple broke process's file property (now returns objspec)
+			if isinstance(fileobj, (mactypes.Alias, mactypes.File)):
+				self._addPathToSelectedFiles_(fileobj.path)
+			elif isinstance(fileobj, appscript.Reference):
+				self._addPathToSelectedFiles_(fileobj.POSIX_path())
+
 	@objc.IBAction
 	def chooseInstalledAdditions_(self, sender):
 		selection = self.standardAdditions.choose_from_list(osaxfinder.names(), 
 				with_prompt='Choose one or more scripting additions:', multiple_selections_allowed=True)
 		for name in selection or []:
-			self._addPathToSelectedFiles(osaxfinder.pathforname(name))
-	
-	
+			self._addPathToSelectedFiles_(osaxfinder.pathforname(name))
+
+
 	#######
 	# 'Export' button method
-	
-	def writeToLogWindow(self, text):
+
+	def writeToLogWindow_(self, text):
 		store = self.logTextView.textStorage()
 		store.appendAttributedString_(NSAttributedString.alloc().initWithString_(text))
 		self.logTextView.scrollRangeToVisible_([store.length(), 0])
 
-	
+
 	@objc.IBAction
 	def export_(self, sender):
 		userDefaults = NSUserDefaults.standardUserDefaults()
@@ -312,12 +315,12 @@ class ASDictionary(NSDocument):
 		selection.sort(lambda a,b:cmp(a['name'].lower(), b['name'].lower()))
 		progressObj = GUIProgress(len(selection), len(styles), len([i for i in [plainText, singleHTML, frameHTML] if i]), self)
 		dictionaryexporter.export(selection, styles, plainText, singleHTML, frameHTML, objcGlue, options, outFolder, exportToSubfolders, progressObj)
-	
-	
+
+
 	@objc.IBAction
 	def stopProcessing_(self, sender): # cancel button on progress panel
 		NSApp().stopModalWithCode_(-128)
-	
+
 	@objc.IBAction
 	def windowWillClose_(self, sender): # quit on main window close
 		if sender.object() == self.mainWindow:
@@ -342,36 +345,36 @@ class GUIProgress:
 		appcontroller.progressPanel.makeKeyAndOrderFront_(None)
 		appcontroller.progressPanel.display()
 		self._session = NSApp().beginModalSessionForWindow_(appcontroller.progressPanel)
-	
+
 	def shouldcontinue(self):
 		return NSApp().runModalSession_(self._session) == NSRunContinuesResponse
-	
+
 	def nextitem(self, name, inpath):
 		self._itemname = name
 		self._subcount = 0
 		self._maincount += 1
-		self._appcontroller.writeToLogWindow(u'Exporting %s dictionary...\n' % name)
+		self._appcontroller.writeToLogWindow_(u'Exporting %s dictionary...\n' % name)
 		self._appcontroller.itemName.setStringValue_(name)
 		self._appcontroller.progressBar.setDoubleValue_(self._maincount - 1)
-	
+
 	def nextoutput(self, outpath):
 		self._subcount += self._subincrement
-		self._appcontroller.writeToLogWindow(u'%s\n' % outpath)
+		self._appcontroller.writeToLogWindow_(u'%s\n' % outpath)
 		self._appcontroller.progressBar.setDoubleValue_(self._maincount - 1 + self._subcount)
-	
+
 	def didsucceed(self):
-		self._appcontroller.writeToLogWindow(u'\n')
+		self._appcontroller.writeToLogWindow_(u'\n')
 
 	def didfail(self, errormessage):
 		self._faileditems.append(self._itemname)
-		self._appcontroller.writeToLogWindow(u'%s\n\n' % errormessage)
+		self._appcontroller.writeToLogWindow_(u'%s\n\n' % errormessage)
 
 	def didfinish(self):
 		userDefaults = NSUserDefaults.standardUserDefaults()
 		# dispose progress panel
 		self._appcontroller.progressPanel.orderOut_(None)
 		NSApp().endModalSession_(self._session)
-		self._appcontroller.writeToLogWindow(u'Done.\n\n\n')
+		self._appcontroller.writeToLogWindow_(u'Done.\n\n\n')
 		self._appcontroller.standardAdditions.beep()
 		try:
 			if self._faileditems:
@@ -393,6 +396,7 @@ class GUIProgress:
 
 
 #######
+
 
 AppHelper.runEventLoop()
 

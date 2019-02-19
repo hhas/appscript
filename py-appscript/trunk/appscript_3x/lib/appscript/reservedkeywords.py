@@ -34,7 +34,9 @@ kReservedKeywords = [
 	"aborttransaction",
 	"endtransaction",
 	"isrunning",
+	"permissiontoautomate", # 10.14+
 	"resulttype",
+	"canaskforconsent", # 10.14+
 	"ignore",
 	"timeout",
 	"waitreply",
