@@ -12,6 +12,8 @@
 
 #define AE_MODULE_C
 #include "ae.h"
+#include <pthread.h>
+#include <mach/mach.h>
 
 // Event handling
 #if __LP64__
@@ -155,7 +157,7 @@ static PyObject *AEDesc_AEFlattenDesc(AEDescObject *_self, PyObject *_args)
 	data = malloc(dataSize);
 	_err = AEFlattenDesc(&_self->ob_itself, data, dataSize, NULL);
 	if (_err != noErr) return AE_MacOSError(_err);
-	_res = Py_BuildValue("s#", data, dataSize);
+	_res = Py_BuildValue("y#", data, dataSize);
 	free(data);
 	return _res;
 }
@@ -356,7 +358,7 @@ static PyObject *AEDesc_AEGetAttributeDesc(AEDescObject *_self, PyObject *_args)
 static PyObject *AEDesc_AESendMessage(AEDescObject *_self, PyObject *_args) // thread-safe
 {
 	PyObject *_res = NULL;
-	OSErr _err;
+	OSErr _err = noErr;
 	AppleEvent reply;
 	AESendMode sendMode;
 	long timeOutInTicks;
@@ -366,10 +368,26 @@ static PyObject *AEDesc_AESendMessage(AEDescObject *_self, PyObject *_args) // t
 						  &timeOutInTicks))
 		return NULL;
 	Py_BEGIN_ALLOW_THREADS
-	_err = AESendMessage(&_self->ob_itself,
-						 &reply,
-						 sendMode,
-						 timeOutInTicks);
+	
+	mach_port_t replyPort = MACH_PORT_NULL;
+	
+	if (sendMode & kAEWaitReply && pthread_main_np() == 0) {
+		_err = (OSErr)mach_port_allocate(mach_task_self(), MACH_PORT_RIGHT_RECEIVE, &replyPort);
+		if (_err == noErr) {
+			_err = AEPutAttributePtr(&_self->ob_itself, keyReplyPortAttr, typeMachPort, &replyPort, sizeof(replyPort));
+		}
+	}
+	
+	if (_err == noErr) {
+		_err = AESendMessage(&_self->ob_itself,
+							 &reply,
+							 sendMode,
+							 timeOutInTicks);
+	}
+	if (replyPort != MACH_PORT_NULL) {
+		mach_port_deallocate(mach_task_self(), replyPort);
+	}
+	
 	Py_END_ALLOW_THREADS
 	if (_err != noErr) return AE_MacOSError(_err);
 	_res = Py_BuildValue("O&",
@@ -720,7 +738,7 @@ static PyObject *AE_AEUnflattenDesc(PyObject *_self, PyObject *_args)
 	Size dataSize;
 	AEDesc desc;
 	
-	if (!PyArg_ParseTuple(_args, "s#",
+	if (!PyArg_ParseTuple(_args, "y#",
 	                      &data, &dataSize))
 		return NULL;
 	_err = AEUnflattenDesc(data, &desc);
