@@ -1,0 +1,48 @@
+name: Build Pipeline
+
+on:
+  # Run on all pushed commits and when a new release is created
+  # Prevents duplicated pipeline runs as a release also pushes a tag
+  push:
+    branches:
+      - '**'
+    tags-ignore:
+      - '**'
+  release:
+    types:
+      - created
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest]
+        python-version: [3.5, 3.6, 3.7, 3.8]
+        architecture: ['x64']
+    steps:
+      - uses: actions/checkout@v1
+      - name: Set up Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: ${{ matrix.python-version }}
+          architecture: ${{ matrix.architecture }}
+      - name: Install dependencies
+        run: |
+          python -m pip install wheel twine
+      - name: Build Wheels
+        run: |
+          cd py-appscript/trunk
+          python setup.py sdist bdist_wheel --plat-name 'macosx-10.6-x86_64'
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v1
+        with:
+          name: dist
+          path: py-appscript/trunk/dist
+      - name: Publish package
+        if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
+        run: twine upload py-appscript/trunk/dist/*
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.pypi_password }}
+#          repository_url: https://test.pypi.org/legacy/
