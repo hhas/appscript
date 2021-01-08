@@ -8,6 +8,8 @@
  
 /* =========================== Module AE =========================== */
 
+#include <assert.h>
+#define PY_SSIZE_T_CLEAN
 #include "Python.h"
 
 #define AE_MODULE_C
@@ -157,7 +159,9 @@ static PyObject *AEDesc_AEFlattenDesc(AEDescObject *_self, PyObject *_args)
 	data = malloc(dataSize);
 	_err = AEFlattenDesc(&_self->ob_itself, data, dataSize, NULL);
 	if (_err != noErr) return AE_MacOSError(_err);
-	_res = Py_BuildValue("y#", data, dataSize);
+	// We can freely cast MacTypes.h's typedef long Size to Py_ssize_t.
+	assert(LONG_MAX <= PY_SSIZE_T_MAX);
+	_res = Py_BuildValue("y#", data, (Py_ssize_t)dataSize);
 	free(data);
 	return _res;
 }
@@ -624,17 +628,18 @@ static PyObject *AE_AECreateDesc(PyObject *_self, PyObject *_args)
 	OSErr _err;
 	DescType typeCode;
 	char *dataPtr__in__;
-	long dataPtr__len__;
-	int dataPtr__in_len__;
+	Py_ssize_t dataPtr__in_len__;
 	AEDesc result;
 
 	if (!PyArg_ParseTuple(_args, "O&s#",
 	                      AE_GetOSType, &typeCode,
 	                      &dataPtr__in__, &dataPtr__in_len__))
 		return NULL;
-	dataPtr__len__ = dataPtr__in_len__;
+
+	// We can freely cast Py_ssize_t to MacTypes.h's typedef long Size.
+	assert(LONG_MAX >= PY_SSIZE_T_MAX);
 	_err = AECreateDesc(typeCode,
-	                    dataPtr__in__, dataPtr__len__,
+	                    dataPtr__in__, (Size)dataPtr__in_len__,
 	                    &result);
 	if (_err != noErr) return AE_MacOSError(_err);
 	_res = Py_BuildValue("O&",
@@ -735,7 +740,7 @@ static PyObject *AE_AEUnflattenDesc(PyObject *_self, PyObject *_args)
 	PyObject *_res = NULL;
 	OSErr _err;
 	void *data;
-	Size dataSize;
+	Py_ssize_t dataSize;
 	AEDesc desc;
 	
 	if (!PyArg_ParseTuple(_args, "y#",
