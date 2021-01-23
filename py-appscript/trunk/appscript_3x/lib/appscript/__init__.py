@@ -1,6 +1,6 @@
 """py3-appscript -- High-level Mac OS X application scripting support for Python 3.1+. """
 
-__version__ = '1.1.0'
+__version__ = 'dev'
 
 __all__ = ['ApplicationNotFoundError', 'CommandError', 'CantLaunchApplicationError', 
 		'app','con', 'its', 'k','mactypes']
