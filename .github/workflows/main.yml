@@ -67,6 +67,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: dist
+          path: dist
       - name: Publish source pacakge and wheels to PyPI
         run: twine upload dist/*
         env:
