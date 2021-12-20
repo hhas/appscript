@@ -1,0 +1,7 @@
+include README
+recursive-include doc  *.css *.html *.png *.gif
+recursive-include ext  *.h *.c
+recursive-include lib  *.py
+recursive-include sample  *.py
+recursive-include test  *.py README
+
