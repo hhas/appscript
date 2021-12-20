@@ -5,6 +5,7 @@ except ImportError:
 	from distutils.core import setup, Extension
 
 import os, sys
+import re
 
 if sys.version_info >= (3,0):
 	root_dir = 'appscript_3x'
@@ -12,9 +13,14 @@ else:
 	root_dir = 'appscript_2x'
 
 
+# Version Number
+with open(os.path.join(os.path.dirname(__file__), 'appscript_3x', 'lib', 'appscript', '__init__.py')) as f:
+	version = re.compile(r".*__version__ = '(.*?)'", re.S).match(f.read()).group(1)
+
+
 setup(
 		name = "appscript",
-		version = "1.1.1",
+		version = version,
 		description = "Control AppleScriptable applications from Python.",
 		url='http://appscript.sourceforge.net',
 		license='Public Domain',
