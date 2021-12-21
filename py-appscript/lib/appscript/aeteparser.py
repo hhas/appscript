@@ -1,4 +1,4 @@
-"""terminologyparser -- Basic aete parser to construct name-code terminology tables from an application's class, enumerator, property, element and command definitions. 
+""" aeteparser -- Basic aete parser to construct name-code terminology tables from an application's class, enumerator, property, element and command definitions. 
 
 The tables returned by this module are an intermediate format, suitable for exporting to Python modules via terminology.dump. The terminology module will convert these intermediate tables into the final format used in AppData objects. """
 
@@ -96,13 +96,13 @@ class Parser:
 		self._ptr += self._ptr & 1 # align
 		self._ptr += 2 # flags integer
 		#
-		currentcommandargs = []
+		params = []
 		# Note: overlapping command definitions (e.g. InDesign) should be processed as follows:
 		# - If their names and codes are the same, only the last definition is used; other definitions are ignored and will not compile.
 		# - If their names are the same but their codes are different, only the first definition is used; other definitions are ignored and will not compile.
 		# - If a dictionary-defined command has the same name but different code to a built-in definition, escape its name so it doesn't conflict with the default built-in definition.
 		if name not in self.commands or self.commands[name][1] == code:
-			self.commands[name] =(name, code, currentcommandargs)
+			self.commands[name] = (name, code, params)
 		# add labelled parameters
 		for _ in range(self.integer()):
 			name = self.name()
@@ -112,7 +112,7 @@ class Parser:
 			self._ptr += 1 + self._data[self._ptr] # description string
 			self._ptr += self._ptr & 1 # align
 			self._ptr += 2 # flags integer
-			currentcommandargs.append((name, code))
+			params.append((name, code))
 	
 	
 	def parseclass(self):

@@ -175,13 +175,11 @@ def scriptingadditions():
 
 class OSAX(reference.Application):
 
-	def __init__(self, osaxname='StandardAdditions', name=None, id=None, creator=None, pid=None, url=None, aemapp=None, terms=True):
+	def __init__(self, *, name=None, id=None, creator=None, pid=None, url=None, aemapp=None, terms=True):
 		if not _osaxcache:
 			_initcaches()
-		self._osaxname = osaxname
+		self._osaxname = osaxname = 'StandardAdditions'
 		osaxname = osaxname.lower()
-		if osaxname.endswith('.osax'):
-			osaxname = osaxname[:-5]
 		if terms == True:
 			try:
 				osaxpath, terms = _osaxcache[osaxname]
@@ -205,11 +203,9 @@ class OSAX(reference.Application):
 		
 	def __str__(self):
 		if self.AS_appdata.constructor == 'current':
-			return 'OSAX({!r})'.format(self._osaxname)
-		elif self.AS_appdata.constructor == 'path':
-			return 'OSAX({!r}, {!r})'.format(self._osaxname, self.AS_appdata.identifier)
+			return 'OSAX()'.format()
 		else:
-			return 'OSAX({!r}, {}={!r})'.format(self._osaxname, self.AS_appdata.constructor, self.AS_appdata.identifier)
+			return 'OSAX({}={!r})'.format(self.AS_appdata.constructor, self.AS_appdata.identifier)
 			
 	def __getattr__(self, name):
 		command = reference.Application.__getattr__(self, name)

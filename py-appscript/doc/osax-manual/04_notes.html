@@ -40,7 +40,7 @@
 
 <p>When using scripting addition commands that require GUI access (e.g. <code>display_dialog</code>) targeted at the command-line Python interpreter, the osax module will automatically convert the non-GUI interpreter process into a full GUI process to allow these commands to operate correctly. If you want to avoid this, target these commands at a faceless GUI application such as System Events instead:</p>
 
-<pre><code>sa = OSAX("StandardAdditions", name="System Events")
+<pre><code>sa = OSAX(name="System Events")
 sa.activate() # give focus to System Events
 print(sa.display_dialog("Python says hello!",
                         buttons=["Hi!", "Howdy!", "Duuuude!"],

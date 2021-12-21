@@ -1,0 +1,11 @@
+.*
+!.gitignore
+
+.pyc$
+.pyo$
+
+*/build
+*/dist
+**/*.egg-info
+*/MANIFEST
+

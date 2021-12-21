@@ -3,10 +3,11 @@
 from aem import Application, AEType, AEEnum, EventError, findapp, ae, kae
 from . import defaultterminology
 
-from .terminologyparser import buildtablesforaetes
+from .aeteparser import buildtablesforaetes
+from .sdefparser import buildtablesforsdef
 from .keywordwrapper import Keyword
 
-__all__ = ['tablesforapp', 'tablesformodule', 'tablesforaetes', 
+__all__ = ['tablesforapp', 'tablesformodule', 'tablesforaetes', 'tablesforsdef',
 		'kProperty', 'kElement', 'kCommand', 
 		'defaulttables', 'aetesforapp', 'dump']
 
@@ -128,6 +129,39 @@ def _makereferencetable(properties, elements, commands):
 
 defaulttables = _maketypetable([], [], []) + _makereferencetable([], [], []) # (typebycode, typebyname, referencebycode, referencebyname)
 
+# SDEF
+
+def urlforapp(aemapp):
+	""" Get file: or eppc: URL for application. """
+	if aemapp.AEM_identity[0] == 'url':
+		return aemapp.AEM_identity[1]
+	else:
+		path = ae.addressdesctopath(aemapp.AEM_packself(None)) # this will throw if typeMachPort; TO DO: what if current application?
+		return ae.convertpathtourl(path, 0)
+
+
+def sdefforurl(url): # TO DO: we could avoid using this Carbon/OpenScripting call if all apps implemented a working `ascrgsdf` handler; unfortunately, those with AETE/scriptTerminology resources return error -192 (also not sure if apps which have an SDEF but don't set NSAppleScriptEnabled flag will implement this handler, or if it's CocoaScripting-specific)
+	""" Get application's SDEF given a file: or eppc: URL. """
+	try:
+		return ae.scriptingdefinitionfromurl(url)
+	except Exception as e:
+		raise RuntimeError("Can't get terminology for application ({!r}): {}".format(url, e)) from e
+
+
+def sdefforapp(aemapp):
+	""" Get SDEF from local/remote app; result is XML as bytes. """
+	return sdefforurl(urlforapp(aemapp))
+
+
+def tablesforsdef(sdef):
+	"""Build terminology tables from an SDEF XML.
+		Result : tuple of dict -- (typebycode, typebyname, referencebycode, referencebyname)
+	"""
+	classes, enums, properties, elements, commands = buildtablesforsdef(sdef)
+	return _maketypetable(classes, enums, properties) + _makereferencetable(properties, elements, commands)
+
+
+# AETE
 
 def aetesforapp(aemapp):
 	"""Get aetes from local/remote app via an ascrgdte event; result is a list of byte strings."""
@@ -159,14 +193,18 @@ def tablesformodule(terms):
 			+ _makereferencetable(terms.properties, terms.elements, terms.commands)
 
 
-def tablesforapp(aemapp):
+def tablesforapp(aemapp, usesdef=False):
 	"""Build terminology tables for an application.
 		aemapp : aem.Application
 		Result : tuple of dict -- (typebycode, typebyname, referencebycode, referencebyname)
 	"""
-	if aemapp.AEM_identity not in _terminologycache:
-		_terminologycache[aemapp.AEM_identity] = tablesforaetes(aetesforapp(aemapp))
-	return _terminologycache[aemapp.AEM_identity]
+	identity = aemapp.AEM_identity + (usesdef,)
+	if identity not in _terminologycache:
+		if usesdef:
+			_terminologycache[identity] = tablesforsdef(sdefforapp(aemapp))
+		else:
+			_terminologycache[identity] = tablesforaetes(aetesforapp(aemapp))
+	return _terminologycache[identity]
 
 
 def dumptables(tables, sourcepath, modulepath):
@@ -192,10 +230,11 @@ def dumptables(tables, sourcepath, modulepath):
 ######################################################################
 
 
-def dump(apppath, modulepath):
+def dump(apppath, modulepath, usesdef=False):
 	"""Dump application terminology data to Python module.
 		apppath : str -- name or path of application
 		modulepath : str -- path to generated module
+		usesdef : bool -- if True, use SDEF
 		
 	Generates a Python module containing an application's basic terminology 
 	(names and codes) as used by appscript.
@@ -215,5 +254,9 @@ def dump(apppath, modulepath):
 	Note that dumped terminologies aren't used by appscript's built-in help system.
 	"""
 	apppath = findapp.byname(apppath)
-	tables = buildtablesforaetes(aetesforapp(Application(apppath)))
+	app = Application(apppath)
+	if usesdef:
+		tables = buildtablesforsdef(sdefforapp(app))
+	else:
+		tables = buildtablesforaetes(aetesforapp(app))
 	dumptables(tables, apppath, modulepath)

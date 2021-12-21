@@ -31,11 +31,9 @@
 
 <h2>2. Interface</h2>
 
-<p>The <code>OSAX</code> class represents a single scripting addition and its target application. <code>OSAX</code> is a subclass of appscript's <code>Application</code> class, and its constructor is the same apart from the additional <code>osaxname</code> argument:</p>
+<p>The <code>OSAX</code> class represents the Standard Additions scripting addition and its target application. <code>OSAX</code> is a subclass of appscript's <code>Application</code> class, and its constructor is the same:</p>
 
-<pre><code>OSAX(osaxname="StandardAdditions",
-        name=None, id=None, creator=None, url=None, terms=True)
-    osaxname : str -- name of scripting addition
+<pre><code>OSAX(name=None, id=None, creator=None, url=None, terms=True)
     name : str -- name or path of application, e.g. 'System Events', 
             '/System/Library/CoreServices/System Events.app'
     id : str -- bundle id of application,
@@ -43,13 +41,7 @@
     creator : bytes -- 4-character creator type of application,
             e.g. b'sevs'
     url : str -- eppc URL of remote process,
-            e.g. 'eppc://G5.local/System%20Events'
-    terms : module | bool -- if a module, get terminology from it;
-            if True, get terminology from target osax;
-            if False, use built-in terminology only</code></pre>
-
-<div class="hilitebox">The <code>osaxname</code> argument should not be used in macOS 10.14 or later as macOS no longer allows third-party scripting additions to be installed.</div>
-
+            e.g. 'eppc://G5.local/System%20Events'</code></pre>
 
 </div>
 

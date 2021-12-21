@@ -224,9 +224,9 @@ class AppData(aem.Codecs):
 			kargs.update(self.aemconstructoroptions)
 			t = self._target = self._aemapplicationclass(**kargs)
 		# initialise translation tables
-		if self._terms == True: # obtain terminology from application
-			self._terms = terminology.tablesforapp(t)
-		elif self._terms == False: # use built-in terminology only (e.g. use this when running AppleScript applets)
+		if self._terms in ['aete', 'sdef', True]: # obtain terminology from application
+			self._terms = terminology.tablesforapp(t, usesdef=(self._terms == 'sdef'))
+		elif self._terms in ['default', False]: # use built-in terminology only (e.g. targeting an AppleScript applet)
 			self._terms = terminology.defaulttables
 		elif not isinstance(self._terms, tuple): # use user-supplied terminology module
 			self._terms = terminology.tablesformodule(self._terms)
@@ -734,7 +734,7 @@ class Application(Reference):
 	_Application = aem.Application
 	
 	def __init__(self, name=None, id=None, creator=None, pid=None, url=None, aemapp=None, 
-			terms=True, newinstance=False, hide=False):
+			terms='aete', newinstance=False, hide=False):
 		"""
 			app(name=None, id=None, creator=None, pid=None, url=None, terms=True)
 				name : str -- name or path of application, e.g. 'TextEdit', 'TextEdit.app', '/Applications/Textedit.app'
@@ -743,8 +743,10 @@ class Application(Reference):
 				pid : int -- Unix process id, e.g. 955
 				url : str -- eppc:// URL, e.g. eppc://G4.local/TextEdit'
 				aemapp : aem.Application
-				terms : module | bool -- if a module, get terminology from it; if True, get terminology 
-						from target application; if False, use built-in terminology only
+				terms : module | 'default' | 'aete' | 'sdef' -- if a module, get terminology from it; 
+						if 'aete' or 'sdef', get terminology from target application; 
+						if 'default', use built-in terminology only
+						(legacy support also accepts bool: True = 'aete', False = 'sdef')
 				newinstance : bool -- launch a new application instance?
 				hide : bool -- hide after launch?
 			

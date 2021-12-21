@@ -22,6 +22,7 @@ setup(
 		url='http://appscript.sourceforge.net',
 		license='Public Domain',
 		platforms=['Mac OS X'],
+		install_requires=['lxml'],
 		ext_modules = [
 			Extension('aem.ae',
 				sources=['ext/ae.c'],

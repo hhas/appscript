@@ -1370,6 +1370,44 @@ static PyObject *AE_CopyScriptingDefinition(PyObject* self, PyObject* args)
 }
 
 
+static PyObject *AE_CopyScriptingDefinitionFromURL(PyObject* self, PyObject* args)
+{
+	PyObject *res;
+	char *cStr;
+	CFURLRef url;
+	CFDataRef sdef;
+	CFIndex dataSize;
+	char *data;
+	OSAError  err;
+	
+	if (!PyArg_ParseTuple(args, "es", 
+						  "utf8", &cStr))
+		return NULL;
+	url = CFURLCreateWithBytes(NULL,
+							   (UInt8 *)cStr,
+							   (CFIndex)strlen(cStr),
+							   kCFStringEncodingUTF8,
+							   NULL);
+	PyMem_Free(cStr);
+	if (!url) return AE_MacOSError(1000);
+	err = OSACopyScriptingDefinitionFromURL(url, 0, &sdef);
+	CFRelease(url);
+	if (err) return AE_MacOSError(err);
+	dataSize = CFDataGetLength(sdef);
+	data = (char *)CFDataGetBytePtr(sdef);
+	if (data != NULL) {
+		res = PyBytes_FromStringAndSize(data, dataSize);
+	} else {
+		data = malloc(dataSize);
+		CFDataGetBytes(sdef, CFRangeMake(0, dataSize), (UInt8 *)data);
+		res = PyBytes_FromStringAndSize(data, dataSize);
+		free(data);
+	}
+	CFRelease(sdef);
+	return res;
+}
+
+
 static PyObject *AE_GetSysTerminology(PyObject* self, PyObject* args)
 {
 	OSType componentSubType;
@@ -1507,7 +1545,11 @@ static PyMethodDef AE_methods[] = {
   	{"copyscriptingdefinition", (PyCFunction) AE_CopyScriptingDefinition, METH_VARARGS, PyDoc_STR(
 		"copyscriptingdefinition(unicode path) -> (unicode sdef)\n"
 		"Creates a copy of a scripting definition (sdef) from the specified\n"
-		"file or bundle.")},
+		"file or bundle. DEPRECATED")},
+	
+  	{"scriptingdefinitionfromurl", (PyCFunction) AE_CopyScriptingDefinitionFromURL, METH_VARARGS, PyDoc_STR(
+		"scriptingdefinitionfromurl(unicode url) -> (unicode sdef)\n"
+		"Gets a scripting definition (sdef) from the specified file/eppc URL.")},
 		
   	{"getsysterminology", (PyCFunction) AE_GetSysTerminology, METH_VARARGS, PyDoc_STR(
 		"getsysterminology(OSType subTypeCode) -> (AEDesc aeut)\n"

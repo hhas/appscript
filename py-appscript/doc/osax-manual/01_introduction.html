@@ -31,9 +31,11 @@
 
 <h2>1. Introduction</h2>
 
-<p>The <code>osax</code> module provides an easy way to call scripting additions (a.k.a. OSAXen) from Python. It exports a single public class, <code>OSAX</code>. For convenience, it also re-exports appscript's <code>ApplicationNotFoundError</code> and <code>CommandError</code> classes and <code>k</code> variable.</p>
+<p class="hilitebox">The <code>osax</code> module is deprecated and its use is not recommended.</p>
 
-<p>The <code>OSAX</code> class represents a single scripting addition. It is similar to an appscript application object, except that it defines commands for the specified scripting addition instead of the application's normal commands. </p>
+<p>The <code>osax</code> module provides an easy way to call macOS's Standard Additions scripting addition from Python. It exports a single public class, <code>OSAX</code>. For convenience, it also re-exports appscript's <code>ApplicationNotFoundError</code> and <code>CommandError</code> classes and <code>k</code> variable.</p>
+
+<p>An <code>OSAX</code> instance represents a running process into which the Standard Additions scripting addition has been automatically loaded. It is similar to an appscript application object, except that it defines commands for Standard Additions  instead of the application's normal commands. </p>
 
 <p>Once you've created a <code>OSAX</code> instance, you can invoke its commands in exactly the same way as you would call a scriptable application's commands in appscript.</p>
 
@@ -47,7 +49,7 @@ sa.say("Hello world", using="Victoria")</code></pre>
 
 <p>The default application commands (<code>run</code>, <code>activate</code>, <code>quit</code>, etc.) are also available; see the appscript manual for details on those.</p>
 
-<p>By default, <code>OSAX</code> objects use StandardAdditions terminology and are targeted at the current application. You can specify the name of a different scripting addition via the constructor's <code>osaxname</code> argument. You can specify another application by supplying one of the following optional keyword arguments: <code>name</code>, <code>id</code>, <code>creator</code> or <code>url</code>. These arguments are the same as for appscript.</p>
+<p>By default, <code>OSAX</code> objects are targeted at the current application. You can specify another application by supplying one of the following optional keyword arguments: <code>name</code>, <code>id</code>, <code>creator</code> or <code>url</code>. These arguments are the same as for appscript.</p>
 
 
 </div>
