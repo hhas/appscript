@@ -23,7 +23,7 @@ class TypeRendererBase:
 		for otype in types:
 			type = otype.realvalue() # TO DO: this might throw up weird results if there's a mix (not that there should be if the dictionary is properly designed...)
 			if type.code:
-				if not self._renderedtypes.has_key(type.code):
+				if type.code not in self._renderedtypes:
 					self._renderedtypes[type.code] = self._render(type)
 				s = self._renderedtypes[type.code]
 			else:
@@ -49,6 +49,7 @@ class AppscriptTypeRenderer(TypeRendererBase):
 	
 	def escapecode(self, s):
 		# format non-ASCII characters as '\x00' hex values for readability (also backslash and single and double quotes)
+		s = str(s, 'macroman')
 		res = ''
 		for c in s:
 			n = ord(c)
@@ -63,21 +64,9 @@ class AppscriptTypeRenderer(TypeRendererBase):
 		return getattr(type, 'pluralname', type.name) or self._render(type)
 
 
-class ObjCAppscriptTypeRenderer(AppscriptTypeRenderer):
-	_type = '<ASType %s>'
-	_enum = '<ASEnum %s>'
-	_keyword = '%s'
-	
-	def escapecode(self, s):
-		if [c for c in s if not (31 < ord(c) < 128) or c in '\\\'"']:
-			return '0x' + strtohex(s)[0]
-		else:
-			return "'%s'" % s
-
-
 class PyAppscriptTypeRenderer(AppscriptTypeRenderer):
-	_type = 'AEType("%s")'
-	_enum = 'AEEnum("%s")'
+	_type = 'AEType(%r)'
+	_enum = 'AEEnum(%r)'
 	_keyword = 'k.%s'
 
 
@@ -100,7 +89,7 @@ class ApplescriptTypeRenderer(TypeRendererBase):
 			return type.name or '<class %s>' % self.escapecode(type.code)
 	
 	def escapecode(self, s):
-		return unicode(s, 'macroman')
+		return str(s, 'macroman')
 	
 	def elementname(self, type): # AppleScript uses singular names for elements
 		return self._render(type.realvalue())
@@ -111,9 +100,8 @@ class ApplescriptTypeRenderer(TypeRendererBase):
 typerenderers = {
 	'applescript': ApplescriptTypeRenderer,
 	'appscript': PyAppscriptTypeRenderer,
-	'objc-appscript': ObjCAppscriptTypeRenderer,
 	'py-appscript': PyAppscriptTypeRenderer,
-	'rb-appscript': RbAppscriptTypeRenderer,
+	'rb-scpt': RbAppscriptTypeRenderer,
 	}
 
 ######################################################################
@@ -123,5 +111,5 @@ def gettyperenderer(name):
 	try:
 		return typerenderers[name]()
 	except KeyError:
-		raise KeyError, "Couldn't find a type renderer named %r." % name
+		raise KeyError("Couldn't find a type renderer named %r." % name)
 

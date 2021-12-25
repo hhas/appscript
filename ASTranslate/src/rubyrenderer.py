@@ -12,7 +12,7 @@ from constants import *
 #######
 
 _codecs = aem.Codecs()
-_terminology = TerminologyTableBuilder('rb-appscript')
+_terminology = TerminologyTableBuilder('rb-scpt')
 
 ######################################################################
 # PRIVATE
@@ -31,15 +31,15 @@ class _Formatter:
 		self._nested = nested
 		self._indent = indent
 		self._valueFormatters = {
-				types.NoneType: self.formatNone,
-				types.BooleanType: self.formatBool,
-				types.IntType: self.formatInt,
-				types.LongType: self.formatInt,
-				types.FloatType: self.formatFloat,
-				types.StringType: self.formatStr,
-				types.UnicodeType: self.formatUnicodeText, 
-				types.ListType: self.formatList,
-				types.DictionaryType: self.formatDict,
+				type(None): self.formatNone,
+				bool: self.formatBool,
+				int: self.formatInt,
+				int: self.formatInt,
+				float: self.formatFloat,
+				bytes: self.formatStr,
+				str: self.formatUnicodeText, 
+				list: self.formatList,
+				dict: self.formatDict,
 				datetime.datetime: self.formatDatetime,
 				mactypes.Alias: self.formatAlias,
 				mactypes.File: self.formatFile,
@@ -69,7 +69,6 @@ class _Formatter:
 	
 	def formatUnicodeText(self, val): # str, unicode
 		s = val.replace('\\', '\\\\').replace('"', '\\"').replace('#{', '\\#{').replace('\r', '\\r').replace('\n', '\\n').replace('\t', '\\t') # "
-		s = s.encode('utf8')
 		r = []
 		for c in s:
 			i = ord(c)
@@ -111,7 +110,7 @@ class _Formatter:
 		if val:
 			self._indent += '    '
 			tmp = []
-			for k, v in val.items():
+			for k, v in list(val.items()):
 				s = '\n%s%s => ' % (self._indent, self.format(k))
 				indent = self._indent
 				indent2 = len(s)
@@ -283,7 +282,7 @@ def renderCommand(apppath, addressdesc,
 		appdata):
 	global _appData # kludge; TO DO: eventformatter should pass aem objects to each renderer module
 	_appData = appdata
-	if not _formattercache.has_key((addressdesc.type, addressdesc.data)):
+	if (addressdesc.type, addressdesc.data) not in _formattercache:
 		typebycode, typebyname, referencebycode, referencebyname = \
 				_terminology.tablesforapp(aem.Application(desc=addressdesc))
 		_formattercache[(addressdesc.type, addressdesc.data)] = typebycode, referencebycode
@@ -310,7 +309,7 @@ def renderCommand(apppath, addressdesc,
 	if directparam is not kNoParam:
 		args.append(f.format(directparam))
 	
-	for k, v in paramsdict.items():
+	for k, v in list(paramsdict.items()):
 		try:
 			args.append(':%s => %s' % (paramnamebycode[k], f.format(v)))
 		except KeyError:

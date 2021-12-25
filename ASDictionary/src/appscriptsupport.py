@@ -1,7 +1,7 @@
 """appscriptsupport -- Provides support for py-/rb-appscript's built-in help system."""
 
 from pprint import pprint, pformat
-from StringIO import StringIO
+from io import StringIO
 import textwrap
 
 from AppKit import NSUserDefaults
@@ -48,20 +48,20 @@ class CommandDecorator:
 		return repr(self._ref)
 	
 	def __call__(self, *args, **kargs):
-		print >> self._helpObj.output, '=' * 78, '\nHelp\n\nCommand:'
-		print >> self._helpObj.output, self._ref.AS_formatCommand((args, kargs))
+		print('=' * 78, '\nHelp\n\nCommand:', file=self._helpObj.output)
+		print(self._ref.AS_formatCommand((args, kargs)), file=self._helpObj.output)
 		try:
 			res = self._ref(*args, **kargs)
-		except Exception, e:
+		except Exception as e:
 			from traceback import print_exc
-			print >> self._helpObj.output, '\nError:\n'
+			print('\nError:\n', file=self._helpObj.output)
 			print_exc(file=self._helpObj.output)
-			print >> self._helpObj.output, '\n' + '=' * 78
+			print('\n' + '=' * 78, file=self._helpObj.output)
 			raise
 		else:
-			print >> self._helpObj.output, '\nResult:'
+			print('\nResult:', file=self._helpObj.output)
 			pprint(res, self._helpObj.output)
-			print >> self._helpObj.output, '\n' + '=' * 78
+			print('\n' + '=' * 78, file=self._helpObj.output)
 			return res
 	
 	def help(self, *args):
@@ -79,8 +79,8 @@ class ReferenceResolver:
 		try:
 			applicationTerms = terms.classes().byname('application')
 		except:
-			raise HelpError, "Can't resolve this reference. " \
-					"(Dictionary doesn't define an 'application' class.)"
+			raise HelpError("Can't resolve this reference. " \
+					"(Dictionary doesn't define an 'application' class.)")
 		self.containingClass = applicationTerms.full()
 		self.propertyOrElement = None
 	
@@ -90,17 +90,17 @@ class ReferenceResolver:
 			if classes:
 				self.containingClass = classes[-1].full()
 			else:
-				raise HelpError, "Can't resolve this reference. " \
+				raise HelpError("Can't resolve this reference. " \
 						"(Can't get properties/elements of %r because it's not a known application class.)" % \
-						self.propertyOrElement.type # TO DO: probably don't want to display diagnostic to user as it's not very helpful to them
+						self.propertyOrElement.type) # TO DO: probably don't want to display diagnostic to user as it's not very helpful to them
 	
 	def property(self, code):
 		self._updateContainingClass()
 		try:
 			self.propertyOrElement = self.containingClass.properties().bycode(code)
 		except KeyError:
-			raise HelpError, "Can't resolve this reference. " \
-					"(%r property isn't listed under the %s class.)" % (code, self.containingClass.name) # TO DO: ditto
+			raise HelpError("Can't resolve this reference. " \
+					"(%r property isn't listed under the %s class.)" % (code, self.containingClass.name)) # TO DO: ditto
 		return self
 		
 	def elements(self, code):
@@ -112,8 +112,8 @@ class ReferenceResolver:
 			try:
 				self.propertyOrElement = self.containingClass.properties().bycode(code)
 			except KeyError:
-				raise HelpError, "Can't resolve this reference. " \
-					"(%r element isn't listed under the %s class.)" % (code, self.containingClass.name) # TO DO: ditto
+				raise HelpError("Can't resolve this reference. " \
+					"(%r element isn't listed under the %s class.)" % (code, self.containingClass.name)) # TO DO: ditto
 		return self
 		
 	def __getattr__(self, *args): # ignore reference forms (first, last, byname, byindex, previous, etc.)
@@ -128,7 +128,7 @@ class ReferenceResolver:
 class ReferenceStub:
 	AS_aemreference = aem.app
 	
-	def __nonzero__(self):
+	def __bool__(self):
 		return False
 
 
@@ -181,18 +181,18 @@ For example, to print an overview of TextEdit, a description of its make command
 			out : anything -- any file-like object that implements a write(str) method
 		"""
 		aetes = appscript.terminology.aetesforapp(appobj.AS_appdata.target())
-		appname = appobj.AS_appdata.identifier or u'Current Application'
+		appname = appobj.AS_appdata.identifier or 'Current Application'
 		self.terms = aeteparser.parseaetes(
 				aetes, appname, style)
 		self.style = style
-		if style == 'rb-appscript':
+		if style == 'rb-scpt':
 			self.datarenderer = RubyRenderer(appobj, aetes)
 		else:
 			self.datarenderer = PythonRenderer()
 		self.output = out
 	
 	def overview(self):
-		print >> self.output, 'Overview:\n'
+		print('Overview:\n', file=self.output)
 		textdoc.IndexRenderer(
 				style=self.style, options=['sort', 'collapse'], out=self.output).draw(self.terms)
 	
@@ -204,91 +204,91 @@ For example, to print an overview of TextEdit, a description of its make command
 			if not suiteName.lower().endswith('suite'):
 				s += ' suite'
 			terms = self.terms.suites().byname(suiteName)
-			print >> self.output, (s + ':\n') % terms.name
+			print((s + ':\n') % terms.name, file=self.output)
 		else:
-			print >> self.output, 'Summary of all suites:\n'
+			print('Summary of all suites:\n', file=self.output)
 			terms = self.terms
 		textdoc.SummaryRenderer(
 				style=self.style, out=self.output).draw(terms)
 	
 	def keywords(self):
-		print >> self.output, 'Built-in keywords (type names):\n'
+		print('Built-in keywords (type names):\n', file=self.output)
 		if self.style == 'applescript':
 			from osaterminology.dom import applescripttypes
-			typenames = applescripttypes.typebyname.keys()
+			typenames = list(applescripttypes.typebyname.keys())
 		else:
 			from osaterminology.dom import appscripttypes
-			formatter = {'appscript': 'k.%s', 'py-appscript': 'k.%s', 'rb-appscript': ':%s'}[self.style]
-			typenames = [formatter % name for name in appscripttypes.typetables(self.style).typebycode.values()]
-		typenames.sort(lambda a,b:cmp(a.lower(), b.lower()))
+			formatter = {'appscript': 'k.%s', 'py-appscript': 'k.%s', 'rb-scpt': ':%s'}[self.style]
+			typenames = [formatter % name for name in list(appscripttypes.typetables(self.style).typebycode.values())]
+		typenames.sort(key=lambda s: s.lower())
 		for name in typenames:
-			print >> self.output, '    %s' % name
+			print('    %s' % name, file=self.output)
 		
 		
 	def command(self, name):
 		command = self.terms.commands().byname(name)
 		s = StringIO()
-		print >> s, 'Terminology for %s command\n\nCommand:' % command.name,
+		print('Terminology for %s command\n\nCommand:' % command.name, end=' ', file=s)
 		textdoc.FullRenderer(
 				style=self.style, options=['full'], out=s).draw(command)
-		print >> self.output, s.getvalue()
+		print(s.getvalue(), file=self.output)
 	
 	
 	def klass(self, name):
 		klass = self.terms.classes().byname(name).full()
 		s = StringIO()
-		print >> s, 'Terminology for %s class\n\nClass:' % klass.name,
+		print('Terminology for %s class\n\nClass:' % klass.name, end=' ', file=s)
 		textdoc.FullRenderer(
 				style=self.style, options=['full'], out=s).draw(klass)
-		print >> self.output, s.getvalue()
+		print(s.getvalue(), file=self.output)
 	
 	
 	def property(self, p):
 		s = StringIO()
-		print >> s, 'Property:',
+		print('Property:', end=' ', file=s)
 		textdoc.FullRenderer(
 				style=self.style, options=['full'], out=s).draw(p)
-		print >> self.output, s.getvalue()
+		print(s.getvalue(), file=self.output)
 	
 	def element(self, e):
 		s = StringIO()
-		print >> s, 'Element:',
+		print('Element:', end=' ', file=s)
 		textdoc.FullRenderer(
 				style=self.style, options=['full'], out=s).draw(e)
-		print >> self.output, s.getvalue()
+		print(s.getvalue(), file=self.output)
 	
 	
 	def inheritance(self, className=''):
 		if className:
 			if not self.terms.classes().exists(className):
 				raise HelpError('No information available for class %r.' % className)
-			print >> self.output, 'Inheritance for %s class\n' % className
+			print('Inheritance for %s class\n' % className, file=self.output)
 		else:
-			print >> self.output, 'Inheritance for all classes:\n'
+			print('Inheritance for all classes:\n', file=self.output)
 		inheritance.InheritanceGrapher(self.terms,
 				inheritance.TextRenderer(self.output)).draw(className)
-		print >> self.output
+		print(file=self.output)
 
 
 	def relationships(self, ref, className=''):
 		if className:
 			if not self.terms.classes().exists(className):
 				raise HelpError('No information available for class %r.' % className)
-			print >> self.output, 'Relationships for %s class\n' % className
+			print('Relationships for %s class\n' % className, file=self.output)
 		else:
 			definition = self._resolveRef(ref).propertyOrElement
 			if definition:
-				print >> self.output, 'Relationships for %s\n' % definition.name
+				print('Relationships for %s\n' % definition.name, file=self.output)
 				if definition:
 					value = definition.type.realvalue()
 					if value.kind == 'class': # if target's value is application object, not data, print class description
 						className = value.name
 			else:
-				print >> self.output, 'Relationships for application class\n'
+				print('Relationships for application class\n', file=self.output)
 				className = 'application'
 		relationships.RelationshipGrapher(self.terms, 
 				relationships.TextRenderer(self.output)).draw(className, 2)
-		print >> self.output
+		print(file=self.output)
 
 	
 	#######
@@ -308,7 +308,7 @@ For example, to print an overview of TextEdit, a description of its make command
 			else:
 				raise HelpError('No information available for class/command %r.' % name)
 		else:
-			print >> self.output, 'Description of reference\n'
+			print('Description of reference\n', file=self.output)
 			if isinstance(ref, appscript.reference.Command):
 				self.command(ref.AS_name)
 			else:
@@ -318,7 +318,7 @@ For example, to print an overview of TextEdit, a description of its make command
 						self.property(definition)
 					else:
 						self.element(definition)
-					print >> self.output
+					print(file=self.output)
 					value = definition.type.realvalue()
 					if value.kind == 'class': # if target's value is application object, not data, print class description
 						self.klass(value.name)
@@ -330,18 +330,18 @@ For example, to print an overview of TextEdit, a description of its make command
 	
 	def _printRefValue(self, ref):
 			try:
-				print >> self.output, self.datarenderer.rendervalue(ref.get(), True)
-			except Exception, e:
-				print >> self.output, 'UNAVAILABLE'
+				print(self.datarenderer.rendervalue(ref.get(), True), file=self.output)
+			except Exception as e:
+				print('UNAVAILABLE', file=self.output)
 	
 	
 	def _stateForRef(self, ref, attr=None):
 		if isinstance(ref, appscript.reference.Command):
-			print >> self.output, "Command's state will be displayed when called."
+			print("Command's state will be displayed when called.", file=self.output)
 			return CommandDecorator
 		else: # it's a reference
 			if attr: # print current state of selected property/element only
-				print >> self.output, 'Current state of selected property/element of referenced object(s)\n\n%s:' % attr
+				print('Current state of selected property/element of referenced object(s)\n\n%s:' % attr, file=self.output)
 				self._printRefValue(getattr(ref, attr))
 			else: # print current state of all properties and elements
 				resolver = self._resolveRef(ref)
@@ -351,32 +351,32 @@ For example, to print an overview of TextEdit, a description of its make command
 				else:
 					value = definition.type.realvalue()
 				if value.kind == 'class':
-					print >> self.output, 'Current state of referenced object(s)'
+					print('Current state of referenced object(s)', file=self.output)
 					if definition:
-						print >> self.output, '\n--- Get reference ---\n\n', self.datarenderer.rendervalue(ref.get())
+						print('\n--- Get reference ---\n\n', self.datarenderer.rendervalue(ref.get()), file=self.output)
 					for heading, attributeNames in [
 							('---- Properties ----', value.full().properties().names()),
 							('----- Elements -----', value.full().elements().names())]:
-						print >> self.output, '\n%s' % heading
+						print('\n%s' % heading, file=self.output)
 						for name in attributeNames:
-							print >> self.output, '\n%s:' % name
+							print('\n%s:' % name, file=self.output)
 							if name == 'entire_contents':
-								print >> self.output, 'UNAVAILABLE'
+								print('UNAVAILABLE', file=self.output)
 							else:
 								try:
-									print >> self.output, self.datarenderer.rendervalue(getattr(ref, name).get(), True)
-								except Exception, e:
-									print >> self.output, 'UNAVAILABLE'
+									print(self.datarenderer.rendervalue(getattr(ref, name).get(), True), file=self.output)
+								except Exception as e:
+									print('UNAVAILABLE', file=self.output)
 				else:
-					print >> self.output, 'Current state of referenced property (or properties)\n\n%s:' % \
-							definition.name
+					print('Current state of referenced property (or properties)\n\n%s:' % \
+							definition.name, file=self.output)
 					self._printRefValue(ref)
 	
 	
 	#######
 	
 	def _manual(self):
-		print >> self.output, self._helpManual
+		print(self._helpManual, file=self.output)
 
 	##
 	
@@ -396,21 +396,21 @@ For example, to print an overview of TextEdit, a description of its make command
 
 	def help(self, flags, ref=ReferenceStub()): # main call
 		result = ref
-		if not isinstance(flags, basestring): # assume flags arg contains file/StringIO/etc. object to write help to
+		if not isinstance(flags, str): # assume flags arg contains file/StringIO/etc. object to write help to
 			self.output = flags
 		else:
 			tokens = flags.split()
-			print >> self.output, '=' * 78 + '\nHelp (%s)' % ' '.join(tokens)
+			print('=' * 78 + '\nHelp (%s)' % ' '.join(tokens), file=self.output)
 			if ref:
-				print >> self.output, '\nReference: %s' % self.datarenderer.rendervalue(ref)
+				print('\nReference: %s' % self.datarenderer.rendervalue(ref), file=self.output)
 			i = 0
 			while i < len(tokens):
-				print >> self.output, '\n' + '-' * 78
+				print('\n' + '-' * 78, file=self.output)
 				token = tokens[i]
 				try:
 					requiresRef, optArg, fn = self._handlers[token[1:]]
 				except KeyError:
-					print >> self.output, 'Unknown option: %r\n' % token
+					print('Unknown option: %r\n' % token, file=self.output)
 				else:
 					args = []
 					if requiresRef:
@@ -424,17 +424,17 @@ For example, to print an overview of TextEdit, a description of its make command
 							args.append(' '.join(word))
 					try:
 						wrapper = fn(self, *args)
-					except HelpError, e:
-						print >> self.output, e
-					except Exception, e:
+					except HelpError as e:
+						print(e, file=self.output)
+					except Exception as e:
 						from traceback import print_exc
 						print_exc()
-						print >> self.output, '%s: %s' % (e.__class__.__name__, e)
+						print('%s: %s' % (e.__class__.__name__, e), file=self.output)
 					else:
 						if wrapper:
 							result = wrapper(ref, self) # add wrapper
 				i += 1
-			print >> self.output, '\n' + '=' * 78
+			print('\n' + '=' * 78, file=self.output)
 		return result
 
 
@@ -457,7 +457,7 @@ def help(constructor, identity, style, flags, aemreference, commandname=''):
 		elif constructor == 'current':
 			appobj = appscript.app()
 		else:
-			raise RuntimeError, 'Unknown constructor: %r' % constructor
+			raise RuntimeError('Unknown constructor: %r' % constructor)
 		output = StringIO()		
 		helpobj = Help(appobj, style, output)
 		_cache[id] = (appobj, helpobj, output)
@@ -469,28 +469,28 @@ def help(constructor, identity, style, flags, aemreference, commandname=''):
 		ref = getattr(ref, commandname)
 	helpobj.help(flags, ref)
 	s = output.getvalue()
-	if NSUserDefaults.standardUserDefaults().boolForKey_(u'enableLineWrap'):
+	if NSUserDefaults.standardUserDefaults().boolForKey_('enableLineWrap'):
 		res = []
-		textwrapper = textwrap.TextWrapper(width=NSUserDefaults.standardUserDefaults().integerForKey_(u'lineWrap'), 
+		textwrapper = textwrap.TextWrapper(width=NSUserDefaults.standardUserDefaults().integerForKey_('lineWrap'), 
 				subsequent_indent=' ' * 12)
 		for line in s.split('\n'):
 			res.append(textwrapper.fill(line))
-		s = u'\n'.join(res)
+		s = '\n'.join(res)
 	return s
 
 
 
 
 def init():
-	if not NSUserDefaults.standardUserDefaults().integerForKey_(u'lineWrap'):
-		NSUserDefaults.standardUserDefaults().setInteger_forKey_(78, u'lineWrap')
+	if not NSUserDefaults.standardUserDefaults().integerForKey_('lineWrap'):
+		NSUserDefaults.standardUserDefaults().setInteger_forKey_(78, 'lineWrap')
 
 	aemreceive.installeventhandler(help,
-			'AppSHelp',
-			('Cons', 'constructor', aem.kae.typeChar),
-			('Iden', 'identity', aem.kae.typeWildCard),
-			('Styl', 'style', aem.kae.typeChar),
-			('Flag', 'flags', aem.kae.typeChar),
-			('aRef', 'aemreference', aem.kae.typeWildCard),
-			('CNam', 'commandname', aem.kae.typeChar)
+			b'AppSHelp',
+			(b'Cons', 'constructor', aem.kae.typeChar),
+			(b'Iden', 'identity', aem.kae.typeWildCard),
+			(b'Styl', 'style', aem.kae.typeChar),
+			(b'Flag', 'flags', aem.kae.typeChar),
+			(b'aRef', 'aemreference', aem.kae.typeWildCard),
+			(b'CNam', 'commandname', aem.kae.typeChar)
 			)

@@ -8,17 +8,17 @@
 
 import  xml.sax, xml.sax.xmlreader
 from xml.sax.handler import * #ContentHandler, ErrorHandler, property_xml_string
-from StringIO import StringIO
+from io import StringIO
 import struct
 
 from aem import kae
-from aem.ae import copyscriptingdefinition
+import aem.ae
 
 from osaterminology import makeidentifier
-from osadictionary import *
+from .osadictionary import *
 
 
-import applescripttypes, appscripttypes
+from . import applescripttypes, appscripttypes
 
 ######################################################################
 # PRIVATE
@@ -34,9 +34,9 @@ class HandlerResult:
 
 
 class Error(ErrorHandler):
-	def error(self, exception): print 'error:', exception
-	def fatalError(self, exception): print  'fatal:', exception
-	def warning(self, exception): print  'warning:', exception
+	def error(self, exception): print('error:', exception)
+	def fatalError(self, exception): print('fatal:', exception)
+	def warning(self, exception): print('warning:', exception)
 
 
 ##
@@ -98,7 +98,7 @@ class Handler(ContentHandler):
 	
 	def _gettype(self, name):
 		name = self.asname(name)
-		if not self._types.has_key(name):
+		if name not in self._types:
 			self._types[name] = Type(self._visibility, name)
 		return self._types[name]
 	
@@ -118,7 +118,7 @@ class Handler(ContentHandler):
 		suitename = self._stack[-1].name
 		o = Class(self._visibility, t.name, t.code, d.get('description', ''), self._isvisible, 
 				self.asname(d.get('plural', t.name+'s')), suitename, t)
-		if d.has_key('inherits'):
+		if 'inherits' in d:
 			o._add_(self._gettype(d['inherits']))
 		self._stack.append(o)
 		self._classes.append(o)
@@ -126,8 +126,8 @@ class Handler(ContentHandler):
 	
 	def start_contents(self, d):
 		self._stack.append(Contents(self._visibility, self.asname(d.get('name', 'contents')),
-				self.ascode(d.get('code', 'pcnt')), d.get('description', ''), self._isvisible, d.get('access', 'rw')))
-		if d.has_key('type'):
+				self.ascode(d.get('code', b'pcnt')), d.get('description', ''), self._isvisible, d.get('access', 'rw')))
+		if 'type' in d:
 			self._stack[-1]._add_(self._gettype(d['type']))
 	
 	def end_contents(self, d):
@@ -136,11 +136,11 @@ class Handler(ContentHandler):
 	def start_property(self, d):
 		self._stack.append(Property(self._visibility, self.asname(d['name']), self.ascode(d['code']),
 				d.get('description', ''), self._isvisible, d.get('access', 'rw')))
-		if d.has_key('type'):
+		if 'type' in d:
 			self._stack[-1]._add_(self._gettype(d['type']))
 	
 	def start_type(self, d): # type elements = alternative to type attribute
-		if d.has_key('type'):
+		if 'type' in d:
 			t = self._gettype(d['type'])
 		else:
 			t = Type(self._visibility) # kludge where <type list="yes">...</type>
@@ -168,18 +168,18 @@ class Handler(ContentHandler):
 	def start_parameter(self, d):
 		self._stack.append(Parameter(self._visibility, self.asname(d['name']), self.ascode(d['code']),
 				 d.get('description', ''), self._isvisible, d.get('optional') == 'yes'))
-		if d.has_key('type'):
+		if 'type' in d:
 			self._stack[-1]._add_(self._gettype(d['type']))
 	
 	def start_directparameter(self, d):
 		self._stack.append(DirectParameter(self._visibility, d.get('description', ''), self._isvisible, 
 				d.get('optional') == 'yes'))
-		if d.has_key('type'):
+		if 'type' in d:
 			self._stack[-1]._add_(self._gettype(d['type']))
 	
 	def start_result(self, d):
 		self._stack.append(Result(self._visibility, d.get('description', '')))
-		if d.has_key('type'):
+		if 'type' in d:
 			self._stack[-1]._add_(self._gettype(d['type']))
 	
 	def start_event(self, d):
@@ -189,7 +189,7 @@ class Handler(ContentHandler):
 	##
 	
 	def start_enumeration(self, d):
-		if d.has_key('inline'):
+		if 'inline' in d:
 			inline = int(d['inline'])
 		else:
 			inline = None
@@ -210,7 +210,7 @@ class Handler(ContentHandler):
 		o = RecordType(self._visibility, self.asname(d['name']), self.ascode(d['code']),
 				d.get('description', ''), self._isvisible, suitename)
 		self._stack.append(o)
-		if d.has_key('type'):
+		if 'type' in d:
 			o._add_(self._gettype(d['type']))
 		t = self._gettype(d['name'])
 		t.code = o.code
@@ -275,7 +275,7 @@ class AppscriptHandler(Handler):
 			'location specifier': kae.typeInsertionLoc,
 			'record': kae.typeAERecord, 
 			'date': kae.typeLongDateTime,
-			'file': 'file', 
+			'file': b'file', 
 			'point': kae.typeQDPoint, 
 			'rectangle': kae.typeQDRectangle, 
 			'type': kae.typeType}
@@ -295,16 +295,16 @@ class AppscriptHandler(Handler):
 		# (note: wouldn't need to do this if appscript used AppleScript-style type names)
 		if not self.applescripttypesbyname:
 			# since parser has already converted type names to appscript style, need to convert our lookup table as well
-			for k, v in applescripttypes.typebyname.items():
+			for k, v in list(applescripttypes.typebyname.items()):
 				self.applescripttypesbyname[self.asname(k)] = v
-		for type in self._types.values():
+		for type in list(self._types.values()):
 			if not type.code: # not application-defined
-				if self.sdeftypesbyname.has_key(type.name):
+				if type.name in self.sdeftypesbyname:
 					type.code = self.sdeftypesbyname[type.name]
-				elif self.applescripttypesbyname.has_key(type.name):
+				elif type.name in self.applescripttypesbyname:
 					type.code = self.applescripttypesbyname[type.name]
 				if type.code:
-					if self.appscripttypemodule.typebycode.has_key(type.code):
+					if type.code in self.appscripttypemodule.typebycode:
 						type.name = self.appscripttypemodule.typebycode[type.code]
 					else:
 						type.name = '' # TO DO: decide
@@ -318,21 +318,15 @@ class PyAppscriptHandler(AppscriptHandler):
 
 
 class RbAppscriptHandler(AppscriptHandler):
-	asname = staticmethod(makeidentifier.getconverter('rb-appscript'))
-	appscripttypemodule = appscripttypes.typetables('rb-appscript')
-
-
-class ObjCAppscriptParser(AppscriptHandler):
-	asname = staticmethod(makeidentifier.getconverter('objc-appscript'))
-	appscripttypemodule = appscripttypes.typetables('objc-appscript')
+	asname = staticmethod(makeidentifier.getconverter('rb-scpt'))
+	appscripttypemodule = appscripttypes.typetables('rb-scpt')
 
 
 handlers = {
 		'applescript': AppleScriptHandler,
 		'appscript': PyAppscriptHandler,
 		'py-appscript': PyAppscriptHandler,
-		'rb-appscript': RbAppscriptHandler,
-		'objc-appscript': ObjCAppscriptParser,
+		'rb-scpt': RbAppscriptHandler,
 }
 
 ######################################################################
@@ -351,13 +345,12 @@ def parsexml(sdef, path='', style='appscript'):
 	return parser.getContentHandler().result()
 
 def parsefile(path, style='appscript'):
-	f = file(path)
-	sdef = f.read()
-	f.close()
+	with open(path, 'rb') as f:
+		sdef = f.read()
 	return parsexml(sdef, path, style)
 
 def parseapp(path, style='appscript'):
-	sdef = copyscriptingdefinition(path)
+	sdef = aem.ae.scriptingdefinitionfromurl(aem.ae.convertpathtourl(path, 0))
 	return parsexml(sdef, path, style)
 
 

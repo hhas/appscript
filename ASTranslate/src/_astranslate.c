@@ -5,7 +5,7 @@
 
 #include <Carbon/Carbon.h>
 #include "Python.h"
-#include "aetoolbox.c"
+#include "ae.h" // this is from py-appscript/ext/ae.h
 
 
 typedef struct AEDescObject {
@@ -153,11 +153,11 @@ GenericSendFunction(const AppleEvent *theAppleEvent,
 					PySys_WriteStderr("Can't get MacOSError number in SendProc.\n");
 					goto restore;
 				}
-				if (!PyInt_Check(errorNum)) {
+				if (!PyLong_Check(errorNum)) {
 					PySys_WriteStderr("MacOSError arg wasn't int in SendProc.\n");
 					goto restore;
 				}
-				err = (OSErr)PyInt_AsLong(errorNum);
+				err = (OSErr)PyLong_AsLong(errorNum);
 				Py_DECREF(errorNum);
 				goto cleanup;
 			}
@@ -197,9 +197,25 @@ static PyMethodDef ASTranslate_methods[] = {
 };
 
 
-void initastranslate(void)
+static struct PyModuleDef ASTranslate_module = {
+	PyModuleDef_HEAD_INIT,
+	"_astranslate",
+	NULL,
+	-1,
+	ASTranslate_methods,
+	NULL,
+	NULL,
+	NULL,
+	NULL
+};
+
+
+
+PyMODINIT_FUNC
+PyInit__astranslate(void)
 {
+	if (import_ae()) { return NULL; }
 	module_AE = PyImport_ImportModule("aem.ae");
 	upp_GenericSendFunction = NewOSASendUPP(GenericSendFunction);
-	Py_InitModule("astranslate", ASTranslate_methods);
+	return PyModule_Create(&ASTranslate_module);
 }

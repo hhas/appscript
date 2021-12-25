@@ -2,18 +2,18 @@
 
 from aem import AEType, AEEnum, EventError, findapp, ae
 
-from tableparser import buildtablesforaetes
+from .tableparser import buildtablesforaetes
 import osaterminology.defaultterminology
 
 __all__ = ['kType', 'kEnum', 'kProperty', 'kElement', 'kCommand', 'TerminologyTableBuilder']
 
 ######################################################################
 
-kType = 't'
-kEnum = 'n'
-kProperty = 'p'
-kElement = 'e'
-kCommand = 'c'
+kType = b't'
+kEnum = b'n'
+kProperty = b'p'
+kElement = b'e'
+kCommand = b'c'
 
 ######################################################################
 
@@ -99,12 +99,12 @@ class TerminologyTableBuilder:
 	def aetesforapp(self, app):
 		"""Get aetes from local/remote app via an ascrgdte event; result is a list of byte strings."""
 		try:
-			aetes = app.event('ascrgdte', {'----':0}).send(120 * 60)
-		except Exception, e: # (e.g.application not running)
+			aetes = app.event(b'ascrgdte', {b'----':0}).send(120 * 60)
+		except Exception as e: # (e.g.application not running)
 			if isinstance(e, EventError) and e.number == -192:
 				aetes = []
 			else:
-				raise RuntimeError, "Can't get terminology for application (%r): %s" % (app, e)
+				raise RuntimeError("Can't get terminology for application (%r): %s" % (app, e))
 		if not isinstance(aetes, list):
 			aetes = [aetes]
 		return [aete for aete in aetes if isinstance(aete, ae.AEDesc) and aete.type == 'aete' and aete.data]

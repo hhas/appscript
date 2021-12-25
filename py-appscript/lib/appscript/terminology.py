@@ -215,14 +215,13 @@ def dumptables(tables, sourcepath, modulepath):
 	"""
 	from pprint import pprint
 	atts = zip(('classes', 'enums', 'properties', 'elements', 'commands'), tables)
-	f = open(modulepath, 'w')
-	f.write('version = 1.1\n')
-	f.write('path = {!r}\n'.format(sourcepath))
-	for key, value in atts:
-		if key[0] != '_':
-			f.write('\n{} = \\\n'.format(key))
-			pprint(value, f)
-	f.close()
+	with open(modulepath, 'w', encoding='utf-8') as f:
+		f.write('version = 1.1\n')
+		f.write('path = {!r}\n'.format(sourcepath))
+		for key, value in atts:
+			if key[0] != '_':
+				f.write('\n{} = \\\n'.format(key))
+				pprint(value, f)
 
 
 ######################################################################

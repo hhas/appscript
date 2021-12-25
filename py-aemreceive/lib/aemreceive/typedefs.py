@@ -3,7 +3,7 @@
 from aem import ae, kae, AEType
 import struct
 
-from handlererror import EventHandlerError
+from .handlererror import EventHandlerError
 
 # TO DO: build decent error messages pinpointing problem.
 
@@ -22,7 +22,7 @@ class ArgDef:
 	def AEM_unpack(self, desc, codecs):
 		try:
 			return self._unpack(desc, codecs)
-		except ae.MacOSError, e:
+		except ae.MacOSError as e:
 			number, message = e[0], e.args[1:] and e[1] or None
 			if number == -1700: # coercion error
 				return False, EventHandlerError(number, message, object=desc, coercion= AEType(self.AEM_code))
@@ -111,8 +111,8 @@ class ArgType(ArgDef):
 		"""
 			code : str -- a 4-character AE code
 		"""
-		if not isinstance(code, str) and len(code) == 4:
-			raise TypeError, "Invalid AE type code: %r" % code
+		if not isinstance(code, bytes) and len(code) == 4:
+			raise TypeError("Invalid AE type code: %r" % code)
 		self.AEM_code = code
 	
 	def _unpack(self, desc, codecs):
@@ -137,10 +137,10 @@ class ArgEnum(ArgDef):
 			*codes : str -- one or more 4-character AE codes
 		"""
 		if not codes:
-			raise TypeError, "__init__() requires at least 2 arguments"
+			raise TypeError("__init__() requires at least 2 arguments")
 		for code in codes:
-			if not isinstance(code, str) and len(code) == 4:
-				raise TypeError, "Invalid AE enum code: %r" % code
+			if not isinstance(code, bytes) and len(code) == 4:
+				raise TypeError("Invalid AE enum code: %r" % code)
 		self._codes = [fourCharCode(code) for code in codes]
 	
 	def _unpack(self, desc, codecs):
@@ -184,7 +184,7 @@ class ArgMultiChoice(ArgDef):
 		self._exactEnumDefs = [] # (all enums share same type, typeEnumerated, so we store them in this list instead of dict above)
 		self._datatypesByOrder = [] # If no exact match exists, try coercing and unpacking with each unpacker provided until one succeeds
 		if not datatypes:
-			raise TypeError, "No argument type definitions given."
+			raise TypeError("No argument type definitions given.")
 		for datatype in datatypes:
 			datatype = buildDefs(datatype)
 			self._datatypesByOrder.append(datatype)
@@ -195,7 +195,7 @@ class ArgMultiChoice(ArgDef):
 	
 	def AEM_unpack(self, desc, codecs):
 		# If AEDesc's type exactly matches one of the supplied unpackers (not including typeEnumerated), use that
-		if self._exactTypeDefs.has_key(desc.type):
+		if desc.type in self._exactTypeDefs:
 			succeeded, value = self._exactTypeDefs[desc.type].AEM_unpack(desc, codecs)
 			if succeeded:
 				return True, value

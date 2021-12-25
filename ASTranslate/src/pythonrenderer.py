@@ -1,9 +1,9 @@
-""" pythonrenderer -- render Apple events as Python 2.x code """
+""" pythonrenderer -- render Apple events as Python 3.x code """
 
 import os.path
 
 from aem import kae
-from appscript import referencerenderer
+from appscript import referencerenderer, terminology
 import appscript
 
 from constants import *
@@ -34,7 +34,7 @@ def renderobject(obj):
 	if isinstance(obj, list):
 		return '[%s]' % ', '.join([renderobject(o) for o in obj])
 	elif isinstance(obj, dict):
-		return '{%s}' % ', '.join(['%s: %s' % (renderobject(k), renderobject(v)) for k, v in obj.items()])
+		return '{%s}' % ', '.join(['%s: %s' % (renderobject(k), renderobject(v)) for k, v in list(obj.items())])
 	elif isinstance(obj, appscript.Reference):
 		return referencerenderer.renderreference(obj.AS_appdata, obj.AS_aemreference, True)
 	else:
@@ -51,10 +51,10 @@ def renderCommand(appPath, addressdesc, eventcode,
 		resultType, modeFlags, timeout, 
 		appdata):
 	args = []
-	if not _commandscache.has_key((addressdesc.type, addressdesc.data)):
+	if (addressdesc.type, addressdesc.data) not in _commandscache:
 		_commandscache[(addressdesc.type, addressdesc.data)] = dict([(data[1][0], (name, 
-				dict([(v, k) for (k, v) in data[1][-1].items()])
-				)) for (name, data) in appdata.referencebyname().items() if data[0] == 'c'])
+				dict([(v, k) for (k, v) in list(data[1][-1].items())])
+				)) for (name, data) in list(appdata.referencebyname().items()) if data[0] == terminology.kCommand])
 	commandsbycode = _commandscache[(addressdesc.type, addressdesc.data)]
 	try:
 		commandName, argNames = commandsbycode[eventcode]
@@ -62,7 +62,7 @@ def renderCommand(appPath, addressdesc, eventcode,
 		raise UntranslatedKeywordError('event', eventcode, 'Python command')
 	if directParam is not kNoParam:
 		args.append(renderobject(directParam))
-	for key, val in params.items():
+	for key, val in list(params.items()):
 		try:
 			args.append('%s=%s' % (argNames[key], renderobject(val)))
 		except KeyError:

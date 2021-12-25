@@ -24,10 +24,10 @@ class TextRenderer:
 	
 	def add(self, name, type, ismany, islast, tbc=False):
 		if self._pad:
-			print >> self.output, '    ' + self.indent # insert a line of extra padding after a subtree
+			print('    ' + self.indent, file=self.output) # insert a line of extra padding after a subtree
 			self._pad = False
-		print >> self.output, '    %s%s%s%s%s' % (self.indent,
-				ismany and '=' or '-', name, type and ' <%s>' % type or '', tbc and ' ->' or '')
+		print('    %s%s%s%s%s' % (self.indent,
+				ismany and '=' or '-', name, type and ' <%s>' % type or '', tbc and ' ->' or ''), file=self.output)
 		if islast and self.indent:
 			self.indent = self.indent[:-4] + '    '
 	
@@ -48,7 +48,7 @@ class RelationshipGrapher:
 		self.relationshipcache = {}
 	
 	def _relationships(self, klass):
-		if not self.relationshipcache.has_key(klass.name):
+		if klass.name not in self.relationshipcache:
 			klass = klass.full()
 			properties = [o for o in klass.properties() if o.type.realvalue().kind == 'class'] # TO DO: add isrelationship method to osadictionary.Property?
 			elements = list(klass.elements())

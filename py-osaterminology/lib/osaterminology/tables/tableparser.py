@@ -38,7 +38,7 @@ class TerminologyTableReceiver(Receiver):
 
 	def start_command(self, code, name, description, directarg, reply):
 		self.commandargs = []
-		if not self.commands.has_key(name) or self.commands[name][1] == code:
+		if name not in self.commands or self.commands[name][1] == code:
 			self.commands[name] = (self.convert(name), code, self.commandargs)
 		
 	def add_labelledarg(self, code, name, description, datatype, isoptional, islist, isenum):
@@ -84,7 +84,7 @@ class TerminologyTableReceiver(Receiver):
 			self.elements.append((self._spareclassnames[code], code))
 		for code in missingClasses:
 			self.classes.append((self._spareclassnames[code], code))
-		return (self.classes, self.enumerators, self.properties, self.elements, self.commands.values())
+		return (self.classes, self.enumerators, self.properties, self.elements, list(self.commands.values()))
 
 
 ######################################################################

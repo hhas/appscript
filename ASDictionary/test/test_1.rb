@@ -22,7 +22,7 @@ app_data = te.AS_app_data
 puts help_agent.event('AppSHelp', {
 	'Cons' => Constructors[app_data.constructor],
 	'Iden' => app_data.constructor == :by_aem_app ? app_data.identifier.address_desc : app_data.identifier,
-	'Styl' => 'rb-appscript',
+	'Styl' => 'rb-scpt',
 	'Flag' => '-t',
 	'aRef' => app_data.pack(ref),
 }).send

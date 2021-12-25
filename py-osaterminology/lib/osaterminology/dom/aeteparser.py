@@ -13,25 +13,25 @@
 from aem.ae import newdesc, getsysterminology
 from aem import kae, Application
 
-from osadictionary import *
+from .osadictionary import *
 from osaterminology import makeidentifier
 from osaterminology.sax import aeteparser
 from osaterminology.tables.tablebuilder import TerminologyTableBuilder
 
 # moved following from typemodule methods as putting them there causes import(?) problems in ASDictionary
-import applescripttypes, appscripttypes
+from . import applescripttypes, appscripttypes
 
 
 ######################################################################
 
 _expandedtypes = {
-		'lr  ': ['list', 'reco'],
-		'ls  ': ['list', 'TEXT'],
-		'ns  ': ['nmbr', 'TEXT'],
-		'sf  ': ['alis', 'TEXT'],
-		'lrs ': ['list', 'reco', 'TEXT'],
-		'nd  ': ['nmbr', 'ldt '],
-		'nds ': ['nmbr', 'ldt ', 'TEXT'],
+		b'lr  ': [b'list', b'reco'],
+		b'ls  ': [b'list', b'TEXT'],
+		b'ns  ': [b'nmbr', b'TEXT'],
+		b'sf  ': [b'alis', b'TEXT'],
+		b'lrs ': [b'list', b'reco', b'TEXT'],
+		b'nd  ': [b'nmbr', b'ldt '],
+		b'nds ': [b'nmbr', b'ldt ', b'TEXT'],
 		} # archaic pseudo-types defined in AppleScript component as a workaround for the aete format's inability to list >1 type per property/parameter
 		# Note: OSAGetScriptingDefinition's aete->sdef converter doesn't expand these, using the type attribute (e.g. <...type="list or record".../>) instead of multiple type elements. Similar pseudo-types defined by individual applications' aetes won't be expanded by either aeteparser or sdefparser.
 
@@ -62,7 +62,7 @@ class _Parser(aeteparser.Receiver):
 		return name
 	
 	def _gettype(self, code):
-		if not self._types.has_key(code):
+		if code not in self._types:
 			self._types[code] = Type(self._visibility, code=code)
 		return self._types[code]
 	
@@ -81,7 +81,7 @@ class _Parser(aeteparser.Receiver):
 	# parse suite
 	
 	def start_suite(self, code, name, description):
-		self._visible = code != 'tpnm' # hidden Type Name Suite; note: suspect OSAGetScriptingDefinition arses up the content of  this suite when converting aete->sdef
+		self._visible = code != b'tpnm' # hidden Type Name Suite; note: suspect OSAGetScriptingDefinition arses up the content of  this suite when converting aete->sdef
 		self._stack.append(Suite(self._visibility, name, code, description, self._visible))
 	
 	def end_suite(self):
@@ -96,12 +96,12 @@ class _Parser(aeteparser.Receiver):
 		suitename = self._stack[-1].name
 		self._stack.append(Command(self._visibility, self.ascommandname(name, code), code, description, self._visible, suitename))
 		description, type, isoptional, islist, isenum = directarg
-		if type != 'null':
+		if type != b'null':
 			o = DirectParameter(self._visibility, description, self._visible, isoptional)
 			self.addtypes(type, islist, o)
 			self._stack[-1]._add_(o)
 		description, type, isoptional, islist, isenum = reply
-		if type != 'null':
+		if type != b'null':
 			o = Result(self._visibility, description)
 			self.addtypes(type, islist, o)
 			self._stack[-1]._add_(o)
@@ -179,11 +179,11 @@ class _Parser(aeteparser.Receiver):
 		for klass in self._classes:
 			klass.pluralname = self._pluralclassnames.get(klass.code, klass.name)
 		# Add names, etc. for AEM-defined types and enumerations
-		for type in self._types.values():
+		for type in list(self._types.values()):
 			if not type.name: # not an application-defined class
-				if self.typemodule.typebycode.has_key(type.code): # it's an AEM-defined type
+				if type.code in self.typemodule.typebycode: # it's an AEM-defined type
 					type.name = self.typemodule.typebycode[type.code]
-				elif self.typemodule.enumerationbycode.has_key(type.code): # it's an AEM-defined enumeration
+				elif type.code in self.typemodule.enumerationbycode: # it's an AEM-defined enumeration
 					type._add_(Enumeration(self._visibility, '', k, '', True, None))
 					for name, code in self.typemodule.enumerationbycode[code]:
 						type._add_(Enumerator(self._visibility, name, code, '', True))
@@ -219,28 +219,21 @@ class _AppscriptParser(_Parser):
 		return name
 
 
-
-class ObjCAppscriptParser(_AppscriptParser):
-	_asname = staticmethod(makeidentifier.getconverter('objc-appscript'))
-	typemodule = appscripttypes.typetables('objc-appscript')
-
-
 class PyAppscriptParser(_AppscriptParser):
 	_asname = staticmethod(makeidentifier.getconverter('py-appscript'))
 	typemodule = appscripttypes.typetables('py-appscript')
 
 
 class RbAppscriptParser(_AppscriptParser):
-	_asname = staticmethod(makeidentifier.getconverter('rb-appscript'))
-	typemodule = appscripttypes.typetables('rb-appscript')
+	_asname = staticmethod(makeidentifier.getconverter('rb-scpt'))
+	typemodule = appscripttypes.typetables('rb-scpt')
 
 
 _parsers = {
 		'applescript': AppleScriptParser, 
 		'appscript': PyAppscriptParser,
-		'objc-appscript': ObjCAppscriptParser,
 		'py-appscript': PyAppscriptParser,
-		'rb-appscript': RbAppscriptParser,
+		'rb-scpt': RbAppscriptParser,
 }
 
 
@@ -254,18 +247,17 @@ def parseaetes(aetes, path='', style='appscript'):
 	return p.result()
 
 
-def parselang(code='ascr', style='appscript'):
+def parselang(code=b'ascr', style='appscript'):
 	return parseaetes(getsysterminology(code), '', style)
 
 
 def parsefile(paths, style='appscript'):
-	if isinstance(paths, basestring):
+	if isinstance(paths, str):
 		paths = [paths]
 	aetes = []
 	for path in paths:
-		f = file(path)
-		aetes.append(newdesc(kae.typeAETE, f.read()))
-		f.close()
+		with open(path, 'rb') as f:
+			aetes.append(newdesc(kae.typeAETE, f.read()))
 	return parseaetes(aetes, paths[0], style)
 	
 

@@ -1,4 +1,4 @@
-"""makeidentifier.rbappscript -- Reserved keywords for rb-appscript"""
+"""makeidentifier.rbappscript -- Reserved keywords for rb-scpt"""
 
 # Important: the following must be reserved:
 #

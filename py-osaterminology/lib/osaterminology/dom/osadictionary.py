@@ -76,7 +76,7 @@ class Nodes(_Vis): # TO DO: rename; TO DO: add non-in-place sort method
 	def __add__(self, item):
 		return Nodes(self._visibility, self._all + item)
 	
-	def __nonzero__(self):
+	def __bool__(self):
 		return bool(self._real())
 	
 	def __repr__(self):
@@ -119,7 +119,7 @@ class Nodes(_Vis): # TO DO: rename; TO DO: add non-in-place sort method
 	
 	def exists(self, name):
 		d = dict([(o.name.lower(), o) for o in self._real()])
-		return d.has_key(name.lower())
+		return name.lower() in d
 		
 	def byname(self, name): 
 		# TO DO: add optional 'all' parameter as well? Or add allbyname() method? Or leave users to do this themselves?
@@ -243,7 +243,7 @@ class _Base(_Vis):
 	islist = False
 	
 	def __repr__(self):
-		return '%s(%s)' % (self.__class__.__name__, self.name and `self.name` or 'code=%r' % self.code)
+		return '%s(%s)' % (self.__class__.__name__, self.name and repr(self.name) or 'code=%r' % self.code)
 	
 	def realvalue(self):
 		return self

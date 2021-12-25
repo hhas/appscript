@@ -4,8 +4,8 @@
 .pyc$
 .pyo$
 
-*/build
-*/dist
+**/build
+**/dist
 **/*.egg-info
 */MANIFEST
 

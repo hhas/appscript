@@ -2,11 +2,9 @@
 
 def getterms(style='py-appscript'):
 	if style == 'py-appscript':
-		import pyappscript as terms
-	elif style == 'rb-appscript':
-		import rbappscript as terms
-	elif style == 'objc-appscript':
-		import objcappscript as terms
+		from . import pyappscript as terms
+	elif style == 'rb-scpt':
+		from . import rbappscript as terms
 	else:
-		raise KeyError, 'Unknown style %r' % style
+		raise KeyError('Unknown style %r' % style)
 	return terms

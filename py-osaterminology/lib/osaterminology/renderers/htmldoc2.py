@@ -10,7 +10,7 @@ so resulting documentation is more detailed than that produced by htmldoc
 from os import mkdir
 from os.path import exists, join
 
-from HTMLTemplate import Template
+from htmltemplate import Template
 
 from aem import findapp
 from osaterminology.dom import aeteparser, osadictionary
@@ -425,7 +425,7 @@ def makedictionarydirectory(root, terms):
 _stripnoncharscache = {}
 
 def stripnonchars(txt):
-	if not _stripnoncharscache.has_key(txt):
+	if txt not in _stripnoncharscache:
 		_stripnoncharscache[txt] = ''.join([char for char in txt.replace(' ', '_') if char in 
 				'abcdefghijklmnopqrstuvwxyz_ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789'])
 	return _stripnoncharscache[txt]
@@ -481,9 +481,8 @@ def removeduplicatesfromsortedlist(lst):
 ##
 
 def writefile(pth, txt):
-	f = open(pth, 'w')
-	f.write(txt.encode('utf8'))
-	f.close()
+	with open(pth, 'w', encoding='utf-8') as f:
+		f.write(txt)
 
 
 ######################################################################
@@ -492,29 +491,30 @@ def writefile(pth, txt):
 # Frame
 
 def render_frame(node, terms):
-	node.title.content = '%s terminology for %s' % (stripappsuffix(terms.name), terms.style)
+	node.title.text = '%s terminology for %s' % (stripappsuffix(terms.name), terms.style)
 
 
-frametpl = Template(render_frame, framehtml)
+frametpl = Template(framehtml)
 
 
 ######################################################################
 # Index
 		
 def render_index(node, terms):
-	node.title.content = node.title2.content = stripappsuffix(terms.name)
-	node.location.content = terms.path
+	node.title.text = node.title2.text = stripappsuffix(terms.name)
+	node.location.text = terms.path
 	node.suite.repeat(render_suite, terms.suites())
 
 def render_suite(node, suite):
 	node.anchor.atts['name'] = 'suite_%s' % stripnonchars(suite.name) 
-	node.name.content = suite.name
-	node.desc.content = suite.description
+	node.name.text = suite.name
+	node.desc.text = suite.description
 	node.definitions.repeat(render_classesorcommands, 
 			[(n, o) for n, o in [(0, suite.classes()), (1, suite.commands())] if o])
 
-def render_classesorcommands(node, (kind, items)):
-	node.label.content = ['Classes', 'Commands'][kind]
+def render_classesorcommands(node, xxx_todo_changeme):
+	(kind, items) = xxx_todo_changeme
+	node.label.text = ['Classes', 'Commands'][kind]
 	node.item.repeat(render_classorcommand, items, kind)
 
 def render_classorcommand(node, item, kind):
@@ -522,26 +522,26 @@ def render_classorcommand(node, item, kind):
 	suitename = stripnonchars(item.suitename)
 	node.anchor.atts['name'] = '%s_%s__%s' % (['class', 'command'][kind], name, suitename)
 	node.name.atts['href'] = '%s/%s/%s.html' % (suitename, ['classes', 'commands'][kind], name)
-	node.name.content = item.name
-	node.desc.content = formatdescription(item.description)
+	node.name.text = item.name
+	node.desc.text = formatdescription(item.description)
 
 
-indextpl = Template(render_index, indexhtml)
+indextpl = Template(indexhtml)
 
 
 ######################################################################
 # Suites navigation
 
 def render_suitesnav(node, terms):
-	node.name.content = stripappsuffix(terms.name)
+	node.name.text = stripappsuffix(terms.name)
 	node.suite.repeat(render_suitenav, terms.suites())
 
 def render_suitenav(node, suite):
 	node.name.atts['href'] = 'index.html#suite_%s' % stripnonchars(suite.name) 
-	node.name.content = suite.name
+	node.name.text = suite.name
 
 
-suitenavtpl = Template(render_suitesnav, suitesnavhtml)
+suitenavtpl = Template(suitesnavhtml)
 
 
 ######################################################################
@@ -549,7 +549,7 @@ suitenavtpl = Template(render_suitesnav, suitesnavhtml)
 
 def sortnodes(nodes):
 	nodes = list(nodes)
-	nodes.sort(lambda a,b:cmp(a.name.lower(), b.name.lower()))
+	nodes.sort(key=lambda s: s.name.lower())
 	return nodes
 
 #######
@@ -568,13 +568,13 @@ def render_classorcommandnav(node, item, kind):
 	name = stripnonchars(item.name)
 	suitename = stripnonchars(item.suitename)
 	node.name.atts['href'] = '%s/%s/%s.html' % (suitename, ['classes', 'commands'][kind], name)
-	node.name.content = item.name
+	node.name.text = item.name
 	node.suitename.atts['href'] = 'index.html#suite_%s' % suitename
-	node.suitename.content = item.suitename
+	node.suitename.text = item.suitename
 
 
-classnavtpl = Template(render_classesnav, classesnavhtml)
-commandnavtpl = Template(render_commandsnav, commandsnavhtml)
+classnavtpl = Template(classesnavhtml)
+commandnavtpl = Template(commandsnavhtml)
 
 
 ######################################################################
@@ -608,7 +608,7 @@ def analyseobjectmodel(terms): # TO DO: this should go into osadictionary
 				key = (parent.name, parent.suitename)
 			else:
 				key = parent.name # faulty dictionary (parent is a type instead of a class)
-			if not children.has_key(key):
+			if key not in children:
 				children[key] = []
 			children[key].append(klass)
 		# determine containers of each object class
@@ -616,38 +616,39 @@ def analyseobjectmodel(terms): # TO DO: this should go into osadictionary
 		for o in klass.properties():
 			o = o.type.realvalue()
 			if o.kind == 'class':
-				if not onetoone.has_key(o.name):
+				if o.name not in onetoone:
 					onetoone[o.name] = []
 				if klass not in onetoone[o.name]:
 					onetoone[o.name].append(klass)
 		for o in klass.elements():
 			o = o.type.realvalue()
 			if o.kind == 'class':
-				if not onetomany.has_key(o.name):
+				if o.name not in onetomany:
 					onetomany[o.name] = []
 				onetomany[o.name].append(klass)
 	return parents, children, onetoone, onetomany
 
 #######
 
-def render_class(node, klass, (parents, children, onetoone, onetomany), typerenderer, options):
-	node.title.content = node.title2.content = klass.name
+def render_class(node, klass, xxx_todo_changeme1, typerenderer, options):
+	(parents, children, onetoone, onetomany) = xxx_todo_changeme1
+	node.title.text = node.title2.text = klass.name
 	if 'FULL' in options:
 		node.changeview.atts['href'] = '../../%s/classes/%s.html' % (stripnonchars(klass.suitename), stripnonchars(klass.name))
 
-		node.changeview.content = 'reduce'
+		node.changeview.text = 'reduce'
 	else:
 		node.changeview.atts['href'] = '../../FULL/classes/%s.html' % stripnonchars(klass.name)
 
-		node.changeview.content = 'expand'
+		node.changeview.text = 'expand'
 	if klass.description:
-		node.desc.content = klass.description
+		node.desc.text = klass.description
 	else:
 		node.desc.omit()
 	if klass.pluralname == klass.name:
 		node.pluralname.omit()
 	else:
-		node.pluralname.name.content = klass.pluralname
+		node.pluralname.name.text = klass.pluralname
 	if 'FULL' in options:
 		klass = klass.full()
 	elif 'collapse' in options:
@@ -683,20 +684,20 @@ def render_class(node, klass, (parents, children, onetoone, onetomany), typerend
 
 def render_definedinsuite(node, klass):
 	node.name.atts['href'] = '../../index.html#suite_%s' % stripnonchars(klass.suitename)
-	node.name.content = klass.suitename
+	node.name.text = klass.suitename
 
 def render_property(node, property, typerenderer, options):
 	if property.access =='rw':
 		node.access.omit()
 	else:
-		node.access.content = {'r': '(r/o)', 'w': '(w/o)'}[property.access]
-	node.name.content = property.name
-	node.type.raw = formattype(property.types, typerenderer, options)
-	node.desc.content = formatdescription(property.description)
+		node.access.text = {'r': '(r/o)', 'w': '(w/o)'}[property.access]
+	node.name.text = property.name
+	node.type.html = formattype(property.types, typerenderer, options)
+	node.desc.text = formatdescription(property.description)
 
 def render_element(node, element, typerenderer, options):
-	node.name.content = typerenderer.elementname(element.type)
-	node.desc.content = ', '.join(element.accessors())
+	node.name.text = typerenderer.elementname(element.type)
+	node.desc.text = ', '.join(element.accessors())
 	if element.type.name:
 		classes = element.type.realvalues('class')
 		if classes:
@@ -710,23 +711,24 @@ def render_element(node, element, typerenderer, options):
 def render_parents(node, parents, typerenderer, options):
 	node.parent.repeat(render_classlistitem, parents, typerenderer, options)
 
-def render_note(node, (label, items), typerenderer, options):
-	node.label.content  = label
+def render_note(node, xxx_todo_changeme2, typerenderer, options):
+	(label, items) = xxx_todo_changeme2
+	node.label.text  = label
 	node.item.repeat(render_classlistitem, items, typerenderer, options)
 
 def render_classlistitem(node, klass, typerenderer, options):
 	if klass.kind == 'class':
 		node.name.atts['href'] = '../../%s/classes/%s.html' % (suitefolder(klass, options), stripnonchars(klass.name))
 		node.suitename.atts['href'] = '../../index.html#suite_%s' % stripnonchars(klass.suitename)
-		node.suitename.content = klass.suitename
+		node.suitename.text = klass.suitename
 	else:
 		node.name.omittags()
 		node.suitename.omittags()
-		node.suitename.content = 'datatype'
-	node.name.content = typerenderer.render(klass)  # TO DO: show raw form if no name
+		node.suitename.text = 'datatype'
+	node.name.text = typerenderer.render(klass)  # TO DO: show raw form if no name
 	
 
-classtpl = Template(render_class, classhtml)
+classtpl = Template(classhtml)
 
 
 ######################################################################
@@ -734,9 +736,9 @@ classtpl = Template(render_class, classhtml)
 
 def render_command(node, command, typerenderer, options):
 	directarg = command.directparameter
-	node.title.content = node.title2.content = command.name
+	node.title.text = node.title2.text = command.name
 	if command.description:
-		node.desc.content = command.description
+		node.desc.text = command.description
 	else:
 		node.desc.omit()
 	node.suite.item.repeat(render_definedinsuite, [command])
@@ -746,8 +748,8 @@ def render_command(node, command, typerenderer, options):
 			s = '<em>%s</em>' % formattype(directarg.types, typerenderer)
 			if directarg.optional:
 				s = '[' + s + ']'
-			node.parameters.directarg.name.raw = s
-			node.parameters.directarg.desc.content = formatdescription(directarg.description)
+			node.parameters.directarg.name.html = s
+			node.parameters.directarg.desc.text = formatdescription(directarg.description)
 		else:
 			node.parameters.directarg.omit()
 		# Render labelled args, if any.
@@ -757,8 +759,8 @@ def render_command(node, command, typerenderer, options):
 	# Render reply, if any.
 	reply = command.result
 	if reply:
-		node.reply.type.raw = formattype(reply.types, typerenderer)
-		node.reply.desc.content = formatdescription(reply.description)
+		node.reply.type.html = formattype(reply.types, typerenderer)
+		node.reply.desc.text = formatdescription(reply.description)
 	else:
 		node.reply.omit()
 
@@ -766,11 +768,11 @@ def render_parameter(node, arg, typerenderer):
 	s = '<strong>%s</strong> <em>%s</em>' % (esc(arg.name), formattype(arg.types, typerenderer))
 	if arg.optional:
 		s = '[' + s + ']'
-	node.name.raw = s
-	node.desc.content = formatdescription(arg.description)
+	node.name.html = s
+	node.desc.text = formatdescription(arg.description)
 
 
-commandtpl = Template(render_command, commandhtml)
+commandtpl = Template(commandhtml)
 
 
 ######################################################################
@@ -795,30 +797,30 @@ def renderdictionary(terms, outdir, style='py-appscript', options=[]):
 		makedictionarydirectory(outdir, terms)
 		writefile(join(outdir, 'html/main.css'), css)
 		# render frames, index and nav
-		for pth, tpl in [
-				('index.html', frametpl), 
-				('html/index.html', indextpl),
-				('html/suites.html', suitenavtpl),
-				('html/classes.html', classnavtpl),
-				('html/commands.html', commandnavtpl),
+		for pth, tpl, renderfn in [
+				('index.html', frametpl, render_frame), 
+				('html/index.html', indextpl, render_index),
+				('html/suites.html', suitenavtpl, render_suitesnav),
+				('html/classes.html', classnavtpl, render_classesnav),
+				('html/commands.html', commandnavtpl, render_commandsnav),
 				]:
-			writefile(join(outdir, pth), tpl.render(terms))
+			writefile(join(outdir, pth), tpl.render(renderfn, terms))
 		# render classes
 		modelinfo = analyseobjectmodel(terms)
 		for klass in terms.classes():
 			suitedir = join(outdir, 'html', stripnonchars(klass.suitename))
 			writefile(join(suitedir, 'classes', stripnonchars(klass.name) + '.html'),
-					classtpl.render(klass, modelinfo, typerenderer, options))
+					classtpl.render(render_class, klass, modelinfo, typerenderer, options))
 		# render expanded classes
 		suitedir = join(outdir, join(outdir, 'html/FULL'))
 		for klass in terms.classes():
 			writefile(join(suitedir, 'classes', stripnonchars(klass.name) + '.html'), 
-					classtpl.render(klass, modelinfo, typerenderer, options + ['FULL']))
+					classtpl.render(render_class, klass, modelinfo, typerenderer, options + ['FULL']))
 		# render commands
 		for command in terms.commands():
 			suitedir = join(outdir, 'html', stripnonchars(command.suitename))
 			writefile(join(suitedir, 'commands', stripnonchars(command.name) + '.html'),
-					commandtpl.render(command, typerenderer, options))
+					commandtpl.render(render_command, command, typerenderer, options))
 	if 'showall' in options:
 		terms.setvisibility(oldvis)
 	return bool(terms.suites())
@@ -829,7 +831,7 @@ def doc(apppath, outdir, style='py-appscript', options=[]):
 	"""Render XHTML files listing a scriptable application/scripting addition's classes and commands.
 		apppath : str -- name or path to application/path to scripting addition
 		outdir : str -- the directory to write the dictionary to (will be created if it doesn't already exist)
-		style : str -- keyword formatting style ('py-appscript', 'rb-appscript' or 'applescript')
+		style : str -- keyword formatting style ('py-appscript', 'rb-scpt' or 'applescript')
 		options : list of str -- formatting options (zero or more of: 'collapse', 'showall')
 		Result : bool -- False if no terminology was found and no file was written; else True
 	"""

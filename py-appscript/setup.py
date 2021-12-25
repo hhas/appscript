@@ -27,7 +27,7 @@ setup(
 			Extension('aem.ae',
 				sources=['ext/ae.c'],
 				extra_compile_args=[
-						'-DMAC_OS_X_VERSION_MIN_REQUIRED=MAC_OS_X_VERSION_10_6', 
+						'-DMAC_OS_X_VERSION_MIN_REQUIRED=MAC_OS_X_VERSION_10_12', 
 						'-D__LP64__', # build fails on 10.14 due to Carbon.h issues unless this is explicitly declared
 				],
 				extra_link_args=[

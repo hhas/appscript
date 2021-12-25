@@ -2,8 +2,7 @@ About ASDictionary
 ==================
 
 ASDictionary exports scriptable Mac applications' dictionaries in plain text 
-or HTML format. It can also be used to generate application 'glues' for use 
-with objc-appscript. Requires Mac OS X 10.6 or later. 
+or HTML format. Requires Mac OS X 10.12 or later. 
 
 
 Exporting application dictionaries
@@ -26,28 +25,6 @@ Exporting application dictionaries
 4. Click 'Export', and select a destination folder for the generated files.
 
 
-Generating objc-appscript glues
--------------------------------
-
-1. Use the 'Dictionary' menu to select one or more scriptable applications, or
-   drag-and-drop one or more application files onto ASDictionary's application 
-   icon or Export window.
-
-2. Select the objc-appscript glue format.
-
-3. The ObjC class name prefix for each glue is shown in the Prefix column. 
-   The default prefix is an abbreviation of the application's name (e.g. 
-   Address Book becomes AB, iCal becomes IC), but this can be changed by 
-   clicking on it and typing a prefix of your choice. Take care not to use 
-   a prefix that may cause the glue's class names to collide with existing 
-   Cocoa classes (e.g. 'NS' is a particularly common prefix and best avoided) 
-   otherwise the glue may not compile.
-
-4. Click 'Export', and select a destination folder for the generated glue. 
-   Each glue folder's name will consist of its class name prefix followed 
-   by 'Glue' (e.g. AddressBookGlue, ICGlue).
-
-
 Scripting ASDictionary
 ----------------------
 
@@ -55,8 +32,8 @@ ASDictionary provides a single AppleScript command, 'export', for exporting
 application and scripting addition dictionaries. For example:
 
 tell application "ASDictionary"
-  export {POSIX file "/Applications/iCal.app", 
-           POSIX file"/Applications/iTunes.app"}
+  export {POSIX file "/System/Applications/Calendar.app", 
+           POSIX file"/System/Applications/Music.app"}
          to POSIX file "/Users/jsmith/Documents"
          using file formats {single file HTML, frame based HTML}
          with exporting to subfolders
@@ -70,9 +47,6 @@ Notes
 
 - Caution: ASDictionary will overwrite any existing files when exporting 
   dictionaries.
-
-- The HTML export options support both applications and scripting additions.
-  The plain text and objc glue export options support applications only.
 
 - Exporting larger dictionaries may take several seconds; GUI responsiveness 
   may be limited during this time. HTML export options take longer due to the 

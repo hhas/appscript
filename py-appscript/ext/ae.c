@@ -1342,33 +1342,6 @@ static PyObject *BuildTerminologyList(AEDesc *theDesc, DescType requiredType) {
 }
 
 
-static PyObject *AE_CopyScriptingDefinition(PyObject* self, PyObject* args)
-{
-	PyObject *res;
-	FSRef fsRef;
-	CFDataRef sdef;
-	CFIndex dataSize;
-	char *data;
-	OSAError  err;
-	
-	if (!PyArg_ParseTuple(args, "O&", AE_GetFSRef, &fsRef))
-		return NULL;
-	err = OSACopyScriptingDefinition(&fsRef, 0, &sdef);
-	if (err) return AE_MacOSError(err);
-	dataSize = CFDataGetLength(sdef);
-	data = (char *)CFDataGetBytePtr(sdef);
-	if (data != NULL) {
-		res = PyBytes_FromStringAndSize(data, dataSize);
-	} else {
-		data = malloc(dataSize);
-		CFDataGetBytes(sdef, CFRangeMake(0, dataSize), (UInt8 *)data);
-		res = PyBytes_FromStringAndSize(data, dataSize);
-		free(data);
-	}
-	CFRelease(sdef);
-	return res;
-}
-
 
 static PyObject *AE_CopyScriptingDefinitionFromURL(PyObject* self, PyObject* args)
 {
@@ -1542,11 +1515,6 @@ static PyMethodDef AE_methods[] = {
 		"addressdesctopath(AEAddressDesc desc) -> (unicode path)")},
 	
 	
-  	{"copyscriptingdefinition", (PyCFunction) AE_CopyScriptingDefinition, METH_VARARGS, PyDoc_STR(
-		"copyscriptingdefinition(unicode path) -> (unicode sdef)\n"
-		"Creates a copy of a scripting definition (sdef) from the specified\n"
-		"file or bundle. DEPRECATED")},
-	
   	{"scriptingdefinitionfromurl", (PyCFunction) AE_CopyScriptingDefinitionFromURL, METH_VARARGS, PyDoc_STR(
 		"scriptingdefinitionfromurl(unicode url) -> (unicode sdef)\n"
 		"Gets a scripting definition (sdef) from the specified file/eppc URL.")},
@@ -1606,7 +1574,7 @@ PyInit_ae(void)
 							AE_GetOSType,
 							AE_BuildOSType};
 	
-	PyObject *aeAPIObj = PyCapsule_New((void *)aeAPI, "ae._C_API", NULL);
+	PyObject *aeAPIObj = PyCapsule_New((void *)aeAPI, "aem.ae._C_API", NULL);
 	if (aeAPIObj)
 		PyModule_AddObject(m, "_C_API", aeAPIObj);
 	return m;

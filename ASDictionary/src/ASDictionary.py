@@ -1,7 +1,7 @@
 """ASDictionary"""
 
 
-import os
+import os, sys
 
 import objc
 from AppKit import *
@@ -9,9 +9,8 @@ from PyObjCTools.KeyValueCoding import *
 from PyObjCTools import AppHelper
 
 import appscript, osax, mactypes, aemreceive
-from osaterminology.makeglue.objcappscript import nametoprefix
 
-import appscriptsupport, osaxfinder, dictionaryexporter
+import appscriptsupport, dictionaryexporter
 
 
 ######################################################################
@@ -22,7 +21,7 @@ class _AEOMApplication:
 		self._result = result
 
 	def property(self, code):
-		key = {'pnam': u'CFBundleDisplayName', 'vers': u'CFBundleShortVersionString'}[code]
+		key = {b'pnam': 'CFBundleDisplayName', b'vers': 'CFBundleShortVersionString'}[code]
 		self._result['result'] = NSBundle.mainBundle().infoDictionary()[key]
 
 class _AEOMResolver:
@@ -61,7 +60,6 @@ class ASDictionary(NSDocument):
 	itemName = objc.IBOutlet('itemName')
 	logDrawer = objc.IBOutlet('logDrawer')
 	logTextView = objc.IBOutlet('logTextView')
-	objcPrefixColumn = objc.IBOutlet('objcPrefixColumn')
 
 	def init(self):
 		self = super(ASDictionary, self).init()
@@ -69,37 +67,37 @@ class ASDictionary(NSDocument):
 		self._selectedFiles = [] # {'obcPrefix': u'...', 'name': u'...', 'path': u'...'}
 		self._canExport = False
 		self._htmlOptionsEnabled = False
-		self._itemName = u''
+		self._itemName = ''
 		self._progressBar = 0
 		NSValueTransformer.setValueTransformer_forName_(
-				ArrayToBooleanTransformer.alloc().init(), u"ArrayToBoolean")
+				ArrayToBooleanTransformer.alloc().init(), "ArrayToBoolean")
 		return self
 
+
 	def applicationDidFinishLaunching_(self, sender):
-		for m in [appscriptsupport, osaxfinder, dictionaryexporter]:
+		for m in [appscriptsupport, dictionaryexporter]:
 			m.init()
 		self.standardAdditions = osax.OSAX()
-		aemreceive.installeventhandler(handle_get,'coregetd', 
-				('----', 'ref', aemreceive.kae.typeObjectSpecifier))
+		aemreceive.installeventhandler(handle_get, b'coregetd', (b'----', 'ref', aemreceive.kae.typeObjectSpecifier))
 
 
 	def awakeFromNib(self):
 		userDefaults = NSUserDefaults.standardUserDefaults()
 		NSNotificationCenter.defaultCenter().addObserver_selector_name_object_(
-				self, 'notifyPreferencesChanged:', u'NSUserDefaultsDidChangeNotification', userDefaults)
+				self, 'notifyPreferencesChanged:', 'NSUserDefaultsDidChangeNotification', userDefaults)
 		self._updateLocks()
 		self.filenameTableView.registerForDraggedTypes_([NSFilenamesPboardType])
 		self.filenameTableView.setDraggingSourceOperationMask_forLocal_(NSDragOperationLink, False)
-		self.mainWindow.setFrameAutosaveName_(u'ExportWindow')
-		self.logDrawer.setContentSize_(userDefaults.arrayForKey_(u'LogDrawer') or self.logDrawer.contentSize())
+		self.mainWindow.setFrameAutosaveName_('ExportWindow')
+		self.logDrawer.setContentSize_(userDefaults.arrayForKey_('LogDrawer') or self.logDrawer.contentSize())
 		self.selectedFilesController.setSortDescriptors_([
-				NSSortDescriptor.alloc().initWithKey_ascending_selector_(u'name', True, 'caseInsensitiveCompare:'),
-				NSSortDescriptor.alloc().initWithKey_ascending_selector_(u'path', True, 'caseInsensitiveCompare:')])
+				NSSortDescriptor.alloc().initWithKey_ascending_selector_('name', True, 'caseInsensitiveCompare:'),
+				NSSortDescriptor.alloc().initWithKey_ascending_selector_('path', True, 'caseInsensitiveCompare:')])
 
 
 	def applicationWillTerminate_(self, notification):
 		userDefaults = NSUserDefaults.standardUserDefaults()
-		userDefaults.setObject_forKey_(list(self.logDrawer.contentSize()), u'LogDrawer')
+		userDefaults.setObject_forKey_(list(self.logDrawer.contentSize()), 'LogDrawer')
 
 
 	#######
@@ -108,19 +106,13 @@ class ASDictionary(NSDocument):
 
 	def _updateLocks(self):
 		userDefaults = NSUserDefaults.standardUserDefaults()
-		self.setHtmlOptionsEnabled_(userDefaults.boolForKey_(u'singleHTML') or userDefaults.boolForKey_(u'frameHTML'))
+		self.setHtmlOptionsEnabled_(userDefaults.boolForKey_('singleHTML') or userDefaults.boolForKey_('frameHTML'))
 		hasSelectedFiles = bool(self.selectedFiles())
-		willExportDict = self.htmlOptionsEnabled() or userDefaults.boolForKey_(u'plainText')
-		willExportGlue = userDefaults.boolForKey_(u'objcGlue')
+		willExportDict = self.htmlOptionsEnabled() or userDefaults.boolForKey_('plainText')
 		hasSelectedStyles = bool([name for name 
-				in [u'applescriptStyle', u'pythonStyle', u'rubyStyle', u'objcStyle'] 
+				in ['applescriptStyle', 'pythonStyle', 'rubyStyle'] 
 				if userDefaults.boolForKey_(name)])
-		self.setCanExport_(hasSelectedFiles and 
-				((willExportDict and hasSelectedStyles) or willExportGlue))
-		try:
-			self.objcPrefixColumn.setHidden_(not willExportGlue) # 10.5+
-		except:
-			pass
+		self.setCanExport_(hasSelectedFiles and (willExportDict and hasSelectedStyles))
 
 	@objc.IBAction
 	def notifyPreferencesChanged_(self, sender):
@@ -216,7 +208,7 @@ class ASDictionary(NSDocument):
 
 	def _addPathToSelectedFiles_(self, path):
 		name = os.path.splitext(os.path.basename(path.rstrip('/')))[0]
-		item = {'objcPrefix': nametoprefix(name), 'name': name, 'path': path}
+		item = {'name': name, 'path': path}
 		if item not in self.selectedFiles():
 			self.insertObject_inSelectedFilesAtIndex_(item, self.countOfSelectedFiles())
 		self._updateLocks()
@@ -228,7 +220,7 @@ class ASDictionary(NSDocument):
 		try:
 			selection = self.standardAdditions.choose_file(with_prompt='Select the item(s) to process:', 
 					invisibles=False, multiple_selections_allowed=True)
-		except osax.CommandError, e:
+		except osax.CommandError as e:
 			if int(e) == -128:
 				return
 			else:
@@ -242,7 +234,7 @@ class ASDictionary(NSDocument):
 			selection = self.standardAdditions.choose_application(
 					with_prompt='Select the application(s) to process:', 
 					multiple_selections_allowed=True, as_=osax.k.alias)
-		except osax.CommandError, e:
+		except osax.CommandError as e:
 			if int(e) == -128:
 				return
 			else:
@@ -255,7 +247,7 @@ class ASDictionary(NSDocument):
 		from appscript import app # TO DO: use NSWorkspace
 		sysev = app('System Events')
 		names = sysev.application_processes.name()
-		names.sort(lambda a, b: cmp(a.lower(), b.lower()))
+		names.sort(key=lambda s: s.lower())
 		selection = self.standardAdditions.choose_from_list(
 				names, 
 				with_prompt='Choose one or more running applications:', 
@@ -268,13 +260,6 @@ class ASDictionary(NSDocument):
 				self._addPathToSelectedFiles_(fileobj.path)
 			elif isinstance(fileobj, appscript.Reference):
 				self._addPathToSelectedFiles_(fileobj.POSIX_path())
-
-	@objc.IBAction
-	def chooseInstalledAdditions_(self, sender):
-		selection = self.standardAdditions.choose_from_list(osaxfinder.names(), 
-				with_prompt='Choose one or more scripting additions:', multiple_selections_allowed=True)
-		for name in selection or []:
-			self._addPathToSelectedFiles_(osaxfinder.pathforname(name))
 
 
 	#######
@@ -291,30 +276,32 @@ class ASDictionary(NSDocument):
 		userDefaults = NSUserDefaults.standardUserDefaults()
 		try:
 			outFolder = self.standardAdditions.choose_folder('Select the destination folder:').path
-		except osax.CommandError, e:
+		except osax.CommandError as e:
 			if int(e) == -128:
 				return
 			else:
 				raise
 		# HTML options
-		options = []
-		if userDefaults.boolForKey_(u'compactClasses'):
-			options.append('collapse')
-		if userDefaults.boolForKey_(u'showInvisibles'):
-			options.append('full')
-		plainText, singleHTML, frameHTML, objcGlue = [userDefaults.boolForKey_(name) 
-				for name in [u'plainText', u'singleHTML', u'frameHTML', u'objcGlue']]
-		styles = [style for key, style in [
-				(u'applescriptStyle', 'applescript'),
-				(u'pythonStyle', 'py-appscript'),
-				(u'rubyStyle', 'rb-appscript'),
-				(u'objcStyle', 'objc-appscript')] if userDefaults.boolForKey_(key)]
-		exportToSubfolders = userDefaults.boolForKey_(u'exportToSubfolders')
-		# files to process, sorted by name
-		selection = self.selectedFiles()[:]
-		selection.sort(lambda a,b:cmp(a['name'].lower(), b['name'].lower()))
-		progressObj = GUIProgress(len(selection), len(styles), len([i for i in [plainText, singleHTML, frameHTML] if i]), self)
-		dictionaryexporter.export(selection, styles, plainText, singleHTML, frameHTML, objcGlue, options, outFolder, exportToSubfolders, progressObj)
+		try:
+			options = []
+			if userDefaults.boolForKey_('compactClasses'):
+				options.append('collapse')
+			if userDefaults.boolForKey_('showInvisibles'):
+				options.append('full')
+			plainText, singleHTML, frameHTML = [userDefaults.boolForKey_(name) 
+					for name in ['plainText', 'singleHTML', 'frameHTML']]
+			styles = [style for key, style in [
+					('applescriptStyle', 'applescript'),
+					('pythonStyle', 'py-appscript'),
+					('rubyStyle', 'rb-scpt')] if userDefaults.boolForKey_(key)]
+			exportToSubfolders = userDefaults.boolForKey_('exportToSubfolders')
+			# files to process, sorted by name
+			selection = self.selectedFiles()[:]
+			selection.sort(key=lambda s: s['name'].lower())
+			progressObj = GUIProgress(len(selection), len(styles), len([i for i in [plainText, singleHTML, frameHTML] if i]), self)
+			dictionaryexporter.export(selection, styles, plainText, singleHTML, frameHTML, options, outFolder, exportToSubfolders, progressObj)
+		except Exception as e:
+			from traceback import print_exc; print_exc()
 
 
 	@objc.IBAction
@@ -353,44 +340,44 @@ class GUIProgress:
 		self._itemname = name
 		self._subcount = 0
 		self._maincount += 1
-		self._appcontroller.writeToLogWindow_(u'Exporting %s dictionary...\n' % name)
+		self._appcontroller.writeToLogWindow_('Exporting %s dictionary...\n' % name)
 		self._appcontroller.itemName.setStringValue_(name)
 		self._appcontroller.progressBar.setDoubleValue_(self._maincount - 1)
 
 	def nextoutput(self, outpath):
 		self._subcount += self._subincrement
-		self._appcontroller.writeToLogWindow_(u'%s\n' % outpath)
+		self._appcontroller.writeToLogWindow_('%s\n' % outpath)
 		self._appcontroller.progressBar.setDoubleValue_(self._maincount - 1 + self._subcount)
 
 	def didsucceed(self):
-		self._appcontroller.writeToLogWindow_(u'\n')
+		self._appcontroller.writeToLogWindow_('\n')
 
 	def didfail(self, errormessage):
 		self._faileditems.append(self._itemname)
-		self._appcontroller.writeToLogWindow_(u'%s\n\n' % errormessage)
+		self._appcontroller.writeToLogWindow_('%s\n\n' % errormessage)
 
 	def didfinish(self):
 		userDefaults = NSUserDefaults.standardUserDefaults()
 		# dispose progress panel
 		self._appcontroller.progressPanel.orderOut_(None)
 		NSApp().endModalSession_(self._session)
-		self._appcontroller.writeToLogWindow_(u'Done.\n\n\n')
+		self._appcontroller.writeToLogWindow_('Done.\n\n\n')
 		self._appcontroller.standardAdditions.beep()
 		try:
 			if self._faileditems:
 				buttons = ['OK']
-				if not userDefaults.boolForKey_(u'showLog'):
+				if not userDefaults.boolForKey_('showLog'):
 					buttons.insert(0, 'View Log')
 				action = self._appcontroller.standardAdditions.display_dialog(
 						"Rendered terminology for %i items.\n\n" % (self._maincount - len(self._faileditems))
 						+ "Couldn't render terminology for: \n    " + '\n    '.join(self._faileditems), 
 						buttons=buttons, default_button='OK', with_icon=osax.k.caution)[osax.k.button_returned]
 				if action == 'View Log':
-					userDefaults.setBool_forKey_(True, u'showLog')
+					userDefaults.setBool_forKey_(True, 'showLog')
 			else:
 				self._appcontroller.standardAdditions.display_dialog("Rendered terminology for %i items." % self._maincount, 
 						buttons=['OK'], default_button=1, with_icon=osax.k.note)
-		except CommandError, e: # ignore timeout errors from osax calls
+		except CommandError as e: # ignore timeout errors from osax calls
 			if int(e) != -1712:
 				raise
 

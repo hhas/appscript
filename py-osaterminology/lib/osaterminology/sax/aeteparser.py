@@ -13,7 +13,7 @@ __all__ = ['Receiver', 'parse', 'kBE', 'kLE', 'kAuto']
 
 #Constants
 
-_kAEInheritedProperties = 'c@#^'
+_kAEInheritedProperties = b'c@#^'
 
 # Note: kAEInheritedProperties isn't defined in IM:IAC; Jon Pugh documented it in Winter 1992 Registry Errata v4:
 #
@@ -47,12 +47,12 @@ class _BigEndianDataSource:
 	
 	def string(self):
 		"""Read a MacRoman-encoded Pascal string."""
-		count = ord(self._str[self._ptr])
+		count = self._str[self._ptr]
 		self._ptr += 1 + count
 		if count:
-			return unicode(self._str[self._ptr - count:self._ptr], 'MacRoman') # note: this conversion is a significant bottleneck
+			return str(self._str[self._ptr - count:self._ptr], 'MacRoman') # note: this conversion is a significant bottleneck
 		else:
-			return u''
+			return ''
 	
 	name=string
 	
@@ -284,12 +284,12 @@ def parse(aetes, receiver, byteorder=kNative):
 	if not isinstance(aetes, list):
 		aetes = [aetes]
 	for aete in aetes:
-		if isinstance(aete, AEDesc) and aete.type in ['aete', 'aeut'] and aete.data:
+		if isinstance(aete, AEDesc) and aete.type in [b'aete', b'aeut'] and aete.data:
 			aete = aete.data
 			if byteorder == kNative:
-				isBigEndian = pack("H", 1) == '\x00\x01'
+				isBigEndian = pack("H", 1) == b'\x00\x01'
 			elif byteorder == kAuto:
-				isBigEndian = aete[6] == '\x00'
+				isBigEndian = aete[6] == b'\x00'
 			else:
 				isBigEndian = byteorder == kBE
 			a = (isBigEndian and _BigEndianDataSource or _LittleEndianDataSource)(aete)

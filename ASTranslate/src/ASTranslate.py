@@ -6,7 +6,7 @@ from PyObjCTools import AppHelper
 
 import aem
 
-import astranslate, eventformatter
+import _astranslate, eventformatter
 from constants import *
 
 
@@ -14,8 +14,8 @@ from constants import *
 
 _userDefaults = NSUserDefaults.standardUserDefaults()
 
-if not _userDefaults.integerForKey_(u'defaultOutputLanguage'):
-	_userDefaults.setInteger_forKey_(0, u'defaultOutputLanguage')
+if not _userDefaults.integerForKey_('defaultOutputLanguage'):
+	_userDefaults.setInteger_forKey_(0, 'defaultOutputLanguage')
 
 _standardCodecs = aem.Codecs()
 
@@ -40,7 +40,7 @@ class ASTranslateDocument(NSDocument):
 			self._resultStores[kind].append(val)
 		if kind == self.currentStyle or kind == kLangAll:
 			self.resultView.textStorage().appendAttributedString_(
-				NSAttributedString.alloc().initWithString_(u'%s\n\n' % self._resultStores[self.currentStyle][-1]))
+				NSAttributedString.alloc().initWithString_('%s\n\n' % self._resultStores[self.currentStyle][-1]))
 	
 	
 	def windowNibName(self): # a default NSWindowController is created automatically
@@ -48,11 +48,11 @@ class ASTranslateDocument(NSDocument):
 
 	def windowControllerDidLoadNib_(self, controller):
 		self._resultStores = [[] for _ in range(eventformatter.kLanguageCount)]
-		self.currentStyle = _userDefaults.integerForKey_(u'defaultOutputLanguage')
+		self.currentStyle = _userDefaults.integerForKey_('defaultOutputLanguage')
 	
 	@objc.IBAction
 	def runScript_(self, sender):
-		self.resultView.setString_(u'')
+		self.resultView.setString_('')
 		for lang in self._resultStores:
 			while lang:
 				lang.pop()
@@ -60,11 +60,11 @@ class ASTranslateDocument(NSDocument):
 			sourceDesc = _standardCodecs.pack(self.codeView.string())
 			handler = eventformatter.makeCustomSendProc(
 					self._addResult_to_, _userDefaults.boolForKey_('sendEvents'))
-			result = astranslate.translate(sourceDesc, handler) # returns tuple; first item indicates if ok
+			result = _astranslate.translate(sourceDesc, handler) # returns tuple; first item indicates if ok
 			if result[0]: # script result
 				script, result = (_standardCodecs.unpack(desc) for desc in result[1:])
 				self.codeView.setString_(script)
-				self._addResult_to_(kLangAll, u'OK')
+				self._addResult_to_(kLangAll, 'OK')
 			else: # script error info
 				script, errorNum, errorMsg, pos = (_standardCodecs.unpack(desc) for desc in result[1:])
 				start, end = (pos[aem.AEType(k)] for k in ['srcs', 'srce'])
@@ -74,15 +74,15 @@ class ASTranslateDocument(NSDocument):
 				else:
 					errorKind = 'Compilation'
 				self._addResult_to_(kLangAll, 
-						u'%s Error:\n%s (%i)' % (errorKind, errorMsg, errorNum))
+						'%s Error:\n%s (%i)' % (errorKind, errorMsg, errorNum))
 				self.codeView.setSelectedRange_((start, end - start))
-		except aem.ae.MacOSError, e:
-			self._addResult_to_(kLangAll, u'OS Error: %i' % e.args[0])
+		except aem.ae.MacOSError as e:
+			self._addResult_to_(kLangAll, 'OS Error: %i' % e.args[0])
 	
 	@objc.IBAction
 	def selectStyle_(self, sender):
-		self.resultView.setString_(u'\n\n'.join(self._resultStores[self.currentStyle]))
-		_userDefaults.setInteger_forKey_(self.currentStyle, u'defaultOutputLanguage')
+		self.resultView.setString_('\n\n'.join(self._resultStores[self.currentStyle]))
+		_userDefaults.setInteger_forKey_(self.currentStyle, 'defaultOutputLanguage')
 	
 	def isDocumentEdited(self):
 		return False

@@ -7,7 +7,7 @@ try:
 except: # Python 2.3
 	from sets import Set as set
 
-import pyappscript, rbappscript, objcappscript
+from . import pyappscript, rbappscript
 
 
 ######################################################################
@@ -40,7 +40,7 @@ class CamelCaseConverter(_Converter):
 			s : str
 			Result : str
 		"""
-		if not self._cache.has_key(s):
+		if s not in self._cache:
 			legal = self._legalChars
 			res = ''
 			uppercaseNext = False
@@ -73,13 +73,13 @@ class UnderscoreConverter(_Converter):
 			s : str
 			Result : str
 		"""
-		if not self._cache.has_key(s):
+		if s not in self._cache:
 			legal = self._legalChars
 			res = ''
 			for c in s:
 				if c in legal:
 					res += c
-				elif self._specialConversions.has_key(c):
+				elif c in self._specialConversions:
 					res += self._specialConversions[c]
 				else:
 					if res == '':
@@ -96,8 +96,7 @@ class UnderscoreConverter(_Converter):
 _converters = {
 	'applescript': lambda s:s,
 	'py-appscript': UnderscoreConverter(pyappscript.kReservedWords).convert,
-	'rb-appscript': UnderscoreConverter(rbappscript.kReservedWords).convert,
-	'objc-appscript': CamelCaseConverter(objcappscript.kReservedWords).convert,
+	'rb-scpt': UnderscoreConverter(rbappscript.kReservedWords).convert,
 }
 
 
@@ -110,5 +109,5 @@ def getconverter(name='py-appscript'):
 	try:
 		return _converters[name]
 	except:
-		raise KeyError, "Keyword converter not found: %r" % name
+		raise KeyError("Keyword converter not found: %r" % name)
 

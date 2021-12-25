@@ -24,9 +24,9 @@ class TextRenderer:
 	
 	def add(self, name, islast, hilite=False, tbc=False):
 		if self._pad:
-			print >> self._output, '    ' + self._indent # insert a line of extra padding after a subtree
+			print('    ' + self._indent, file=self._output) # insert a line of extra padding after a subtree
 			self._pad = False
-		print >> self._output, ' %s %s-%s%s' % (hilite and '->' or '  ', self._indent, name, tbc and ' ->' or '')
+		print(' %s %s-%s%s' % (hilite and '->' or '  ', self._indent, name, tbc and ' ->' or ''), file=self._output)
 		if islast and self._indent:
 			self._indent = self._indent[:-4] + '    '
 	

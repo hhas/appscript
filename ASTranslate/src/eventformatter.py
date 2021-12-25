@@ -8,7 +8,7 @@ from aem import kae, ae
 import appscript, aem, mactypes
 import appscript.reference
 
-import pythonrenderer, rubyrenderer, objcrenderer
+import pythonrenderer, rubyrenderer
 from constants import *
 
 _standardCodecs = aem.Codecs()
@@ -36,7 +36,7 @@ def makeCustomSendProc(addResultFn, isLive):
 				raise MacOSError(-1708)
 						
 			# get app instance and associated data
-			if not _appCache.has_key((addressdesc.type, addressdesc.data)):
+			if (addressdesc.type, addressdesc.data) not in _appCache:
 				if addressdesc.type != kae.typeProcessSerialNumber:
 					raise OSAError(10000, 
 							"Can't identify application (addressdesc descriptor not typeProcessSerialNumber)")
@@ -52,8 +52,8 @@ def makeCustomSendProc(addResultFn, isLive):
 			for i in range(desc.count()):
 				key, value = desc.getitem(i + 1, kae.typeWildCard)
 				params[key] = appData.unpack(value)
-			resultType = params.pop('rtyp', None)
-			directParam = params.pop('----', kNoParam)
+			resultType = params.pop(b'rtyp', None)
+			directParam = params.pop(b'----', kNoParam)
 			try:
 				subject = appData.unpack(event.getattr(kae.keySubjectAttr, kae.typeWildCard))
 			except Exception:
@@ -62,10 +62,10 @@ def makeCustomSendProc(addResultFn, isLive):
 			# apply special cases
 			if subject is not None:
 				targetRef = subject
-			elif eventcode == 'coresetd':
+			elif eventcode == b'coresetd':
 				# Special case: for 'set' command, use direct parameter as target reference and use 'to' parameter for direct argument
 				targetRef = directParam
-				directParam = params.pop('data')
+				directParam = params.pop(b'data')
 			elif isinstance(directParam, appscript.reference.Reference):
 				# Special case: if direct parameter is a reference, use this as target reference
 				targetRef = directParam
@@ -74,22 +74,22 @@ def makeCustomSendProc(addResultFn, isLive):
 				targetRef = app
 			
 			# render
-			for key, renderer in [(kLangPython, pythonrenderer), (kLangRuby, rubyrenderer), (kLangObjC, objcrenderer)]:
+			for key, renderer in [(kLangPython, pythonrenderer), (kLangRuby, rubyrenderer)]:
 				try:
 					addResultFn(key, renderer.renderCommand(
 							appPath, addressdesc, eventcode, 
 							targetRef, directParam, params, 
 							resultType, modeFlags, timeout, 
 							appData))
-				except (UntranslatedKeywordError, UntranslatedUserPropertyError), e:
+				except (UntranslatedKeywordError, UntranslatedUserPropertyError) as e:
 					s = 'Untranslated event %r\n%s' % (eventcode, e)
 					addResultFn(key, s)
-				except Exception, e:
+				except Exception as e:
 					traceback.print_exc()
 					s = 'Untranslated event %r' % eventcode
 					addResultFn(key, s)
 
-		except Exception, e:
+		except Exception as e:
 			traceback.print_exc()
 			s = 'Untranslated event %r' % eventcode
 			addResultFn(kLangAll, s)
@@ -98,6 +98,6 @@ def makeCustomSendProc(addResultFn, isLive):
 		if isLive:
 			return event.send(modeFlags, timeout)
 		else:
-			return ae.newdesc(kae.typeNull, '')
+			return ae.newdesc(kae.typeNull, b'')
 	return customSendProc
 

@@ -24,15 +24,15 @@ class _Formatter:
 		self._nested = nested
 		self._indent = indent
 		self._valueFormatters = {
-				types.NoneType: self.formatNone,
-				types.BooleanType: self.formatBool,
-				types.IntType: self.formatInt,
-				types.LongType: self.formatInt,
-				types.FloatType: self.formatFloat,
-				types.StringType: self.formatStr,
-				types.UnicodeType: self.formatUnicodeText, 
-				types.ListType: self.formatList,
-				types.DictionaryType: self.formatDict,
+				type(None): self.formatNone,
+				bool: self.formatBool,
+				int: self.formatInt,
+				int: self.formatInt,
+				float: self.formatFloat,
+				bytes: self.formatStr,
+				str: self.formatUnicodeText, 
+				list: self.formatList,
+				dict: self.formatDict,
 				datetime.datetime: self.formatDatetime,
 				appscript.mactypes.Alias: self.formatAlias,
 				appscript.mactypes.File: self.formatFile,
@@ -104,7 +104,7 @@ class _Formatter:
 		if val:
 			self._indent += '    '
 			tmp = []
-			for k, v in val.items():
+			for k, v in list(val.items()):
 				s = '\n%s%s => ' % (self._indent, self.format(k))
 				indent = self._indent
 				indent2 = len(s)
@@ -263,7 +263,7 @@ class RubyRenderer:
 	def __init__(self, appobj, aetes):
 		if not self._codecs:
 			self.__class__._codecs = aem.Codecs()
-			self.__class__._terminology = TerminologyTableBuilder('rb-appscript')
+			self.__class__._terminology = TerminologyTableBuilder('rb-scpt')
 		self.appobj = appobj
 		self.typebycode, typebyname, self.referencebycode, referencebyname = \
 				self._terminology.tablesforaetes(aetes)
@@ -279,7 +279,7 @@ class RubyRenderer:
 		elif constructor == 'current':
 			self.root = 'app.current'
 		else: # note: 'aemapp' constructor is unsupported
-			raise RuntimeError, 'Unknown constructor: %r' % constructor
+			raise RuntimeError('Unknown constructor: %r' % constructor)
 		
 	
 	def rendervalue(self, value, prettyprint=False): 

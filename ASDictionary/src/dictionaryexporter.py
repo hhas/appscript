@@ -8,7 +8,6 @@ from aem import *
 from aemreceive import *
 from osaterminology import makeidentifier
 from osaterminology.dom import aeteparser, sdefparser
-from osaterminology.makeglue import objcappscript
 from osaterminology.renderers import quickdoc, htmldoc, htmldoc2
 
 
@@ -20,8 +19,7 @@ from osaterminology.renderers import quickdoc, htmldoc, htmldoc2
 kStyleToSuffix = {
 		'applescript': '-AS',
 		'py-appscript': '-py', 
-		'rb-appscript': '-rb', 
-		'objc-appscript': '-objc',
+		'rb-scpt': '-rb', 
 }
 
 
@@ -35,32 +33,29 @@ def _makeDestinationFolder(outFolder, styleSubfolderName, formatSubfolderName, f
 ######################################################################
 # define handler for 'export dictionaries' events # TO DO: junk this?
 
-kPlainText = 'PTex'
-kSingleHTML = 'SHTM'
-kFrameHTML = 'FHTM'
-kObjCGlue = 'OCGl'
-kASStyle = 'AScr'
-kPyStyle = 'PyAp'
-kRbStyle = 'RbAp'
-kObjCStyle = 'OCAp'
+kPlainText = b'PTex'
+kSingleHTML = b'SHTM'
+kFrameHTML = b'FHTM'
+kASStyle = b'AScr'
+kPyStyle = b'PyAp'
+kRbStyle = b'RbAp'
 
 kAECodeToStyle = {
 	kASStyle: 'applescript',
 	kPyStyle: 'py-appscript',
-	kRbStyle: 'rb-appscript',
-	kObjCStyle: 'objc-appscript',
+	kRbStyle: 'rb-scpt',
 }
 
 class AEProgress:
 
-	kClassKey = AEType('pcls')
-	kClassValue = AEType('ExpR')
-	#kNameKey = AEType('pnam')
-	kSuccessKey = AEType('Succ')
-	kSourceKey = AEType('Sour')
-	kDestKey = AEType('Dest')
-	kErrorKey = AEType('ErrS')
-	kMissingValue = AEType('msng')
+	kClassKey = AEType(b'pcls')
+	kClassValue = AEType(b'ExpR')
+	#kNameKey = AEType(b'pnam')
+	kSuccessKey = AEType(b'Succ')
+	kSourceKey = AEType(b'Sour')
+	kDestKey = AEType(b'Dest')
+	kErrorKey = AEType(b'ErrS')
+	kMissingValue = AEType(b'msng')
 
 	def __init__(self, itemcount, stylecount, formatcount, controller):
 		self._results = []
@@ -97,7 +92,6 @@ def handle_exportdictionaries(sources, outfolder,
 	for alias in sources:
 		name = os.path.splitext(os.path.basename(alias.path.rstrip('/')))[0]
 		items.append({
-			'objcPrefix': objcappscript.nametoprefix(name),
 			'name': name, 
 			'path': alias.path,
 			})
@@ -105,7 +99,6 @@ def handle_exportdictionaries(sources, outfolder,
 	plaintext = AEEnum(kPlainText) in fileformats
 	singlehtml = AEEnum(kSingleHTML) in fileformats
 	framehtml = AEEnum(kFrameHTML) in fileformats
-	isobjcglue = AEEnum(kObjCGlue) in fileformats
 	styles = [kAECodeToStyle[o.code] for o in styles]
 	options = []
 	if compactclasses:
@@ -113,14 +106,14 @@ def handle_exportdictionaries(sources, outfolder,
 	if showinvisibles:
 		options.append('full')
 	progressobj = AEProgress(len(items), len(styles), len(fileformats), None)
-	return export(items, styles, plaintext, singlehtml, framehtml, isobjcglue, options, outfolder, usesubfolders, progressobj)
+	return export(items, styles, plaintext, singlehtml, framehtml, options, outfolder, usesubfolders, progressobj)
 
 
-def aetesforapp(aemapp):
+def aetesforapp(aemapp): # TO DO: why not using
 	"""Get aetes from local/remote app via an ascrgdte event; result is a list of byte strings."""
 	try:
-		aetes = aemapp.event('ascrgdte', {'----':0}).send(5 * 60) # some processes (e.g. AppleSpell.service, ARDAgent.app) don't respond to ascrgdte events, so keep timeout interval short and ignore timeout errors
-	except Exception, e: # (e.g.application not running)
+		aetes = aemapp.event(b'ascrgdte', {b'----':0}).send(5 * 60) # some processes (e.g. AppleSpell.service, ARDAgent.app) don't respond to ascrgdte events, so keep timeout interval short and ignore timeout errors
+	except Exception as e: # (e.g.application not running)
 		if isinstance(e, EventError) and e.errornumber in [-192, -609, -1712]:
 			aetes = []
 		else:
@@ -135,80 +128,54 @@ def aetesforapp(aemapp):
 ######################################################################
 
 
-def export(items, styles, plainText, singleHTML, frameHTML, objcGlue, options, outFolder, exportToSubfolders, progress):
+def export(items, styles, plainText, singleHTML, frameHTML, options, outFolder, exportToSubfolders, progress):
 	styleInfo = [(style, kStyleToSuffix[style]) for style in styles]
 	# process each item
 	for i, item in enumerate(items):
 		sdef = aetes = None
-		objcPrefix, name, path = item['objcPrefix'], item['name'], item['path']
+		name, path = item['name'], item['path']
 		if path == NSBundle.mainBundle().bundlePath():
 			continue
 		progress.nextitem(name, path)
 		try:
-			isOSAX = path.lower().endswith('.osax')
-			if isOSAX:
-				try:
-					sdef = ae.copyscriptingdefinition(path)
-				except ae.MacOSError, e:
-					if e.args[0] == -10827:
-						progress.didfail(u"No terminology found.")
-						continue
-					else:
-						raise
-			else:
-				Application
-				aetes = aetesforapp(Application(path))
+			aetes = aetesforapp(Application(path))
 			if not bool(sdef or aetes):
-				progress.didfail(u"No terminology found.")
+				progress.didfail("No terminology found.")
 				continue
 			for style, suffix in styleInfo:
 				styleSubfolderName = exportToSubfolders and style or ''
 				if not progress.shouldcontinue():
 					for item in items[i:]:
-						progress.didfail(u"User cancelled.")
+						progress.didfail("User cancelled.")
 						progress.nextapp(item['name'], item['path'])
-					progress.didfail(u"User cancelled.")
+					progress.didfail("User cancelled.")
 					progress.didfinish()
 					return
-				if plainText and not isOSAX:
+				if plainText:
 					outputPath = _makeDestinationFolder(outFolder, styleSubfolderName, 
 							exportToSubfolders and 'text', name + suffix + '.txt')
-					progress.nextoutput(u'%s' % outputPath)
-					f = file(outputPath, 'w')
-					try:
-						f.write('\xEF\xBB\xBF') # UTF8 BOM
+					progress.nextoutput('%s' % outputPath)
+					with open(outputPath, 'w', encoding='utf-8') as f:
+						f.write('\uFEFF') # UTF8 BOM
 						quickdoc.renderaetes(aetes, f, makeidentifier.getconverter(style))
-					except:
-						f.close()
-						raise
-					f.close()
 				if singleHTML or frameHTML:
-					if isOSAX:
-						terms = sdefparser.parsexml(sdef, path, style)
-					else:
-						terms = aeteparser.parseaetes(aetes, path, style)
+					#terms = sdefparser.parsexml(sdef, path, style)
+					terms = aeteparser.parseaetes(aetes, path, style)
 					if singleHTML:
 						outputPath = _makeDestinationFolder(outFolder, styleSubfolderName, 
 								exportToSubfolders and 'html', name + suffix + '.html')
-						progress.nextoutput(u'%s' % outputPath)
+						progress.nextoutput('%s' % outputPath)
 						html = htmldoc.renderdictionary(terms, style, options)
-						f = open(outputPath, 'w')
-						f.write(str(html))
-						f.close()
+						with open(outputPath, 'w', encoding='utf-8') as f:
+							f.write(str(html))
 					if frameHTML:
 						outputPath = _makeDestinationFolder(outFolder, styleSubfolderName, 
 								exportToSubfolders and 'frame-html', name + suffix)
-						progress.nextoutput(u'%s' % outputPath)
+						progress.nextoutput('%s' % outputPath)
 						htmldoc2.renderdictionary(terms, outputPath, style, options)
-			if objcGlue and not isOSAX:
-				outputPath = _makeDestinationFolder(outFolder, 
-						exportToSubfolders and 'objc-appscript' or '', 
-						'%s%sGlue' % (exportToSubfolders and 'glues/' or '', objcPrefix), '')
-				objcappscript.makeappglue(path, objcPrefix, outputPath, aetes)
-				progress.nextoutput(u'%s' % outputPath)
-		except Exception, err:
+		except Exception as err:
 			from traceback import format_exc
-			progress.didfail(u'Unexpected error:/n%s' % format_exc())
+			progress.didfail('Unexpected error:/n%s' % format_exc())
 		else:
 			progress.didsucceed()
 	return progress.didfinish()
@@ -218,11 +185,11 @@ def export(items, styles, plainText, singleHTML, frameHTML, objcGlue, options, o
 
 
 def init():
-	installeventhandler(handle_exportdictionaries, 'ASDiExpD',
-			('----', 'sources', ArgListOf(kae.typeAlias)),
-			('ToFo', 'outfolder', kae.typeAlias),
-			('Form', 'fileformats', ArgListOf(ArgEnum(kPlainText, kSingleHTML, kFrameHTML, kObjCGlue))),
-			('Styl', 'styles', ArgListOf(ArgEnum(kASStyle, kPyStyle, kRbStyle, kObjCStyle))),
-			('ClaC', 'compactclasses', kae.typeBoolean),
-			('SInv', 'showinvisibles', kae.typeBoolean),
-			('SubF', 'usesubfolders', kae.typeBoolean))
+	installeventhandler(handle_exportdictionaries, b'ASDiExpD',
+			(b'----', 'sources', ArgListOf(kae.typeAlias)),
+			(b'ToFo', 'outfolder', kae.typeAlias),
+			(b'Form', 'fileformats', ArgListOf(ArgEnum(kPlainText, kSingleHTML, kFrameHTML))),
+			(b'Styl', 'styles', ArgListOf(ArgEnum(kASStyle, kPyStyle, kRbStyle))),
+			(b'ClaC', 'compactclasses', kae.typeBoolean),
+			(b'SInv', 'showinvisibles', kae.typeBoolean),
+			(b'SubF', 'usesubfolders', kae.typeBoolean))

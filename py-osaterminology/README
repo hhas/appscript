@@ -1,7 +1,7 @@
 About osaterminology
 ====================
 
-osaterminology implements aete/sdef terminology parsers and renderers. 
+osaterminology implements sdef terminology parsers and renderers. 
 
 Used by ASDictionary and ASTranslate.
 
@@ -9,16 +9,16 @@ Used by ASDictionary and ASTranslate.
 Requirements
 ------------
 
-- Python 2.3+
-- Mac OS X 10.4+ 
-- appscript 0.22.0+
+- Python 3.7+
+- macOS 10.12+ 
+- appscript 1.2.0+
 
 
 Installation
 ------------
 
 osaterminology is packaged using the standard Python Distribution Utilities 
-(a.k.a. Distutils). To install osaterminology, cd to the osaterminology-0.14.6
+(a.k.a. Distutils). To install osaterminology, cd to the osaterminology-0.15.0
 directory and run:
 
   python setup.py install

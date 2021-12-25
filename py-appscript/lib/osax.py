@@ -127,7 +127,7 @@ class SdefParser:
 		
 			path :  str -- path to .sdef file
 		"""
-		self.parse(aem.ae.copyscriptingdefinition(path))
+		self.parse(aem.ae.scriptingdefinitionfromurl(aem.ae.convertpathtourl(path, 0)))
 
 
 ##

@@ -8,7 +8,7 @@
 
 import sys
 
-from typerenderers import gettyperenderer
+from .typerenderers import gettyperenderer
 
 
 ######################################################################
@@ -32,16 +32,16 @@ class IndexRenderer:
 		self._collapse = 'collapse' in options
 	
 	def draw_dictionary(self, o):
-		print >> self._out, o.name, 'Dictionary\n'
-		print >> self._out, '  Suites:'
+		print(o.name, 'Dictionary\n', file=self._out)
+		print('  Suites:', file=self._out)
 		for name in o.suites().names():
-			print >> self._out, '    %s' % name
-		print >> self._out
+			print('    %s' % name, file=self._out)
+		print(file=self._out)
 		for title, items in [('Commands', o.commands()), ('Classes', o.classes())]:
-			print >> self._out, '  %s:' % title
+			print('  %s:' % title, file=self._out)
 			names = items.names()
 			if self._sort:
-				names.sort(lambda a, b: cmp(a.lower(), b.lower()))
+				names.sort(key=lambda s: s.lower())
 			if self._collapse:
 				unique = []
 				for name in names:
@@ -49,8 +49,8 @@ class IndexRenderer:
 						unique.append(name)
 				names = unique
 			for name in names:
-				print >> self._out, '    %s' % name
-			print >> self._out
+				print('    %s' % name, file=self._out)
+			print(file=self._out)
 	
 	def draw(self, o):
 		getattr(self, 'draw_' + o.kind.replace('-', ''), self.draw_nothing)(o)
@@ -93,21 +93,21 @@ class SummaryRenderer:
 	
 	def draw_documentation(self, o):
 		if o.documentation and 0:
-			print >> self._out, '='*80
-			print >> self._out, o.documentation
-			print >> self._out, '='*80
+			print('='*80, file=self._out)
+			print(o.documentation, file=self._out)
+			print('='*80, file=self._out)
 	
 	##
 	
 	def draw_dictionary(self, o):
-		print >> self._out, o.name, 'Dictionary\n'
+		print(o.name, 'Dictionary\n', file=self._out)
 		self.draw_documentation(o)
 		o.suites().map(self.draw_suite)
 	
 	##
 	
 	def draw_suite(self, o):
-		print >> self._out, 'Suite: %s%s%s' % (o.name, not o.visible and ' [hidden]' or '', self.desc(o))
+		print('Suite: %s%s%s' % (o.name, not o.visible and ' [hidden]' or '', self.desc(o)), file=self._out)
 		self.draw_documentation(o)
 		self.indent()
 		for name, nodes, fn in [
@@ -118,12 +118,12 @@ class SummaryRenderer:
 				('Record types', o.recordtypes(), self.draw_recordtype),
 				('Value types', o.valuetypes(), self.draw_valuetype)]:
 			if nodes and not fn == self.draw_nothing:
-				print >> self._out, self._in + '%s:' % name
+				print(self._in + '%s:' % name, file=self._out)
 				self.indent()
 				nodes.map(fn)
 				self.dedent()
 		self.dedent()
-		print >> self._out
+		print(file=self._out)
 	
 	
 	def draw_class(self, o):
@@ -132,16 +132,16 @@ class SummaryRenderer:
 			o = o.full()
 		elif self.collapse:
 			o = o.collapse()
-		print >> self._out, self._in + '%s%s%s' % (self.code(o), o.name, self.desc(o))
+		print(self._in + '%s%s%s' % (self.code(o), o.name, self.desc(o)), file=self._out)
 		self.indent()
 		self.draw_classcontent(o)
 		self.dedent()
-		print >> self._out
+		print(file=self._out)
 	
 	draw_classcontent = draw_nothing
 	
 	def draw_command(self, o):
-		print >> self._out, self._in + '%s%s%s' % (self.code(o), o.name, self.desc(o))
+		print(self._in + '%s%s%s' % (self.code(o), o.name, self.desc(o)), file=self._out)
 		self.indent()
 		self.draw_documentation(o)
 		if o.directparameter:
@@ -150,18 +150,18 @@ class SummaryRenderer:
 		if o.result:
 			self.draw_result(o.result)
 		self.dedent()
-		print >> self._out
+		print(file=self._out)
 	
 	draw_event = draw_command
 	draw_directparameter = draw_parameter = draw_result = draw_nothing
 	
 	def draw_recordtype(self, o):
-		print >> self._out, self._in + '%s%s%s' % (self.code(o), o.name, self.desc(o))
+		print(self._in + '%s%s%s' % (self.code(o), o.name, self.desc(o)), file=self._out)
 		self.indent()
 		self.draw_documentation(o)
 		o.properties.map(self.draw_recordproperty)
 		self.dedent()
-		print >> self._out
+		print(file=self._out)
 	
 	draw_enumeration = draw_recordproperty = draw_valuetype = draw_nothing
 
@@ -177,16 +177,16 @@ class FullRenderer(SummaryRenderer):
 	def draw_classcontent(self, o):
 		self.draw_documentation(o)
 		if o.pluralname != o.name:
-			print >> self._out, self._in + 'Plural:'
+			print(self._in + 'Plural:', file=self._out)
 			self.indent()
-			print >> self._out, self._in + '%s' % o.pluralname
+			print(self._in + '%s' % o.pluralname, file=self._out)
 			self.dedent()
 		if not o.isunique():
-			print >> self._out, self._in + 'See also:'
+			print(self._in + 'See also:', file=self._out)
 			suitenames = o.suitenames()[:]
 			suitenames.remove(o.suitename)
 			self.indent()
-			print >> self._out, self._in + '%s' % ', '.join(suitenames)
+			print(self._in + '%s' % ', '.join(suitenames), file=self._out)
 			self.dedent()
 		# TO DO: contents
 		for name, nodes, fn in [
@@ -195,48 +195,48 @@ class FullRenderer(SummaryRenderer):
 				('Elements', o.elements(), self.draw_element),
 				('Responds to', o.respondsto(), self.draw_respondsto)]:
 			if nodes:
-				print >> self._out, self._in + '%s:' % name
+				print(self._in + '%s:' % name, file=self._out)
 				self.indent()
 				nodes.map(fn)
 				self.dedent()
 	
 	def draw_parent(self, o):
 		if o.kind == 'class': # compensate for faulty dictionaries
-			print >> self._out, self._in + '%s%s (in %s)' % (self.code(o), o.name, o.suitename) # TO DO: add 'suite' if suitename doesn't end in 'Suite' or 'suite'?
+			print(self._in + '%s%s (in %s)' % (self.code(o), o.name, o.suitename), file=self._out) # TO DO: add 'suite' if suitename doesn't end in 'Suite' or 'suite'?
 		else: # bad superclass; an AE type instead of an application class (e.g. Mail) # TO DO: add error description?
-			print >> self._out, self._in + '%s' % o.name
+			print(self._in + '%s' % o.name, file=self._out)
 	
 	def draw_property(self, o):
-		print >> self._out, self._in + '%s%s%s : %s%s' % (self.code(o), o.name,
+		print(self._in + '%s%s%s : %s%s' % (self.code(o), o.name,
 				o.access == 'r' and ' (r/o)' or o.access == 'w' and ' (w/o)' or '',
 				self.typerenderer.render(o.types),
-				self.desc(o))
+				self.desc(o)), file=self._out)
 		self.draw_documentation(o)
 		
 	def draw_element(self, o):
-		print >> self._out, self._in + '%s%s -- by %s' % (self.code(o.type), 
+		print(self._in + '%s%s -- by %s' % (self.code(o.type), 
 				self.typerenderer.elementname(o.type),
-				', '.join(o.accessors()))
+				', '.join(o.accessors())), file=self._out)
 		self.draw_documentation(o)
 		
 	def draw_respondsto(self, o):
-		print >> self._out, self._in + '%s' % o.name
+		print(self._in + '%s' % o.name, file=self._out)
 		self.draw_documentation(o)
 	
 	# command
 	
 	def draw_directparameter(self, o):
-		print >> self._out, self._in + '%s%s%s%s' % (o.optional and '[' or '', 
-				self.typerenderer.render(o.types), o.optional and ']' or '', self.desc(o))
+		print(self._in + '%s%s%s%s' % (o.optional and '[' or '', 
+				self.typerenderer.render(o.types), o.optional and ']' or '', self.desc(o)), file=self._out)
 		self.draw_documentation(o)
 	
 	def draw_parameter(self, o):
-		print >> self._out, self._in + '%s%s%s : %s%s%s' % (o.optional and '[' or '', self.code(o), o.name,
-				self.typerenderer.render(o.types), o.optional and ']' or '', self.desc(o))
+		print(self._in + '%s%s%s : %s%s%s' % (o.optional and '[' or '', self.code(o), o.name,
+				self.typerenderer.render(o.types), o.optional and ']' or '', self.desc(o)), file=self._out)
 		self.draw_documentation(o)
 	
 	def draw_result(self, o):
-		print >> self._out, self._in + 'Result: %s%s' % (self.typerenderer.render(o.types), self.desc(o))
+		print(self._in + 'Result: %s%s' % (self.typerenderer.render(o.types), self.desc(o)), file=self._out)
 		self.draw_documentation(o)
 	
 	# enum, etc.
@@ -245,21 +245,21 @@ class FullRenderer(SummaryRenderer):
 		code = self.code(o)
 		haslabel = code or o.name and o.name != o.code or o.description
 		if haslabel:
-			print >> self._out, self._in + '%s%s' % (code or o.name, self.desc(o))
+			print(self._in + '%s%s' % (code or o.name, self.desc(o)), file=self._out)
 			self.indent()
 		for enumerator in o.enumerators():
 			self.draw_enumerator(enumerator)
 		self.draw_documentation(o)
 		if haslabel:
 			self.dedent()
-		print >> self._out
+		print(file=self._out)
 	
 	def draw_enumerator(self, o):
-		print >> self._out, self._in + '%s%s%s' % (self.code(o), o.name, self.desc(o))
+		print(self._in + '%s%s%s' % (self.code(o), o.name, self.desc(o)), file=self._out)
 		self.draw_documentation(o)
 	
 	def draw_valuetype(self, o):
-		print >> self._out, self._in + '%s%s%s' % (self.code(o), o.name, self.desc(o))
+		print(self._in + '%s%s%s' % (self.code(o), o.name, self.desc(o)), file=self._out)
 		self.draw_documentation(o)
 	
 

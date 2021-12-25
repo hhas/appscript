@@ -1,6 +1,6 @@
 """main -- Provides functions for installing and removing Apple event handlers in Python-based applications."""
 
-from StringIO import StringIO
+from io import StringIO
 from traceback import print_exc
 import struct
 
@@ -8,8 +8,8 @@ import mactypes
 import aem
 from aem import ae, kae
 
-from typedefs import buildDefs
-from handlererror import EventHandlerError
+from .typedefs import buildDefs
+from .handlererror import EventHandlerError
 
 
 if struct.pack("h", 1) == '\x00\x01': # host is big-endian
@@ -22,7 +22,7 @@ else: # host is small-endian
 # PUBLIC
 ######################################################################
 
-kMissingValue = ae.newdesc(kae.typeType, fourCharCode('msng')) # 'missing value' constant
+kMissingValue = ae.newdesc(kae.typeType, fourCharCode(b'msng')) # 'missing value' constant
 
 
 class Codecs(aem.Codecs):
@@ -65,19 +65,19 @@ _attributesArgName = 'attributes'
 # Used when installing event handler callbacks
 
 def _processArgDefs(callback, argDefs, eventCode):
-	total = callback.func_code.co_argcount
-	argNames = callback.func_code.co_varnames[:total]
-	optionalArgNames = argNames[total - len(callback.func_defaults or []):]
+	total = callback.__code__.co_argcount
+	argNames = callback.__code__.co_varnames[:total]
+	optionalArgNames = argNames[total - len(callback.__defaults__ or []):]
 	includeAttributes = argNames and argNames[0] == _attributesArgName
 	if includeAttributes:
 		argNames = argNames[1:]
 	if len(argNames) != len(argDefs):
-		raise TypeError, "Can't install event handler %r: expected %i parameters but function %r has %i." % (eventCode, len(argNames), callback.__name__, len(argDefs))
+		raise TypeError("Can't install event handler %r: expected %i parameters but function %r has %i." % (eventCode, len(argNames), callback.__name__, len(argDefs)))
 	requiredArgDefs = []
 	optionalArgDefs = {}
 	for (code, argName, datatypes) in argDefs:
 		if argName not in argNames:
-			raise TypeError, "Can't install event handler %r: function %r has no parameter named %r." % (eventCode, callback.__name__, argName)
+			raise TypeError("Can't install event handler %r: function %r has no parameter named %r." % (eventCode, callback.__name__, argName))
 		datatypes = buildDefs(datatypes)		
 		if argName in optionalArgNames:
 			optionalArgDefs[code] = (argName, datatypes)
@@ -121,7 +121,7 @@ def _unpackAppleEvent(event, includeAttributes, requiredArgDefs, optionalArgDefs
 			raise EventHandlerError(-1721, "Required parameter %r is missing." % code)
 		else:
 			kargs[argName] = _unpackValue(argValue, datatypes, codecs)
-	for code, argValue in params.items():
+	for code, argValue in list(params.items()):
 		try:
 			argName, datatypes = optionalArgDefs[code]
 		except KeyError: # (note: SIG says that any unrecognised parameters should be ignored)
@@ -137,7 +137,7 @@ def _unpackAppleEvent(event, includeAttributes, requiredArgDefs, optionalArgDefs
 
 def _packAppleEvent(desc, parameters, codecs=_standardCodecs):
 	if desc.type == kae.typeAppleEvent: # only pack and return a result/error where event has requested one
-		for key, value in parameters.items():
+		for key, value in list(parameters.items()):
 			desc.setparam(key, codecs.pack(value))
 
 
@@ -157,7 +157,7 @@ def makeCallbackWrapper(callback, eventCode, parameterDefinitions, codecs):
 					pass
 			if reply is not None:
 				_packAppleEvent(replyDesc, {kae.keyAEResult: reply}, codecs)
-		except EventHandlerError, err: # unpacking failed, so send an error message back to client
+		except EventHandlerError as err: # unpacking failed, so send an error message back to client
 			_packAppleEvent(replyDesc, err.get())
 		except: # an untrapped (i.e. unexpected) error occurred, so construct an error message for caller's benefit then rethrow error
 			s = StringIO()
@@ -200,17 +200,17 @@ def removecoercionhandler(fromType, toType):
 # Install various xxxx-to-unicode coercions if the OS (10.2, 10.3) doesn't already provide them
 
 def _coerceTypeAndEnum(desc, toType):
-	return _standardCodecs.pack(unicode(fourCharCode(desc.data)))
+	return _standardCodecs.pack(str(fourCharCode(desc.data)))
 
 def _coerceBoolAndNum(desc, toType):
-	return desc.coerce('TEXT').coerce('utxt')
+	return desc.coerce(b'TEXT').coerce(b'utxt')
 
 def _coerceFileTypes(desc, toType):
-	return desc.coerce('furl').coerce('utxt')
+	return desc.coerce(b'furl').coerce(b'utxt')
 
 _extraCoercions = [
-		(aem.AEType('utxt'), kae.typeType, _coerceTypeAndEnum),
-		(aem.AEEnum('yes '), kae.typeEnumerated, _coerceTypeAndEnum),
+		(aem.AEType(b'utxt'), kae.typeType, _coerceTypeAndEnum),
+		(aem.AEEnum(b'yes '), kae.typeEnumerated, _coerceTypeAndEnum),
 		(True, kae.typeBoolean, _coerceBoolAndNum),
 		(3, kae.typeInteger, _coerceBoolAndNum),
 		(3.1, kae.typeFloat, _coerceBoolAndNum),
@@ -223,7 +223,7 @@ _extraCoercions = [
 for testVal, fromType, func in _extraCoercions:
 	try:
 		_standardCodecs.pack(testVal).coerce(kae.typeUnicodeText)
-	except ae.MacOSError, err:
+	except ae.MacOSError as err:
 		if err[0] == -1700:
 			try:
 				installcoercionhandler(func, fromType, kae.typeUnicodeText)
