@@ -297,9 +297,9 @@ class Suite(_Base):
 		self._valuetypes = Nodes(visibility)
 	
 	def _add_(self, item):
-		{'class':self._classes, 'command':self._commands, 'event':self._events, 
+		{'class':self._classes, 'class-extension':self._classes,  'command':self._commands, 'event':self._events, 
 			'enumeration':self._enumerations, 'record-type':self._recordtypes, 
-			'value-type':self._valuetypes}[item.kind].append(item)
+			'value-type':self._valuetypes}.get(item.kind, []).append(item) # TO DO: why is this being called with `element`?
 		
 	def classes(self):
 		return self._classes

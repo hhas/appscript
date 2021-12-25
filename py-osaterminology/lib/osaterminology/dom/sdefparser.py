@@ -8,8 +8,10 @@
 
 import  xml.sax, xml.sax.xmlreader
 from xml.sax.handler import * #ContentHandler, ErrorHandler, property_xml_string
-from io import StringIO
 import struct
+from io import BytesIO
+
+from lxml import etree
 
 from aem import kae
 import aem.ae
@@ -26,6 +28,7 @@ from . import applescripttypes, appscripttypes
 
 
 class HandlerResult:
+	result = None
 	def _add_(self, item):
 		self.result = item
 
@@ -156,7 +159,7 @@ class Handler(ContentHandler):
 		self._stack.append(Accessor(self._visibility, d['style']))
 	
 	def start_respondsto(self, d):
-		self._stack.append(RespondsTo(self._visibility, self.asname(d['name']), self._isvisible))
+		self._stack.append(RespondsTo(self._visibility, self.asname(d['command']), self._isvisible)) # TO DO: command attribute may be command name or id
 	
 	##
 	
@@ -295,7 +298,7 @@ class AppscriptHandler(Handler):
 		# (note: wouldn't need to do this if appscript used AppleScript-style type names)
 		if not self.applescripttypesbyname:
 			# since parser has already converted type names to appscript style, need to convert our lookup table as well
-			for k, v in list(applescripttypes.typebyname.items()):
+			for k, v in applescripttypes.typebyname.items():
 				self.applescripttypesbyname[self.asname(k)] = v
 		for type in list(self._types.values()):
 			if not type.code: # not application-defined
@@ -335,12 +338,16 @@ handlers = {
 
 
 def parsexml(sdef, path='', style='appscript'):
+	# quick-n-dirty support for XIncludes, using lxml to merge multiple XML documents into one; TO DO: should really rewite sax-style parser to walk lxml tree
+	root = etree.ElementTree(etree.XML(sdef))
+	root.xinclude() # resolve any XIncludes, which makes generating glue tables from SDEFs far more complicated and slower than it ought to be as otherwise we could've done it with a simple single-pass SAX parser; no need to build and walk a large DOM; alas the history of AppleScript is full of well-intentioned bad decisions that come back to bite foreverafter
+	sdef = etree.tostring(root)
 	parser = xml.sax.make_parser()
 	handler = handlers[style](parser, path)
 	parser.setContentHandler(handler)
 	parser.setErrorHandler(Error()) # TO DO: better error reporting/handling
 	source = xml.sax.xmlreader.InputSource()
-	source.setByteStream(StringIO(sdef))
+	source.setByteStream(BytesIO(sdef))
 	parser.parse(source)
 	return parser.getContentHandler().result()
 

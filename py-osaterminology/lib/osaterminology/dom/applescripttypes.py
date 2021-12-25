@@ -36,8 +36,8 @@ class AeutTypesParser(aeteparser.Receiver):
 	
 	def result(self):
 		# add some definitions not in AS dictionary
-		self._typesbycode[b'furl'] = b'file'
-		self._typesbyname[b'file'] = b'furl'
+		self._typesbycode[b'furl'] = 'file'
+		self._typesbyname['file'] = b'furl'
 		return self._typesbycode, self._enumerationsbycode, self._typesbyname
 
 ##

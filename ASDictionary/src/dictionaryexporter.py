@@ -109,20 +109,6 @@ def handle_exportdictionaries(sources, outfolder,
 	return export(items, styles, plaintext, singlehtml, framehtml, options, outfolder, usesubfolders, progressobj)
 
 
-def aetesforapp(aemapp): # TO DO: why not using
-	"""Get aetes from local/remote app via an ascrgdte event; result is a list of byte strings."""
-	try:
-		aetes = aemapp.event(b'ascrgdte', {b'----':0}).send(5 * 60) # some processes (e.g. AppleSpell.service, ARDAgent.app) don't respond to ascrgdte events, so keep timeout interval short and ignore timeout errors
-	except Exception as e: # (e.g.application not running)
-		if isinstance(e, EventError) and e.errornumber in [-192, -609, -1712]:
-			aetes = []
-		else:
-			raise RuntimeError("Can't get terminology for application (%r): %s" % (aemapp, e))
-	if not isinstance(aetes, list):
-		aetes = [aetes]
-	return [aete for aete in aetes if isinstance(aete, ae.AEDesc) and aete.type == kae.typeAETE and aete.data]
-
-
 ######################################################################
 # PUBLIC
 ######################################################################
@@ -138,8 +124,12 @@ def export(items, styles, plainText, singleHTML, frameHTML, options, outFolder, 
 			continue
 		progress.nextitem(name, path)
 		try:
-			aetes = aetesforapp(Application(path))
-			if not bool(sdef or aetes):
+			sdef = ae.scriptingdefinitionfromurl(ae.convertpathtourl(path, 0))
+		except Exception as e:
+			progress.didfail("Can't get terminology for application (%r): %s" % (path, e))
+			continue
+		try:
+			if not sdef:
 				progress.didfail("No terminology found.")
 				continue
 			for style, suffix in styleInfo:
@@ -152,6 +142,7 @@ def export(items, styles, plainText, singleHTML, frameHTML, options, outFolder, 
 					progress.didfinish()
 					return
 				if plainText:
+					raise NotImplementedError("TO DO: rework quickdoc to use SDEF")
 					outputPath = _makeDestinationFolder(outFolder, styleSubfolderName, 
 							exportToSubfolders and 'text', name + suffix + '.txt')
 					progress.nextoutput('%s' % outputPath)
@@ -159,8 +150,7 @@ def export(items, styles, plainText, singleHTML, frameHTML, options, outFolder, 
 						f.write('\uFEFF') # UTF8 BOM
 						quickdoc.renderaetes(aetes, f, makeidentifier.getconverter(style))
 				if singleHTML or frameHTML:
-					#terms = sdefparser.parsexml(sdef, path, style)
-					terms = aeteparser.parseaetes(aetes, path, style)
+					terms = sdefparser.parsexml(sdef, path, style)
 					if singleHTML:
 						outputPath = _makeDestinationFolder(outFolder, styleSubfolderName, 
 								exportToSubfolders and 'html', name + suffix + '.html')
