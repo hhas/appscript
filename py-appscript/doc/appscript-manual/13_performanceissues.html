@@ -43,7 +43,7 @@
 <li>Packing and unpacking large and/or complex values (e.g. a long list of object specifiers) can take an appreciable amount of time.</li>
 </ul>
 
-<p>Fortunately, it's often possible to minimise performance overheads by using fewer commands to do more work. Let's consider a typical example: obtaining the name of every person in <code>Address Book.app</code> who has a particular email address. There are several possible solutions to this, each with very different performance characteristics:</p>
+<p>Fortunately, it's often possible to minimise performance overheads by using fewer commands to do more work. Let's consider a typical example: obtaining the name of every person in <code>Contacts.app</code> who has a particular email address. There are several possible solutions to this, each with very different performance characteristics:</p>
 
 <h3>The iterative OO-style approach</h3>
 
@@ -56,14 +56,14 @@
 desiredemail = 'sam.brown@example.com'
 
 foundnames = []
-for person in app('Address Book').people.get():
+for person in app('Contacts').people.get():
     for email in person.emails.get()
         if email.value.get() == desiredemail:
             foundnames.append(person.name.get())
 print(foundnames)</code></pre>
 
 
-<p>The above script sends one Apple event to get a list of references to all people, then one Apple event for each person to get a list of references to their emails, then one Apple event for each of those emails. Thus the time taken increases directly in proportion to the number of people in Address Book. If there's hundreds of people to search, that's hundreds of Apple events to be built, sent and individually resolved, and performance suffers as a result.</p>
+<p>The above script sends one Apple event to get a list of references to all people, then one Apple event for each person to get a list of references to their emails, then one Apple event for each of those emails. Thus the time taken increases directly in proportion to the number of people in Contacts. If there's hundreds of people to search, that's hundreds of Apple events to be built, sent and individually resolved, and performance suffers as a result.</p>
 
 <p>The solution, where possible, is to use fewer, more sophisticated commands to do the same job.</p>
 
@@ -72,14 +72,14 @@ print(foundnames)</code></pre>
 
 <p>While there are some situations where iterating over and manipulating each application object individually is the only option (for example, when setting a property in each object to a different value), in this case there is plenty of room for improvement. Depending on how well an application implements its AEOM support, it's possible to construct queries that identify more than one application object at a time, allowing a single command to manipulate multiple objects in a single operation.</p>
 
-<p>In this case, the entire search can be performed using a single complex query sent to Address Book via a single Apple event:</p>
+<p>In this case, the entire search can be performed using a single complex query sent to Contacts via a single Apple event:</p>
 
 <pre><code>from appscript import *
 
 
 desiredemail = 'sam.brown@example.com'
 
-print(app('Address Book').people[
+print(app('Contacts').people[
         its.emails.value.contains(desiredemail)
         ].name.get())</code></pre>
 
@@ -96,17 +96,17 @@ print(app('Address Book').people[
 
 <h3>The hybrid solution</h3>
 
-<p>While AEOM queries can be surprisingly powerful, there are still many problems too complex for the application to evaluate entirely by itself. For example, let's say that you want to obtain the name of every person who has an email addresses that uses a particular domain name. Unfortunately, this test is too complex to express as a single AEOM query; however, it can still be solved reasonably efficiently by obtaining all the data from the application up-front and processing it locally. For this we need: 1. the name of every person in the Address Book, and 2. each person's email addresses. Fortunately, each of these can be expressed in a single query, allowing all this data to be retrieved using just two <code>get</code> commands.</p>
+<p>While AEOM queries can be surprisingly powerful, there are still many problems too complex for the application to evaluate entirely by itself. For example, let's say that you want to obtain the name of every person who has an email addresses that uses a particular domain name. Unfortunately, this test is too complex to express as a single AEOM query; however, it can still be solved reasonably efficiently by obtaining all the data from the application up-front and processing it locally. For this we need: 1. the name of every person in the Contacts, and 2. each person's email addresses. Fortunately, each of these can be expressed in a single query, allowing all this data to be retrieved using just two <code>get</code> commands.</p>
 
 <pre><code>from appscript import *
 
 desiredDomain = 'foo.com'
 
 # get a list of name strings
-names = app('Address Book').people.name.get()
+names = app('Contacts').people.name.get()
 
 # a list of lists of email strings
-emailsofeveryperson = app('Address Book').people.emails.value.get()
+emailsofeveryperson = app('Contacts').people.emails.value.get()
 
 result = []
 for name, emails in zip(names, emailsofeveryperson):

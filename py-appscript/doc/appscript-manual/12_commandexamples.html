@@ -118,11 +118,11 @@ app('Finder').home.folders['Projects'].duplicate(
 
 <p>Add every person with a known birthday to a group named "Birthdays":</p> 
 
-<pre><code># tell application "Address Book" to add &not;
+<pre><code># tell application "Contacts" to add &not;
 #     every person whose birth date is not missing value &not;
 #     to group "Birthdays"
 
-app('Address Book').people[
+app('Contacts').people[
     its.birth_date != k.missing_value
     ].add(to=app.groups['Birthdays'])</code></pre>
 

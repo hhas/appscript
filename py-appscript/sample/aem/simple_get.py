@@ -4,7 +4,7 @@ import aem
 
 
 # Get name of application "TextEdit"
-textedit = aem.Application('/Applications/TextEdit.app')
+textedit = aem.Application('/System/Applications/TextEdit.app')
 print(textedit.event(b'coregetd', {b'----': aem.app.property(b'pnam')}).send())
 
 

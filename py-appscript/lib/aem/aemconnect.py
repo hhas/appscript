@@ -98,7 +98,7 @@ class CantLaunchApplicationError(Exception):
 
 def launchapp(path, newinstance=False, hide=False):
 	"""Send a 'launch' event to an application. If application is not already running, it will be launched in background first.
-		path : string -- full path to application, e.g. '/Applications/TextEdit.app'
+		path : string -- full path to application, e.g. '/System/Applications/TextEdit.app'
 		newinstance : bool -- launch a new application instance?
 		hide : bool -- hide after launch?
 		Result : AEAddressDesc
@@ -170,7 +170,7 @@ currentapp = ae.newdesc(kae.typeProcessSerialNumber, struct.pack('II', 0, _kCurr
 
 def localapp(path, newinstance=False, hide=False):
 	"""Make an AEAddressDesc identifying a local application. (Application will be launched if not already running.)
-		path : string -- full path to application, e.g. '/Applications/TextEdit.app'
+		path : string -- full path to application, e.g. '/System/Applications/TextEdit.app'
 		newinstance : bool -- launch a new application instance?
 		hide : bool -- hide after launch?
 		Result : AEAddressDesc

@@ -55,9 +55,9 @@ _html = """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.
 <td id="content" valign="top" width="90%">
 	<div node="-rep:suite">
 		<a node="con:anchor" name="" id=""></a>
-		<h2 node="con:name">Standard Suite</h2>
+		<h2 node="con:name">Some Suite</h2>
 
-		<p node="con:desc">Common classes and commands for most applications.</p>
+		<p node="con:desc">some description</p>
 		
 		
 		<div node="-con:commands">
@@ -69,16 +69,16 @@ _html = """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.
 					<span node="-con:desc"> -- some description</span>
 					<ul>
 						<li node="con:directarg">
-							<span node="-con:name">[xxxx]</span>
+							<span node="-con:name">direct param type</span>
 							<span node="-con:desc"> -- some description</span>
 						</li>
 						<li node="rep:arg">
-							<span node="-con:name">[some param]</span>
+							<span node="-con:name">some param : param type</span>
 							<span node="-con:desc"> -- some description</span>
 						</li>
 						<li node="con:reply">
-							Result: <em node="con:type">thing</em>
-							<span node="-con:desc"> -- the reply for the command</span>
+							Result: <em node="con:type">some result type</em>
+							<span node="-con:desc"> -- some description</span>
 						</li>
 					</ul>
 				</li>

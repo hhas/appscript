@@ -41,7 +41,7 @@
 
         processexistsforpath(path) -- Does a local process launched
                 from the specified application file exist?
-            path : string -- application's path, e.g. '/Applications/iCal.app'
+            path : string -- application's path, e.g. '/System/Applications/Calendar.app'
             Result : boolean -- Note: if path is invalid, an aem.ae.MacOSError
                     is raised.
 
@@ -65,7 +65,7 @@
 
         launch(path, newinstance=False, hide=False) -- launch an application in
                 background if not already running, and send it a 'ascrnoop' event
-            path : str -- path to application, e.g. '/Applications/TextEdit.app'
+            path : str -- path to application, e.g. '/System/Applications/TextEdit.app'
             newinstance : bool -- launch a new application instance?
             hide : bool -- hide after launch?
 
@@ -74,7 +74,7 @@
         __init__(self, path=None, pid=None, url=None, desc=None,
                 codecs=aem.Codecs(), newinstance=False, hide=False)
             path : string | None -- full path to local application
-                    (e.g. '/Applications/TextEdit.app')
+                    (e.g. '/System/Applications/TextEdit.app')
             pid : integer | None -- Unix process id for local process
                     (e.g. 95)
             url : string | None -- url for remote process

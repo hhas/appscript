@@ -205,11 +205,11 @@ class _Formatter:
 def renderreference(appdata, aemreference, nested=False):
 	"""Take an aem reference, e.g.:
 	
-		app.elements('docu').byindex(1).property('ctxt')
+		app.elements(b'docu').byindex(1).property(b'ctxt')
 	
 	and an AppData instance containing application's location and terminology, and render an appscript-style reference, e.g.:
 	
-		"app('/Applications/TextEdit.app').documents[1].text"
+		"app('/System/Applications/TextEdit.app').documents[1].text"
 		
 	Used by Reference.__repr__().
 	"""

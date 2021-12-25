@@ -1,8 +1,5 @@
-try:
-	from setuptools import setup, Extension
-except ImportError:
-	print("Note: couldn't import setuptools so using distutils instead.")
-	from distutils.core import setup, Extension
+
+from setuptools import setup
 
 
 setup(
@@ -14,5 +11,6 @@ setup(
 		platforms=['Mac OS X'],
 		packages = ['aemreceive'],
 		extra_path = "aeosa",
-		package_dir = { '': 'lib' }
+		package_dir = { '': 'lib' },
+		install_requires = ['appscript >= 1.2.0'],
 )

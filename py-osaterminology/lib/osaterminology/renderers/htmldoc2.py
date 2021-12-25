@@ -62,20 +62,20 @@ indexhtml = '''<!DOCTYPE html
 <!-- summary of application dictionary -->
 
 <a name="home"></a>
-<h1><sup>Application</sup> <span node="con:title2">TextEdit</span></h1>
+<h1><sup>Application</sup> <span node="con:title2">Some App</span></h1>
 
 <div id="content">
 
-<p><code node="con:location">/Applications/TextEdit.app</code></p>
+<p><code node="con:location">some app path</code></p>
 
 <div node="-rep:suite">
 
 	<h2>
 		<a node="con:anchor" name="suite_StandardSuite"></a>
-		<span node="-con:name">Standard Suite</span>
+		<span node="-con:name">some suite</span>
 	</h2>
 
-	<p node="con:desc"> Common classes and commands for most applications.</p>
+	<p node="con:desc">some description</p>
 	
 	<div node="-rep:definitions">
 
@@ -84,8 +84,8 @@ indexhtml = '''<!DOCTYPE html
 		<ul>
 		<li node="rep:item">
 			<a node="con:anchor" name="class_application__Standard_Suite"></a>
-			<strong><a node="con:name" href="Standard_Suite/classes/application.html">application</a></strong>
-			<span node="-con:desc">An application's top level scripting object.</span>
+			<strong><a node="con:name" href="Standard_Suite/classes/application.html">some class</a></strong>
+			<span node="-con:desc">some description</span>
 		</li>
 		</ul>
 
@@ -116,9 +116,9 @@ suitesnavhtml = '''<!DOCTYPE html
 <h1>Suites</h1>
 
 <table width="100%" summary="navigation">
-<tr><td><a href="index.html#home"><em node="con:name">TextEdit</em></a></td></tr>
+<tr><td><a href="index.html#home"><em node="con:name">some app</em></a></td></tr>
 <tr node="rep:suite">
-	<td><a node="con:name" href="index.html#suite_Standard_Suite">Standard Suite</a></td>
+	<td><a node="con:name" href="index.html#suite_Standard_Suite">some suite</a></td>
 </tr>
 </table>
 
@@ -145,8 +145,8 @@ classesnavhtml = '''<!DOCTYPE html
 
 <table width="100%" summary="navigation">
 <tr node="rep:item">
-	<td><a node="con:name" href="Standard_Suite/classes/application.html">application</a></td>
-	<td class="suite"><a node="con:suitename" href="index.html#class_application__Standard_Suite">Standard Suite</a></td>
+	<td><a node="con:name" href="Standard_Suite/classes/application.html">some class</a></td>
+	<td class="suite"><a node="con:suitename" href="index.html#class_application__Standard_Suite">some suite</a></td>
 </tr>
 </table>
 
@@ -174,8 +174,8 @@ commandsnavhtml = '''<!DOCTYPE html
 
 <table width="100%" summary="navigation">
 <tr node="rep:item">
-	<td><a node="con:name" href="Standard_Suite/commands/save.html">save</a></td>
-	<td class="suite"><a node="con:suitename" href="index.html#command_save__Standard_Suite">Standard Suite</a></td>
+	<td><a node="con:name" href="Standard_Suite/commands/save.html">some command</a></td>
+	<td class="suite"><a node="con:suitename" href="index.html#command_save__Standard_Suite">some suite</a></td>
 </tr>
 </table>
 
@@ -191,14 +191,14 @@ classhtml = '''<!DOCTYPE html
 
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
-	<title node="con:title">application</title>
+	<title node="con:title">some class</title>
 	<style type="text/css" media="all"><!--@import url(../../main.css);--></style>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<base target="main" />
 </head>
 <body>
 
-<h1><sup>Class</sup> <span node="-con:title2">save</span></h1>
+<h1><sup>Class</sup> <span node="-con:title2">some class</span></h1>
 
 <div id="view"><a node="con:changeview" href="../../full/classes/application.html">full</a></div>
 
@@ -207,17 +207,17 @@ classhtml = '''<!DOCTYPE html
 
 <h2>Description</h2>
 
-<p node="con:desc">An application's top level scripting object.</p>
+<p node="con:desc">some description</p>
 
 <ul class="desc">
 	<li node="con:pluralname">Plural name:
 		<ul>
-			<li><strong node="con:name">applications</strong></li>
+			<li><strong node="con:name">some plural class</strong></li>
 		</ul>
 	</li>
 	<li node="con:suite">Defined in:
 		<ul>
-			<li node="rep:item"><em><a node="con:name" href="../../index.html#Standard_Suite">Standard Suite</a></em></li>
+			<li node="rep:item"><em><a node="con:name" href="../../index.html#Standard_Suite">some suite</a></em></li>
 		</ul>
 	</li>
 	
@@ -225,8 +225,8 @@ classhtml = '''<!DOCTYPE html
 		<ul>
 			<li node="rep:item">
 				<span node="-rep:parent">
-					<strong><a node="con:name" href="../../Standard_Suite/classes/item.html">item</a></strong>
-					(<em><a node="con:suitename" href="../../index.html#Standard_Suite">Standard Suite</a></em>)
+					<strong><a node="con:name" href="../../Standard_Suite/classes/item.html">some class</a></strong>
+					(<em><a node="con:suitename" href="../../index.html#Standard_Suite">some suite</a></em>)
 				</span>
 				<span node="-sep:parent"> &#8594; </span>
 			</li>
@@ -238,10 +238,10 @@ classhtml = '''<!DOCTYPE html
 	<h2>Properties</h2>
 	<ul>
 		<li node="rep:item">
-			<strong node="con:name">frontmost</strong>
+			<strong node="con:name">some property</strong>
 			<span node="-con:access">(r/o)</span>
-			<em node="con:type">boolean</em>
-			<span node="-con:desc"> -- Is this the frontmost (active) application?</span>
+			<em node="con:type">some type</em>
+			<span node="-con:desc"> -- some description</span>
 		</li>
 	</ul>
 </div>
@@ -250,7 +250,7 @@ classhtml = '''<!DOCTYPE html
 	<h2>Elements</h2>
 	<ul>
 		<li node="rep:item">
-			<strong><a href="" node="con:name">windows</a></strong> -- by
+			<strong><a href="" node="con:name">some elements</a></strong> -- by
 			<em node="con:desc">name, index, relative position, range, filter, ID</em>
 		</li>
 	</ul>
@@ -263,8 +263,8 @@ classhtml = '''<!DOCTYPE html
 		<li node="rep:note"><span node="-con:label">Inherited by</span>:
 			<ul>
 				<li node="rep:item">
-					<strong><a node="con:name" href="../../TextEdit_suite/classes/application.html">application</a></strong>
-					(<em><a node="con:suitename" href="../../index.html#Standard_Suite">Standard Suite</a></em>)
+					<strong><a node="con:name" href="../../TextEdit_suite/classes/application.html">some class</a></strong>
+					(<em><a node="con:suitename" href="../../index.html#Standard_Suite">some suite</a></em>)
 				</li>
 			</ul>
 		</li>
@@ -283,25 +283,25 @@ commandhtml = '''<!DOCTYPE html
 
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
-	<title node="con:title">save</title>
+	<title node="con:title">some command</title>
 	<style type="text/css" media="all"><!--@import url(../../main.css);--></style>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<base target="main" />
 </head>
 <body>
 
-<h1><sup>Command</sup> <span node="-con:title2">save</span></h1>
+<h1><sup>Command</sup> <span node="-con:title2">some command</span></h1>
 
 <div id="content">
 
 <h2>Description</h2>
 
-<p node="con:desc">Save an object.</p>
+<p node="con:desc">some description</p>
 
 <ul class="desc">
 	<li node="con:suite">Defined in:
 		<ul>
-			<li node="rep:item"><em><a node="con:name" href="../../index.html#Standard_Suite">Standard Suite</a></em></li>
+			<li node="rep:item"><em><a node="con:name" href="../../index.html#Standard_Suite">some suite</a></em></li>
 		</ul>
 	</li>
 </ul>
@@ -312,12 +312,12 @@ commandhtml = '''<!DOCTYPE html
 <h2>Parameters</h2>
 <ul>
 	<li node="con:directarg">
-		<span node="-con:name">[froob]</span>
-		<span node="-con:desc"> -- The direct parameter.</span>
+		<span node="-con:name">[direct param type]</span>
+		<span node="-con:desc"> -- some description</span>
 	</li>
 	<li node="rep:arg">
-		<span node="-con:name">[in file]</span>
-		<span node="-con:desc"> -- The file in which to save the object.</span>
+		<span node="-con:name">[some param : param type]</span>
+		<span node="-con:desc"> -- some description</span>
 	</li>
 </ul>
 
@@ -327,8 +327,8 @@ commandhtml = '''<!DOCTYPE html
 	<h2>Result</h2>
 	
 	<ul>
-		<li><em node="con:type">thing</em>
-		<span node="-con:desc"> -- the reply for the command</span>
+		<li><em node="con:type">some result type</em>
+		<span node="-con:desc"> -- some description</span>
 		</li>
 	</ul>
 </div>

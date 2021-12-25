@@ -63,9 +63,9 @@
 
 <p><img src="finder_to_textedit_event.gif" alt="Sending Apple event from Finder to TextEdit" /></p>
 
-<p>With suitable bindings, scripting languages can also create and send Apple events. For example, when the code <code>appscript.app('iTunes').play()</code> is executed in a Python interpreter, a <code>hook/Play</code> event is sent from the interpreter to iTunes, instructing it to start playing:</p>
+<p>With suitable bindings, scripting languages can also create and send Apple events. For example, when the code <code>appscript.app('Music').play()</code> is executed in a Python interpreter, a <code>hook/Play</code> event is sent from the interpreter to Music, instructing it to start playing:</p>
 
-<p><img src="python_to_itunes_event.gif" alt="Sending Apple event from Python to iTunes"/></p>
+<p><img src="python_to_itunes_event.gif" alt="Sending Apple event from Python to Music"/></p>
 
 <p>Applications may respond to an incoming Apple event by sending a reply event back to the client application. The reply event may contain either a return value, if there is one, or an error description if it was unable to handle the event as requested. For example, executing the command <code>appscript.app('TextEdit').name.get()</code> in a Python interpreter sends TextEdit a <code>code/getd</code> event containing an object specifier identifying the <code>name</code> property of its root <code>application</code> object. TextEdit processes this event, then sends a reply event containing the string '<tt>TextEdit</tt>' back to the Python interpreter, where it is displayed as the command's result. This exchange is usually performed synchronously, appearing to the user as a simple remote procedure call. Asynchronous messaging is also supported, though is not normally used in application scripting.</p>
 
@@ -74,7 +74,7 @@
 
 <p>A scriptable (or 'AppleScriptable') application is an application that provides an Apple event interface intended for third-party (e.g. end-user) use. The application implements one or more event handlers that respond to corresponding events, and may also support the Apple Event Object Model. While this interface may be regarded as an API, the emphasis is on providing a high-level <em>user interface</em> that is peer to other users interfaces the application may have (GUI, CLI, web, etc.) and accessible to end-users as much as developers.</p>
 
-<p>For example, iTunes.app implements two user interfaces, one graphical and one Apple event-based, that provide access to to much the same functionality but in very different ways:</p>
+<p>For example, Music.app implements two user interfaces, one graphical and one Apple event-based, that provide access to to much the same functionality but in very different ways:</p>
 
 <p><img src="application_architecture.gif" alt="Application with Graphical and Apple event interfaces." /></p>
 
@@ -128,7 +128,7 @@ app('TextEdit').documents</code></pre>
 <p>Relationships between objects may be one-to-one, e.g.:</p>
 
 <pre><code>app('Finder').home
-app('iTunes').current_track</code></pre>
+app('Music').current_track</code></pre>
 
 <p>or one-to-many, e.g.:</p>
 
@@ -148,7 +148,7 @@ app('Finder').disks['MacHD'].folders['Users'].folders['Jo'].folders['Desktop'].f
 
 <p>Some references may identify different objects at different times, according to changes in the application's state, e.g.:</p>
 
-<pre><code>app('iTunes').current_track</code></pre>
+<pre><code>app('Music').current_track</code></pre>
 
 <p>References may identify objects that do not actually exist as discreet entities within the application's underlying data structures, but are interpreted on the fly as proxies to the relevant portions of implementation-level data structures, e.g.:</p>
 
@@ -209,7 +209,7 @@ app('TextEdit').documents[1].text.paragraphs</code></pre>
 <ul>
 <li>using AEM:
 
-<pre><code>Application('/Applications/TextEdit.app').event(b'coregetd', {
+<pre><code>Application('/System/Applications/TextEdit.app').event(b'coregetd', {
     b'----': app.elements(b'docu').property(b'ctxt').elements(b'cpar').byfilter(
         its.ne('\n')).elements(b'cha ').byindex(1).property(b'ptsz'),
     b'data': 24
@@ -234,7 +234,7 @@ app('TextEdit').documents[1].text.paragraphs</code></pre>
 <hr />
 
 
-<p><a name="f1"></a>[1] Really an <code>OSType</code>: a 32-bit code, often represented as a 4-character string. Used in Carbon APIs such as the Apple Event Manager. Mnemonic values are preferred, e.g. '<tt>docu</tt>' = 'document'.</p>
+<p><a name="f1"></a>[1] Really an <code>OSType</code>: a 32-bit code, often represented as a 4-character byte string. Used in Carbon APIs such as the Apple Event Manager. Mnemonic values are preferred, e.g. '<tt>docu</tt>' = 'document'.</p>
 
 <p><a name="f2"></a>[2] Assuming a well-implemented AEOM; in practice most AEOM implementations suffer varying degrees of limitations in their ability to operate successfully on complex multi-object references. These limitations are generally not documented but discovered through trial and error.</p>
 

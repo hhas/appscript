@@ -107,7 +107,7 @@ class TerminologyTableBuilder:
 				raise RuntimeError("Can't get terminology for application (%r): %s" % (app, e))
 		if not isinstance(aetes, list):
 			aetes = [aetes]
-		return [aete for aete in aetes if isinstance(aete, ae.AEDesc) and aete.type == 'aete' and aete.data]
+		return [aete for aete in aetes if isinstance(aete, ae.AEDesc) and aete.type == b'aete' and aete.data]
 	
 	
 	def tablesforaetes(self, aetes):

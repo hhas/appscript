@@ -1,11 +1,6 @@
-try:
-	from setuptools import setup, Extension
-	args = {'install_requires': ['appscript >= 1.1.0', 'htmltemplate >= 2.2.1']} # TO DO: appscript >= 1.2.0
-except ImportError:
-	print("Note: couldn't import setuptools so using distutils instead.")
-	from distutils.core import setup, Extension
-	args = {}
 
+
+from setuptools import setup
 
 setup(
 		name = "osaterminology",
@@ -25,5 +20,5 @@ setup(
 		],
 		extra_path = "aeosa",
 		package_dir = { '': 'lib' },
-		**args
+		install_requires = ['appscript >= 1.2.0', 'htmltemplate >= 2.2.1', 'lxml >= 4.7.1'],
 )

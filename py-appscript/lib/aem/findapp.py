@@ -1,21 +1,21 @@
-"""findapp -- Support module for obtaining the full path to a local application given its name, bundle id or creator type. If application isn't found, an ApplicationNotFoundError exception is raised. """
+"""findapp -- Support module for obtaining the full path to a local application given its file name or bundle id. If application isn't found, an ApplicationNotFoundError exception is raised. """
 
 from os.path import exists
 
 from .ae import findapplicationforinfo, MacOSError
 
-__all__ = ['byname', 'byid', 'bycreator']
+__all__ = ['byname', 'byid']
 
 ######################################################################
 # PRIVATE
 ######################################################################
 
-def _findapp(name=None, id=None, creator=b'????'):
+def _findapp(name=None, id=None):
 	try:
-		return findapplicationforinfo(creator, id, name)
+		return findapplicationforinfo(b'????', id, name)
 	except MacOSError as err:
 		if err.args[0] == -10814:
-			raise ApplicationNotFoundError(name or id or creator) from err
+			raise ApplicationNotFoundError(name or id) from err
 		else:
 			raise
 
@@ -64,16 +64,6 @@ def byid(id):
 	"""
 	return _findapp(id=id)
 
-
-def bycreator(creator):
-	"""Find the application with the given creator type and return its full path.
-	
-	Examples:
-		bycreator('ttxt')
-	"""
-	if len(creator) != 4 or creator == '????':
-		raise ApplicationNotFoundError(creator)
-	return _findapp(creator=creator)
 
 
 

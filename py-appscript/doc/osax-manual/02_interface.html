@@ -33,13 +33,11 @@
 
 <p>The <code>OSAX</code> class represents the Standard Additions scripting addition and its target application. <code>OSAX</code> is a subclass of appscript's <code>Application</code> class, and its constructor is the same:</p>
 
-<pre><code>OSAX(name=None, id=None, creator=None, url=None, terms=True)
+<pre><code>OSAX(name=None, id=None, url=None, terms=True)
     name : str -- name or path of application, e.g. 'System Events', 
             '/System/Library/CoreServices/System Events.app'
     id : str -- bundle id of application,
             e.g. 'com.apple.systemevents'
-    creator : bytes -- 4-character creator type of application,
-            e.g. b'sevs'
     url : str -- eppc URL of remote process,
             e.g. 'eppc://G5.local/System%20Events'</code></pre>
 

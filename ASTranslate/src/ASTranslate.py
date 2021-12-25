@@ -10,6 +10,9 @@ import _astranslate, eventformatter
 from constants import *
 
 
+# TO DO: `tell app "TextEdit" to count documents` -> app('TextEdit').count(None, each=k.document) but None should be `app` or omitted entirely
+
+
 #######
 
 _userDefaults = NSUserDefaults.standardUserDefaults()
@@ -67,7 +70,7 @@ class ASTranslateDocument(NSDocument):
 				self._addResult_to_(kLangAll, 'OK')
 			else: # script error info
 				script, errorNum, errorMsg, pos = (_standardCodecs.unpack(desc) for desc in result[1:])
-				start, end = (pos[aem.AEType(k)] for k in ['srcs', 'srce'])
+				start, end = (pos[aem.AEType(k)] for k in [b'srcs', b'srce'])
 				if script:
 					errorKind = 'Runtime'
 					self.codeView.setString_(script)
@@ -78,6 +81,8 @@ class ASTranslateDocument(NSDocument):
 				self.codeView.setSelectedRange_((start, end - start))
 		except aem.ae.MacOSError as e:
 			self._addResult_to_(kLangAll, 'OS Error: %i' % e.args[0])
+		except Exception as e:
+			self._addResult_to_(kLangAll, 'Unexpected Error: {}'.format(e))
 	
 	@objc.IBAction
 	def selectStyle_(self, sender):

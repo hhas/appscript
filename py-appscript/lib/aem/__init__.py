@@ -211,20 +211,20 @@ class Application(Query):
 		"""Begin a transaction."""
 		if self._transaction != self._kAnyTransactionID:
 			raise RuntimeError("Transaction is already active.")
-		self._transaction = self._Event(self._address, 'miscbegi', 
-				session is not None and {'----':session} or {}, codecs=_defaultcodecs).send()
+		self._transaction = self._Event(self._address, b'miscbegi', 
+				session is not None and {b'----':session} or {}, codecs=_defaultcodecs).send()
 	
 	def aborttransaction(self):
 		"""Abort the current transaction."""
 		if self._transaction == self._kAnyTransactionID:
 			raise RuntimeError("No transaction is active.")
-		self._Event(self._address, 'miscttrm', transaction=self._transaction).send()
+		self._Event(self._address, b'miscttrm', transaction=self._transaction).send()
 		self._transaction = self._kAnyTransactionID
 	
 	def endtransaction(self):
 		"""End the current transaction."""
 		if self._transaction == self._kAnyTransactionID:
 			raise RuntimeError("No transaction is active.")
-		self._Event(self._address, 'miscendt', transaction=self._transaction).send()
+		self._Event(self._address, b'miscendt', transaction=self._transaction).send()
 		self._transaction = self._kAnyTransactionID
 

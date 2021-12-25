@@ -94,11 +94,11 @@ class TC_Codecs(unittest.TestCase):
 			self.assertEqual(t, self.c.unpack(aem.ae.newdesc(aem.kae.typeLongDateTime, data)))
 	
 	def test_file(self):
-		path = '/Applications/TextEdit.app'
+		path = '/System/Applications/TextEdit.app'
 		d = self.c.pack(mactypes.Alias(path))
 		self.assertEqual(path, self.c.unpack(d).path)
 		
-		path = '/Applications/TextEdit.app'
+		path = '/System/Applications/TextEdit.app'
 		d = self.c.pack(mactypes.File(path))
 		self.assertEqual(path, self.c.unpack(d).path)
 	

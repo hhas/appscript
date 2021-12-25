@@ -7,7 +7,7 @@ from .handlererror import EventHandlerError
 
 # TO DO: build decent error messages pinpointing problem.
 
-if struct.pack("h", 1) == '\x00\x01': # host is big-endian
+if struct.pack("h", 1) == b'\x00\x01': # host is big-endian
 	fourCharCode = lambda code: code
 else: # host is small-endian
 	fourCharCode = lambda code: code[::-1]
@@ -52,7 +52,7 @@ class ArgMissingValue(ArgDef):
 	"""
 		Describes a 'missing value' constant. Clients shouldn't instantiate directly; use kArgMissingValue instead.
 		
-		May be supplied in ArgMultiChoice to indicate that aem.AEType('msng') is an acceptable parameter value, 
+		May be supplied in ArgMultiChoice to indicate that aem.AEType(b'msng') is an acceptable parameter value, 
 		e.g. ArgMultiChoice(kae.typeUnicodeText, kArgMissingValue')
 	"""
 	
@@ -103,7 +103,7 @@ kArgAny = ArgAny()
 
 class ArgType(ArgDef):
 	"""
-		Describes a simple AE type, e.g. ArgType('utxt') = a value of typeUnicodeText
+		Describes a simple AE type, e.g. ArgType(b'utxt') = a value of typeUnicodeText
 		
 		- aemreceive will attempt to coerce descriptors of other types to the specified type before unpacking.
 	"""
@@ -125,7 +125,7 @@ class ArgType(ArgDef):
 class ArgEnum(ArgDef):
 	"""
 		Describes an AE enumeration, taking one or more enumerator codes in its constructor, 
-			e.g. ArgEnum('yes ', 'no  ', 'ask ') = AEEnum('yes ') | AEEnum('no  ') | AEEnum('ask ')
+			e.g. ArgEnum(b'yes ', b'no  ', b'ask ') = AEEnum(b'yes ') | AEEnum(b'no  ') | AEEnum(b'ask ')
 		
 		- aemreceive will attempt to coerce descriptors of other types to typeEnumerated before unpacking.
 		- aemreceive will raise error -1704 if the given enum if not one of those specified.
@@ -176,7 +176,7 @@ class ArgMultiChoice(ArgDef):
 	"""
 		Used to encapsulate multiple acceptable types. If event parameter's type matches one of those given, will unpack exactly; otherwise will attempt to coerce and upack with each in turn until one succeeds or all fail.
 	"""
-	AEM_code = '????'
+	AEM_code = b'????'
 
 	def __init__(self, *datatypes):
 		# datatypes = a list of ArgDef subclasses

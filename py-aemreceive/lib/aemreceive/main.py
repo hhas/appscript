@@ -12,7 +12,7 @@ from .typedefs import buildDefs
 from .handlererror import EventHandlerError
 
 
-if struct.pack("h", 1) == '\x00\x01': # host is big-endian
+if struct.pack("h", 1) == b'\x00\x01': # host is big-endian
 	fourCharCode = lambda code: code
 else: # host is small-endian
 	fourCharCode = lambda code: code[::-1]

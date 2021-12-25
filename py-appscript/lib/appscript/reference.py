@@ -85,7 +85,7 @@ class AppData(aem.Codecs):
 				# AEAddressDesc types
 				kae.typeApplicationBundleID: self.unpackapplicationbyid,
 				kae.typeApplicationURL: self.unpackapplicationbyurl,
-				kae.typeApplSignature: self.unpackapplicationbysignature,
+#				kae.typeApplSignature: self.unpackapplicationbysignature, # OSType; very deprecated # TO DO: can this address desc be coerced to typeApplicationBundleID?
 				kae.typeKernelProcessID: self.unpackapplicationbypid,
 				kae.typeMachPort: self.unpackapplicationbydesc,
 				kae.typeProcessSerialNumber: self.unpackapplicationbydesc,
@@ -106,7 +106,7 @@ class AppData(aem.Codecs):
 	# These replace the default aem pack/unpack functions, which don't understand appscript Keyword and Reference objects.
 	
 	def packdict(self, val):
-		# Pack dictionary whose keys are strings (e.g. 'foo'), Keywords (e.g. k.name) or AETypes (e.g. AEType('pnam').
+		# Pack dictionary whose keys are strings (e.g. 'foo'), Keywords (e.g. k.name) or AETypes (e.g. AEType(b'pnam').
 		record = newrecord()
 		if self.kClassKeyword in val or self.kClassType in val:
 			# if hash contains a 'class' property containing a class name, coerce the AEDesc to that class
@@ -194,9 +194,6 @@ class AppData(aem.Codecs):
 			return app(mactypes.File.makewithurl(desc.data.decode('utf8')).path)
 		else: # presumably contains an eppc:// URL
 			return app(url=desc.data)
-	
-	def unpackapplicationbysignature(self, desc):
-		return app(creator=struct.pack('>I', struct.unpack('I', desc.data)[0]))
 	
 	def unpackapplicationbypid(self, desc):
 		return app(pid=struct.unpack('I', desc.data)[0])
@@ -733,13 +730,12 @@ class Application(Reference):
 	# use in place of the standard version.
 	_Application = aem.Application
 	
-	def __init__(self, name=None, id=None, creator=None, pid=None, url=None, aemapp=None, 
+	def __init__(self, name=None, id=None, pid=None, url=None, aemapp=None, 
 			terms='aete', newinstance=False, hide=False):
 		"""
-			app(name=None, id=None, creator=None, pid=None, url=None, terms=True)
-				name : str -- name or path of application, e.g. 'TextEdit', 'TextEdit.app', '/Applications/Textedit.app'
+			app(name=None, id=None, pid=None, url=None, terms=True)
+				name : str -- name or path of application, e.g. 'TextEdit', 'TextEdit.app', '/System/Applications/Textedit.app'
 				id : str -- bundle id of application, e.g. 'com.apple.textedit'
-				creator : str -- 4-character creator type of application, e.g. 'ttxt'
 				pid : int -- Unix process id, e.g. 955
 				url : str -- eppc:// URL, e.g. eppc://G4.local/TextEdit'
 				aemapp : aem.Application
@@ -752,16 +748,14 @@ class Application(Reference):
 			
 			Notes: 
 			
-			- The newinstance and hide options only apply when specifying application by name, id, or creator.
+			- The newinstance and hide options only apply when specifying application by name, or id.
 		"""
-		if len([i for i in [name, id, creator, pid, url, aemapp] if i]) > 1:
-			raise TypeError('app() received more than one of the following arguments: name, id, creator, pid, url, aemapp')
+		if len([i for i in [name, id, pid, url, aemapp] if i]) > 1:
+			raise TypeError('app() received more than one of the following arguments: name, id, pid, url, aemapp')
 		if name:
 			constructor, identifier = 'path', aem.findapp.byname(name)
 		elif id:
 			constructor, identifier = 'path',  aem.findapp.byid(id)
-		elif creator:
-			constructor, identifier = 'path',  aem.findapp.bycreator(creator)
 		elif pid:
 			constructor, identifier = 'pid', pid
 		elif url:
@@ -803,7 +797,7 @@ class Application(Reference):
 	def launch(self):
 		"""Launch a non-running application in the background and send it a 'launch' event. 
 			Note: this will only launch non-running apps that are specified by name/path/
-			bundle id/creator type. Apps specified by other means will be still sent a 
+			bundle id. Apps specified by other means will be still sent a 
 			launch event if already running, but an error will occur if they're not.
 		"""
 		if not self.isrunning() and self.AS_appdata.constructor == 'path' \

@@ -500,10 +500,10 @@ class UnkeyedElements(Specifier):
 		Here's how it behaves:
 		
 		- Calling a reference's element() method initially returns an UnkeyedElements instance
-		wrapped inside an AllElements instance, e.g. app.elements('docu'). 
+		wrapped inside an AllElements instance, e.g. app.elements(b'docu'). 
 		
 		- Calling an element selection method on the AllElements instance, 
-		e.g. app.elements('docu').byindex(1), strips away the AllElements instance to obtain the
+		e.g. app.elements(b'docu').byindex(1), strips away the AllElements instance to obtain the
 		UnkeyedElements instance which is then used as the foundation for this new specifier.
 		
 		(There is one exception: ElementByRelativePosition. This keeps the AllElements reference
@@ -789,7 +789,7 @@ class CustomRoot(ReferenceRoot):
 
 
 ###################################
-# Reference root objects; use these constants to construct new specifiers, e.g. app.property('pnam')
+# Reference root objects; use these constants to construct new specifiers, e.g. app.property(b'pnam')
 
 app = ApplicationRoot()
 con = CurrentContainer()

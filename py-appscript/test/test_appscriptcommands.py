@@ -7,7 +7,7 @@ class TC_appscriptNewApp(unittest.TestCase):
 
 	def test_by_name(self):
 		for name in [
-				'/Applications/TextEdit.app',
+				'/System/Applications/TextEdit.app',
 				'Finder.app',
 				'System Events'
 		]:
@@ -16,8 +16,8 @@ class TC_appscriptNewApp(unittest.TestCase):
 			self.assertEqual(appscript.reference.Application, a.__class__)
 			self.assertEqual(appscript.reference.Reference, a.name.__class__)
 		
-		self.assertEqual("app('/Applications/TextEdit.app')", str(appscript.app('TextEdit')))
-		self.assertEqual("app('/Applications/TextEdit.app')", str(appscript.app(name='TextEdit')))
+		self.assertEqual("app('/System/Applications/TextEdit.app')", str(appscript.app('TextEdit')))
+		self.assertEqual("app('/System/Applications/TextEdit.app')", str(appscript.app(name='TextEdit')))
 		
 		self.assertRaises(appscript.ApplicationNotFoundError, appscript.app, '/non-existent/app')
 		self.assertRaises(appscript.ApplicationNotFoundError, appscript.app, 'non-existent.app')
@@ -33,18 +33,10 @@ class TC_appscriptNewApp(unittest.TestCase):
 			self.assertEqual(appscript.reference.Application, a.__class__)
 			self.assertEqual(appscript.reference.Reference, a.name.__class__)
 		
-		self.assertEqual("app('/Applications/TextEdit.app')", str(appscript.app(id='com.apple.textedit')))
+		self.assertEqual("app('/System/Applications/TextEdit.app')", str(appscript.app(id='com.apple.textedit')))
 		
 		self.assertRaises(appscript.ApplicationNotFoundError, appscript.app, id='non.existent.app')
-	
-
-	def test_by_creator(self):
-		a = appscript.app(creator=b'ttxt')
-		self.assertEqual(appscript.reference.Application, a.__class__)
-		self.assertEqual(appscript.reference.Reference, a.name.__class__)
-		self.assertEqual("app('/Applications/TextEdit.app')", str(a))
-		self.assertRaises(appscript.ApplicationNotFoundError, appscript.app, id='!self.$o')
-	
+		
 	
 	def test_by_pid(self):
 		p = subprocess.Popen("top -l1 | grep Finder | awk '{ print $1 }'", 
@@ -59,10 +51,10 @@ class TC_appscriptNewApp(unittest.TestCase):
 	
 	
 	def test_by_aem_app(self):
-		a = appscript.app(aemapp=aem.Application('/Applications/TextEdit.app'))
+		a = appscript.app(aemapp=aem.Application('/System/Applications/TextEdit.app'))
 		self.assertEqual(appscript.reference.Application, a.__class__)
 		self.assertEqual(appscript.reference.Reference, a.name.__class__)
-		self.assertEqual("app(aemapp=aem.Application('/Applications/TextEdit.app'))", str(a))
+		self.assertEqual("app(aemapp=aem.Application('/System/Applications/TextEdit.app'))", str(a))
 	
 
 

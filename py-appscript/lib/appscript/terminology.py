@@ -33,8 +33,8 @@ _terminologycache = {} # cache parsed terminology
 # Includes default entries for Required Suite, get/set and miscellaneous other commands; application may override some or all of these definitions.
 
 # Type tables; used to translate constants
-# e.g. k.document <-> AEType('docu')
-# e.g. k.ask <-> AEEnum('ask ')
+# e.g. k.document <-> AEType(b'docu')
+# e.g. k.ask <-> AEEnum(b'ask ')
 
 _defaulttypebyname = {} # used to encode class and enumerator keywords
 _defaulttypebycode = {} # used to decode class (typeType) and enumerator (typeEnum) descriptors
@@ -52,8 +52,8 @@ for defs in [defaultterminology.types, defaultterminology.properties]:
 		_defaulttypecodebyname[name] = code
 
 # Reference tables; used to translate references and commands
-# e.g. app(...).documents.text <-> app.elements('docu').property('ctxt')
-# e.g. app(...).quit(saving=k.ask) <-> Application(...).event('aevtquit', {'savo': AEEnum('ask ')})
+# e.g. app(...).documents.text <-> app.elements(b'docu').property(b'ctxt')
+# e.g. app(...).quit(saving=k.ask) <-> Application(...).event(b'aevtquit', {b'savo': AEEnum(b'ask ')})
 
 _defaultreferencebycode = {} # used to decode property and element specifiers
 _defaultreferencebyname = {} # used to encode property and element specifiers and Apple events

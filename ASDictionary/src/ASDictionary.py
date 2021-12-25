@@ -64,7 +64,7 @@ class ASDictionary(NSDocument):
 	def init(self):
 		self = super(ASDictionary, self).init()
 		if self is None: return
-		self._selectedFiles = [] # {'obcPrefix': u'...', 'name': u'...', 'path': u'...'}
+		self._selectedFiles = [] # {'name': u'...', 'path': u'...'}
 		self._canExport = False
 		self._htmlOptionsEnabled = False
 		self._itemName = ''

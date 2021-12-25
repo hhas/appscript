@@ -60,9 +60,8 @@ class _Formatter:
 	
 	##
 	
-	def formatUnicodeText(self, val): # str, unicode
+	def formatUnicodeText(self, val): # str
 		s = val.replace('\\', '\\\\').replace('"', '\\"').replace('#{', '\\#{').replace('\r', '\\r').replace('\n', '\\n').replace('\t', '\\t') # "
-		s = s.encode('utf8')
 		r = []
 		for c in s:
 			i = ord(c)
@@ -74,7 +73,7 @@ class _Formatter:
 		return '"%s"' % s
 	
 	def formatStr(self, val):
-		return self.formatUnicodeText(self._codecs.unpack(self._codecs.pack(val).coerce('utxt')))
+		return self.formatUnicodeText(self._codecs.unpack(self._codecs.pack(val).coerce(b'utxt')))
 	
 	##
 		

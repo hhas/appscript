@@ -1,8 +1,5 @@
-try:
-	from setuptools import setup, Extension
-except ImportError:
-	print("Note: couldn't import setuptools so using distutils instead.")
-	from distutils.core import setup, Extension
+
+from setuptools import setup, Extension
 
 import os, sys
 import re
@@ -22,7 +19,7 @@ setup(
 		url='http://appscript.sourceforge.net',
 		license='Public Domain',
 		platforms=['Mac OS X'],
-		install_requires=['lxml'],
+		install_requires=['lxml >= 4.7.1'],
 		ext_modules = [
 			Extension('aem.ae',
 				sources=['ext/ae.c'],
@@ -50,7 +47,6 @@ setup(
 			'License :: Public Domain',
 			'Development Status :: 5 - Production/Stable',
 			'Operating System :: MacOS :: MacOS X',
-			'Programming Language :: Python :: 2',
 			'Programming Language :: Python :: 3',
 		],
 

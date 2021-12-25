@@ -59,14 +59,14 @@ Type "help", "copyright", "credits" or "license" for more information.
 <pre><code>&gt;&gt;&gt; te = app('TextEdit')
 &gt;&gt;&gt; </code></pre>
 
-<p>The application may be identified by name, path, bundle ID, creator type or, if running remotely, URL. If the application is local and is not already running, it will be launched automatically for you.</p>
+<p>The application may be identified by name, path, bundle ID, or, if running remotely, URL. If the application is local and is not already running, it will be launched automatically for you.</p>
 
 <h4>Create a new document</h4>
 
 <p>First, create a new TextEdit document by making a new <code>document</code> object. This is done using the <code>make</code> command, passing it a single parameter, <code>new=k.document</code>, indicating the type of object to create:</p>
 
 <pre><code>&gt;&gt;&gt; te.make(new=k.document)
-app('/Applications/TextEdit.app').documents[1]
+app('/System/Applications/TextEdit.app').documents[1]
 &gt;&gt;&gt; </code></pre>
 
 <p>Because <code>document</code> objects are always elements of the root <code>application</code> class, applications such as TextEdit can usually infer the location at which the new <code>document</code> object should appear. At other times, you need to supply an <code>at</code> parameter that indicates the desired location.</p>
@@ -105,7 +105,7 @@ app('/Applications/TextEdit.app').documents[1]
 
 <pre><code>te.documents[1].text</code></pre>
 
-<p>the result is another reference, <code>app('/Applications/TextEdit.app').documents[1].text</code>, not the value being referenced (<tt>'Hello World'</tt>). To get the value being referenced, you have to pass the reference as the direct argument to TextEdit's <code>get()</code> command:</p>
+<p>the result is another reference, <code>app('/System/Applications/TextEdit.app').documents[1].text</code>, not the value being referenced (<tt>'Hello World'</tt>). To get the value being referenced, you have to pass the reference as the direct argument to TextEdit's <code>get()</code> command:</p>
 
 <pre><code>&gt;&gt;&gt; te.get(doc.text)
 'Hello World!'
@@ -125,10 +125,10 @@ app('/Applications/TextEdit.app').documents[1]
 <pre><code>&gt;&gt;&gt; doc.text.get()
 'Hello World!'
 &gt;&gt;&gt; te.documents[1].get()
-app('/Applications/TextEdit.app').documents[1]
+app('/System/Applications/TextEdit.app').documents[1]
 &gt;&gt;&gt; te.documents.get()
-[app('/Applications/TextEdit.app').documents[1], 
-    app('/Applications/TextEdit.app').documents[2]]
+[app('/System/Applications/TextEdit.app').documents[1], 
+    app('/System/Applications/TextEdit.app').documents[2]]
 &gt;&gt;&gt; te.documents.text.get()
 ['Hello World', '']
 &gt;&gt;&gt; </code></pre>
@@ -140,10 +140,10 @@ app('/Applications/TextEdit.app').documents[1]
 <p>The above exercise uses two commands to create a new TextEdit document containing the text '<tt>Hello World</tt>'. It is also possible to perform both operations using the <code>make()</code> command alone by passing the value for the new document's <code>text</code> property via the <code>make()</code> command's optional <code>with_properties</code> parameter:</p> 
 
 <pre><code>&gt;&gt;&gt; te.make(new=k.document, with_properties={k.text: 'Hello World'})
-app('/Applications/TextEdit.app').documents[1]
+app('/System/Applications/TextEdit.app').documents[1]
 &gt;&gt;&gt; </code></pre>
 
-<p>Incidentally, you might note that every time the <code>make()</code> command is used, it returns a reference to document <em>1</em>. TextEdit identifies <code>document</code> objects according to the stacking order of their windows, with document 1 being frontmost. When the window stacking order changes, whether as a result of a script command or GUI-based interaction, so does the order of their corresponding <code>document</code> objects. This means that a previously created reference such as <code>app('/Applications/TextEdit.app').documents[1]</code> may now identify a different <code>document</code> object to before! Some applications prefer to return references that identify objects by name or unique ID rather than index to reduce or eliminate the potential for confusion, but it's an issue you should be aware of, particularly with long-running scripts where there is greater opportunity for unexpected third-party interactions to throw a spanner in the works.</p>
+<p>Incidentally, you might note that every time the <code>make()</code> command is used, it returns a reference to document <em>1</em>. TextEdit identifies <code>document</code> objects according to the stacking order of their windows, with document 1 being frontmost. When the window stacking order changes, whether as a result of a script command or GUI-based interaction, so does the order of their corresponding <code>document</code> objects. This means that a previously created reference such as <code>app('/System/Applications/TextEdit.app').documents[1]</code> may now identify a different <code>document</code> object to before! Some applications prefer to return references that identify objects by name or unique ID rather than index to reduce or eliminate the potential for confusion, but it's an issue you should be aware of, particularly with long-running scripts where there is greater opportunity for unexpected third-party interactions to throw a spanner in the works.</p>
 
 
 <h4>More on manipulating <code>text</code></h4>

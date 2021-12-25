@@ -6,7 +6,7 @@ from time import strftime
 
 from aem import *
 
-textedit = Application('/Applications/TextEdit.app') # make Application object
+textedit = Application('/System/Applications/TextEdit.app') # make Application object
 
 #######
 

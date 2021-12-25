@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 
 # A simple function that gets information on every photo currently selected
-# in iPhoto.
+# in Photos.
 
 from appscript import *
 
 def infoforselectedphotos():
-    """Get properties of currently selected photo(s) in iPhoto."""
-    selection = app('iPhoto').selection.get()
+    """Get properties of currently selected photo(s) in Photos."""
+    selection = app('Photos').selection.get()
     photos = []
     if selection[0].class_.get() == k.photo:
         for photo in selection:
