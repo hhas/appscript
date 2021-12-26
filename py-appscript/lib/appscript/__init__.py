@@ -1,4 +1,4 @@
-"""py3-appscript -- High-level Mac OS X application scripting support for Python 3.1+. """
+"""py3-appscript -- High-level Mac OS X application scripting support for Python 3. """
 
 __version__ = 'dev'
 

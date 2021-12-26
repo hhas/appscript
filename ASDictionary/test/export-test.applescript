@@ -1,3 +1,4 @@
+
 tell application "ASDictionary"
 	export {Â
 		POSIX file "/System/Applications/Mail.app", Â
@@ -8,3 +9,4 @@ tell application "ASDictionary"
 		using styles {AppleScript, Python appscript, Ruby appscript} Â
 		with compacting classes, showing hidden items and exporting to subfolders
 end tell
+

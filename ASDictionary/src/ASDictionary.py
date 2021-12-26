@@ -75,8 +75,7 @@ class ASDictionary(NSDocument):
 
 
 	def applicationDidFinishLaunching_(self, sender):
-		for m in [appscriptsupport, dictionaryexporter]:
-			m.init()
+		appscriptsupport.init()
 		self.standardAdditions = osax.OSAX()
 		aemreceive.installeventhandler(handle_get, b'coregetd', (b'----', 'ref', aemreceive.kae.typeObjectSpecifier))
 
@@ -108,7 +107,7 @@ class ASDictionary(NSDocument):
 		userDefaults = NSUserDefaults.standardUserDefaults()
 		self.setHtmlOptionsEnabled_(userDefaults.boolForKey_('singleHTML') or userDefaults.boolForKey_('frameHTML'))
 		hasSelectedFiles = bool(self.selectedFiles())
-		willExportDict = self.htmlOptionsEnabled() or userDefaults.boolForKey_('plainText')
+		willExportDict = self.htmlOptionsEnabled()
 		hasSelectedStyles = bool([name for name 
 				in ['applescriptStyle', 'pythonStyle', 'rubyStyle'] 
 				if userDefaults.boolForKey_(name)])
@@ -288,8 +287,8 @@ class ASDictionary(NSDocument):
 				options.append('collapse')
 			if userDefaults.boolForKey_('showInvisibles'):
 				options.append('full')
-			plainText, singleHTML, frameHTML = [userDefaults.boolForKey_(name) 
-					for name in ['plainText', 'singleHTML', 'frameHTML']]
+			singleHTML = userDefaults.boolForKey_('singleHTML')
+			frameHTML = userDefaults.boolForKey_('frameHTML')
 			styles = [style for key, style in [
 					('applescriptStyle', 'applescript'),
 					('pythonStyle', 'py-appscript'),
@@ -298,8 +297,8 @@ class ASDictionary(NSDocument):
 			# files to process, sorted by name
 			selection = self.selectedFiles()[:]
 			selection.sort(key=lambda s: s['name'].lower())
-			progressObj = GUIProgress(len(selection), len(styles), len([i for i in [plainText, singleHTML, frameHTML] if i]), self)
-			dictionaryexporter.export(selection, styles, plainText, singleHTML, frameHTML, options, outFolder, exportToSubfolders, progressObj)
+			progressObj = GUIProgress(len(selection), len(styles), len([i for i in [singleHTML, frameHTML] if i]), self)
+			dictionaryexporter.export(selection, styles, singleHTML, frameHTML, options, outFolder, exportToSubfolders, progressObj)
 		except Exception as e:
 			from traceback import print_exc; print_exc()
 

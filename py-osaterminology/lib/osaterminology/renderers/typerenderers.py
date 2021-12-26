@@ -47,9 +47,9 @@ class AppscriptTypeRenderer(TypeRendererBase):
 		else:
 			return type.name or self._type % self.escapecode(type.code)
 	
-	def escapecode(self, s):
+	def escapecode(self, s): # TO DO: how is s arg represented?
 		# format non-ASCII characters as '\x00' hex values for readability (also backslash and single and double quotes)
-		s = str(s, 'macroman')
+		if isinstance(s, bytes): s = str(s, 'macroman')
 		res = ''
 		for c in s:
 			n = ord(c)

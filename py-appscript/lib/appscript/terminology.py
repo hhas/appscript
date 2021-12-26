@@ -140,7 +140,7 @@ def urlforapp(aemapp):
 		return ae.convertpathtourl(path, 0)
 
 
-def sdefforurl(url): # TO DO: we could avoid using this Carbon/OpenScripting call if all apps implemented a working `ascrgsdf` handler; unfortunately, those with AETE/scriptTerminology resources return error -192 (also not sure if apps which have an SDEF but don't set NSAppleScriptEnabled flag will implement this handler, or if it's CocoaScripting-specific)
+def sdefforurl(url):
 	""" Get application's SDEF given a file: or eppc: URL. """
 	try:
 		return ae.scriptingdefinitionfromurl(url)

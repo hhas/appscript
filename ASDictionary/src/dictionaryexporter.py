@@ -8,7 +8,7 @@ from aem import *
 from aemreceive import *
 from osaterminology import makeidentifier
 from osaterminology.dom import aeteparser, sdefparser
-from osaterminology.renderers import quickdoc, htmldoc, htmldoc2
+from osaterminology.renderers import htmldoc, htmldoc2
 
 
 ######################################################################
@@ -33,7 +33,6 @@ def _makeDestinationFolder(outFolder, styleSubfolderName, formatSubfolderName, f
 ######################################################################
 # define handler for 'export dictionaries' events # TO DO: junk this?
 
-kPlainText = b'PTex'
 kSingleHTML = b'SHTM'
 kFrameHTML = b'FHTM'
 kASStyle = b'AScr'
@@ -85,36 +84,12 @@ class AEProgress:
 		return self._results
 
 
-def handle_exportdictionaries(sources, outfolder, 
-		fileformats=[AEEnum(kFrameHTML)], styles=[AEEnum(kASStyle)],
-		compactclasses=False, showinvisibles=False, usesubfolders=False):
-	items = []
-	for alias in sources:
-		name = os.path.splitext(os.path.basename(alias.path.rstrip('/')))[0]
-		items.append({
-			'name': name, 
-			'path': alias.path,
-			})
-	outfolder = outfolder.path
-	plaintext = AEEnum(kPlainText) in fileformats
-	singlehtml = AEEnum(kSingleHTML) in fileformats
-	framehtml = AEEnum(kFrameHTML) in fileformats
-	styles = [kAECodeToStyle[o.code] for o in styles]
-	options = []
-	if compactclasses:
-		options.append('collapse')
-	if showinvisibles:
-		options.append('full')
-	progressobj = AEProgress(len(items), len(styles), len(fileformats), None)
-	return export(items, styles, plaintext, singlehtml, framehtml, options, outfolder, usesubfolders, progressobj)
-
-
 ######################################################################
 # PUBLIC
 ######################################################################
 
 
-def export(items, styles, plainText, singleHTML, frameHTML, options, outFolder, exportToSubfolders, progress):
+def export(items, styles, singleHTML, frameHTML, options, outFolder, exportToSubfolders, progress):
 	styleInfo = [(style, kStyleToSuffix[style]) for style in styles]
 	# process each item
 	for i, item in enumerate(items):
@@ -141,14 +116,6 @@ def export(items, styles, plainText, singleHTML, frameHTML, options, outFolder, 
 					progress.didfail("User cancelled.")
 					progress.didfinish()
 					return
-				if plainText:
-					raise NotImplementedError("TO DO: rework quickdoc to use SDEF")
-					outputPath = _makeDestinationFolder(outFolder, styleSubfolderName, 
-							exportToSubfolders and 'text', name + suffix + '.txt')
-					progress.nextoutput('%s' % outputPath)
-					with open(outputPath, 'w', encoding='utf-8') as f:
-						f.write('\uFEFF') # UTF8 BOM
-						quickdoc.renderaetes(aetes, f, makeidentifier.getconverter(style))
 				if singleHTML or frameHTML:
 					terms = sdefparser.parsexml(sdef, path, style)
 					if singleHTML:
@@ -170,16 +137,3 @@ def export(items, styles, plainText, singleHTML, frameHTML, options, outFolder, 
 			progress.didsucceed()
 	return progress.didfinish()
 
-
-#######
-
-
-def init():
-	installeventhandler(handle_exportdictionaries, b'ASDiExpD',
-			(b'----', 'sources', ArgListOf(kae.typeAlias)),
-			(b'ToFo', 'outfolder', kae.typeAlias),
-			(b'Form', 'fileformats', ArgListOf(ArgEnum(kPlainText, kSingleHTML, kFrameHTML))),
-			(b'Styl', 'styles', ArgListOf(ArgEnum(kASStyle, kPyStyle, kRbStyle))),
-			(b'ClaC', 'compactclasses', kae.typeBoolean),
-			(b'SInv', 'showinvisibles', kae.typeBoolean),
-			(b'SubF', 'usesubfolders', kae.typeBoolean))

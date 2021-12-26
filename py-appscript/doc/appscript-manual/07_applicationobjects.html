@@ -74,7 +74,7 @@
 <p>If none of these arguments is given, the host process (current application) is targetted.</p>
 
 
-<p class="hilitebox">By default, <code>app</code> objects obtain the target application's terminology by sending an <code>ascrgdte</code> ("Get AETE") Apple event, which best replicates AppleScript's own behavior. Unfortunately, this handler may be broken in some applications (specifically older apps that implement Carbon-based Apple event handling plus SDEF-based terminology, but incorrectly set <code>NSAppleScriptEnabled</code> to <code>true</code> in their Info.plist, causing CocoaScripting to replace the app's existing <code>ascrgdte</code> handler with a non-working version). When dealing with these problem applications, pass <code>terms='sdef'</code> to the <code>app</code> constructor, e.g. <code>app(id='com.adobe.photoshop', terms='sdef')</code>.</p>
+<p class="hilitebox">By default, <code>app</code> objects obtain the target application's terminology by sending an <code>ascrgdte</code> ("Get AETE") Apple event, which best replicates AppleScript's own behavior. Unfortunately, this handler may be broken in some applications (specifically older apps that implement Carbon-based Apple event handling plus SDEF-based terminology). When dealing with these problem applications, pass <code>terms='sdef'</code> to the <code>app</code> constructor, e.g. <code>app(id='com.adobe.photoshop', terms='sdef')</code>.</p>
 
 <p>Examples:</p>
 

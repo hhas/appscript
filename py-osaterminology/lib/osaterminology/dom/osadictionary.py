@@ -107,7 +107,11 @@ class Nodes(_Vis): # TO DO: rename; TO DO: add non-in-place sort method
 		return o in self._real()
 	
 	def index(self, o):
-		return self._real().index(o)
+		try:
+			return self._real().index(o)
+		except:
+			print(self._real())
+			raise
 	
 	# custom methods
 	
@@ -254,6 +258,15 @@ class _Base(_Vis):
 # PUBLIC
 ######################################################################
 
+class Ignored(_Vis):
+	
+	def __init__(self, kind):
+		self.kind = kind
+	
+	def _add_(self, item):
+		pass
+
+
 class Dictionary(_Base):
 	kind = 'dictionary'
 
@@ -297,9 +310,15 @@ class Suite(_Base):
 		self._valuetypes = Nodes(visibility)
 	
 	def _add_(self, item):
-		{'class':self._classes, 'class-extension':self._classes,  'command':self._commands, 'event':self._events, 
-			'enumeration':self._enumerations, 'record-type':self._recordtypes, 
-			'value-type':self._valuetypes}.get(item.kind, []).append(item) # TO DO: why is this being called with `element`?
+		{
+			'class':self._classes, 
+			'class-extension':self._classes,  
+			'command':self._commands, 
+			'event':self._events, 
+			'enumeration':self._enumerations, 
+			'record-type':self._recordtypes, 
+			'value-type':self._valuetypes,
+		}[item.kind].append(item)
 		
 	def classes(self):
 		return self._classes
@@ -339,12 +358,19 @@ class Class(_Base):
 		self._elements = Nodes(visibility)
 		self._respondsto = Nodes(visibility)
 		self._type = type # TO DO: make public?
-		
+	
+	
+	def __eq__(self, o): # kludge for Nodes.index()
+		return type(self) == type(o) and self.name == o.name	
 	
 	def _add_(self, item):
-		{'contents':self._contents, 'property':self._properties, 
-				'element':self._elements, 'responds-to':self._respondsto, 
-				'type':self._superclasses}[item.kind].append(item)
+		{
+			'contents':self._contents, 
+			'property':self._properties, 
+			'element':self._elements, 
+			'responds-to':self._respondsto, 
+			'type':self._superclasses,
+		}[item.kind].append(item)
 	
 	def _clean(self, alreadycleaned): # TO DO: also needs to clean 'respondsto' and 'contents'
 		# Eliminates property and element definitions in this class that are duplicates of existing definitions in superclasses. Any superclasses are cleaned recursively.
@@ -493,6 +519,7 @@ class Class(_Base):
 	def respondsto(self):
 		self._clean([]) # deferred cleanup; makes sure any duplicate properties/elements/respondstos already defined in superclasses are removed before returning a list of them
 		return self._respondsto
+
 
 
 

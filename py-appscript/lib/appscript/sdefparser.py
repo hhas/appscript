@@ -2,8 +2,6 @@
 
 The tables returned by this module are an intermediate format, suitable for exporting to Python modules via terminology.dump. The terminology module will convert these intermediate tables into the final format used in AppData objects. 
 
-This module provides a fallback when dealing with misconfigured apps that implement custom AE handling (typically Carbon-era AEInstallEventHandler &co) that doesn't use CocoaScripting.framework. These apps should set the [misleadingly named] `NSAppleScriptEnabled` flag to false, as setting it to true initializes CocoaScripting. In apps that use old-style AETE resources (i.e. do not contain an .sdef resource, e.g. Illustrator 2021), this has no effect as CS can't do anything unless `OSAScriptingDefinition` is also correctly set. In apps that set both (e.g. Photoshop 2021), CS loads and replaces the app's existing 'ascrgdte' (GetAETE) event handler with a non-functional one that leaves appscript unable to retrieve the app's terminology via that event. (And since AETEs can no longer be retrieved via OSAGetAppTerminology, that means using SDEFs. Which stinks for multiple reasons, but is what we're stuck with.)
-
 """
 
 import string, struct

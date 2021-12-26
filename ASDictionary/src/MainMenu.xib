@@ -25,14 +25,14 @@
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <scrollView fixedFrame="YES" horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="312">
-                        <rect key="frame" x="-1" y="180" width="444" height="268"/>
+                        <rect key="frame" x="-1" y="170" width="444" height="278"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <clipView key="contentView" id="0a7-c8-JiO">
-                            <rect key="frame" x="1" y="1" width="442" height="266"/>
+                            <rect key="frame" x="1" y="1" width="442" height="276"/>
                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             <subviews>
                                 <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" columnReordering="NO" autosaveColumns="NO" headerView="804" id="313">
-                                    <rect key="frame" x="0.0" y="0.0" width="442" height="243"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="442" height="253"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <size key="intercellSpacing" width="3" height="2"/>
                                     <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -78,11 +78,11 @@
                             </subviews>
                         </clipView>
                         <scroller key="horizontalScroller" wantsLayer="YES" verticalHuggingPriority="750" doubleValue="0.5" horizontal="YES" id="803">
-                            <rect key="frame" x="1" y="251" width="442" height="16"/>
+                            <rect key="frame" x="1" y="261" width="442" height="16"/>
                             <autoresizingMask key="autoresizingMask"/>
                         </scroller>
                         <scroller key="verticalScroller" wantsLayer="YES" verticalHuggingPriority="750" horizontal="NO" id="805">
-                            <rect key="frame" x="427" y="24" width="16" height="243"/>
+                            <rect key="frame" x="427" y="24" width="16" height="253"/>
                             <autoresizingMask key="autoresizingMask"/>
                         </scroller>
                         <tableHeaderView key="headerView" wantsLayer="YES" id="804">
@@ -91,45 +91,14 @@
                         </tableHeaderView>
                     </scrollView>
                     <box fixedFrame="YES" boxType="oldStyle" borderType="none" title="Title" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="589">
-                        <rect key="frame" x="16" y="20" width="407" height="153"/>
+                        <rect key="frame" x="17" y="20" width="407" height="142"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <view key="contentView" id="acu-QJ-gKj">
-                            <rect key="frame" x="0.0" y="0.0" width="407" height="153"/>
+                            <rect key="frame" x="0.0" y="0.0" width="407" height="142"/>
                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             <subviews>
-                                <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="311">
-                                    <rect key="frame" x="311" y="-4" width="100" height="32"/>
-                                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
-                                    <buttonCell key="cell" type="push" title="Export" bezelStyle="rounded" alignment="center" enabled="NO" borderStyle="border" inset="2" id="790">
-                                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                        <font key="font" metaFont="system"/>
-                                        <string key="keyEquivalent" base64-UTF8="YES">
-DQ
-</string>
-                                    </buttonCell>
-                                    <connections>
-                                        <action selector="export:" target="347" id="378"/>
-                                        <binding destination="347" name="enabled" keyPath="canExport" id="379"/>
-                                    </connections>
-                                </button>
-                                <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="512">
-                                    <rect key="frame" x="211" y="-4" width="100" height="32"/>
-                                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
-                                    <buttonCell key="cell" type="push" title="Clear" bezelStyle="rounded" alignment="center" enabled="NO" borderStyle="border" inset="2" id="791">
-                                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                        <font key="font" metaFont="system"/>
-                                    </buttonCell>
-                                    <connections>
-                                        <action selector="clear:" target="347" id="522"/>
-                                        <binding destination="391" name="enabled" keyPath="content" id="528">
-                                            <dictionary key="options">
-                                                <string key="NSValueTransformerName">ArrayToBoolean</string>
-                                            </dictionary>
-                                        </binding>
-                                    </connections>
-                                </button>
                                 <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="603">
-                                    <rect key="frame" x="215" y="33" width="164" height="18"/>
+                                    <rect key="frame" x="3" y="2" width="164" height="18"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <buttonCell key="cell" type="check" title="Export to subfolders" bezelStyle="regularSquare" imagePosition="left" alignment="left" inset="2" id="792">
                                         <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -140,75 +109,68 @@ DQ
                                     </connections>
                                 </button>
                                 <box fixedFrame="YES" title="File formats" translatesAutoresizingMaskIntoConstraints="NO" id="243">
-                                    <rect key="frame" x="1" y="11" width="194" height="142"/>
+                                    <rect key="frame" x="1" y="27" width="194" height="112"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
                                     <view key="contentView" id="u1r-bi-L5y">
-                                        <rect key="frame" x="3" y="3" width="188" height="122"/>
+                                        <rect key="frame" x="3" y="3" width="188" height="92"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         <subviews>
-                                            <matrix verticalHuggingPriority="750" fixedFrame="YES" mode="track" selectionByRect="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mtw-PY-iBy">
-                                                <rect key="frame" x="31" y="14" width="142" height="38"/>
+                                            <matrix verticalHuggingPriority="750" fixedFrame="YES" mode="track" selectionByRect="NO" translatesAutoresizingMaskIntoConstraints="NO" id="oTh-Oc-RGy">
+                                                <rect key="frame" x="34" y="7" width="142" height="38"/>
                                                 <autoresizingMask key="autoresizingMask" heightSizable="YES"/>
                                                 <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                                 <size key="cellSize" width="142" height="18"/>
                                                 <size key="intercellSpacing" width="4" height="2"/>
-                                                <buttonCell key="prototype" type="check" title="Radio" bezelStyle="regularSquare" imagePosition="left" alignment="left" inset="2" id="EUH-oq-Vkr">
+                                                <buttonCell key="prototype" type="check" title="Radio" bezelStyle="regularSquare" imagePosition="left" alignment="left" inset="2" id="Sv9-iE-apZ">
                                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                                     <font key="font" metaFont="system"/>
                                                 </buttonCell>
                                                 <cells>
                                                     <column>
-                                                        <buttonCell type="check" title="Compact classes" bezelStyle="regularSquare" imagePosition="left" alignment="left" inset="2" id="jWD-3h-MZu">
+                                                        <buttonCell type="check" title="Compact classes" bezelStyle="regularSquare" imagePosition="left" alignment="left" inset="2" id="Sf4-Zf-NFv">
                                                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                                             <font key="font" metaFont="system"/>
                                                             <connections>
-                                                                <binding destination="361" name="value" keyPath="values.compactClasses" id="gve-3h-dEI"/>
+                                                                <binding destination="361" name="value" keyPath="values.compactClasses" id="f6Z-S9-gDl"/>
                                                             </connections>
                                                         </buttonCell>
-                                                        <buttonCell type="check" title="Show invisibles" bezelStyle="regularSquare" imagePosition="left" alignment="left" tag="1" inset="2" id="jiP-Ov-HTY">
+                                                        <buttonCell type="check" title="Show invisibles" bezelStyle="regularSquare" imagePosition="left" alignment="left" tag="1" inset="2" id="OYG-kh-uQi">
                                                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                                             <font key="font" metaFont="system"/>
                                                             <connections>
-                                                                <binding destination="361" name="value" keyPath="values.showInvisibles" id="69z-y9-wgs"/>
+                                                                <binding destination="361" name="value" keyPath="values.showInvisibles" id="oMG-DG-J2d"/>
                                                             </connections>
                                                         </buttonCell>
                                                     </column>
                                                 </cells>
                                                 <connections>
-                                                    <binding destination="347" name="enabled" keyPath="htmlOptionsEnabled" id="BMx-k6-eok"/>
+                                                    <binding destination="347" name="enabled" keyPath="htmlOptionsEnabled" id="VWY-yR-zV2"/>
                                                 </connections>
                                             </matrix>
-                                            <matrix verticalHuggingPriority="750" fixedFrame="YES" mode="track" selectionByRect="NO" translatesAutoresizingMaskIntoConstraints="NO" id="852-xx-b2V">
-                                                <rect key="frame" x="10" y="57" width="134" height="58"/>
+                                            <matrix verticalHuggingPriority="750" fixedFrame="YES" mode="track" selectionByRect="NO" translatesAutoresizingMaskIntoConstraints="NO" id="RN6-f0-qHK">
+                                                <rect key="frame" x="13" y="47" width="134" height="38"/>
                                                 <autoresizingMask key="autoresizingMask" heightSizable="YES"/>
                                                 <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                                 <size key="cellSize" width="134" height="18"/>
                                                 <size key="intercellSpacing" width="4" height="2"/>
-                                                <buttonCell key="prototype" type="check" title="Radio" bezelStyle="regularSquare" imagePosition="left" alignment="left" inset="2" id="X1k-wA-VlL">
+                                                <buttonCell key="prototype" type="check" title="Radio" bezelStyle="regularSquare" imagePosition="left" alignment="left" inset="2" id="c45-md-zqL">
                                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                                     <font key="font" metaFont="system"/>
                                                 </buttonCell>
                                                 <cells>
                                                     <column>
-                                                        <buttonCell type="check" title="Plain text" bezelStyle="regularSquare" imagePosition="left" alignment="left" inset="2" id="obn-lU-8cr">
+                                                        <buttonCell type="check" title="HTML (single file)" bezelStyle="regularSquare" imagePosition="left" alignment="left" inset="2" id="7N7-zU-ShA">
                                                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                                             <font key="font" metaFont="system"/>
                                                             <connections>
-                                                                <binding destination="361" name="value" keyPath="values.plainText" id="b1y-GE-AMS"/>
+                                                                <binding destination="361" name="value" keyPath="values.singleHTML" id="Prb-69-a0u"/>
                                                             </connections>
                                                         </buttonCell>
-                                                        <buttonCell type="check" title="HTML (single file)" bezelStyle="regularSquare" imagePosition="left" alignment="left" tag="1" inset="2" id="e5L-Zk-A8Z">
+                                                        <buttonCell type="check" title="HTML (frames)" bezelStyle="regularSquare" imagePosition="left" alignment="left" tag="1" inset="2" id="5do-9h-tTv">
                                                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                                             <font key="font" metaFont="system"/>
                                                             <connections>
-                                                                <binding destination="361" name="value" keyPath="values.singleHTML" id="yfM-0c-Eh7"/>
-                                                            </connections>
-                                                        </buttonCell>
-                                                        <buttonCell type="check" title="HTML (frames)" bezelStyle="regularSquare" imagePosition="left" alignment="left" inset="2" id="BAt-G0-TA8">
-                                                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                                            <font key="font" metaFont="system"/>
-                                                            <connections>
-                                                                <binding destination="361" name="value" keyPath="values.frameHTML" id="4Zo-2A-ZV1"/>
+                                                                <binding destination="361" name="value" keyPath="values.frameHTML" id="trP-6F-r5Y"/>
                                                             </connections>
                                                         </buttonCell>
                                                     </column>
@@ -219,7 +181,7 @@ DQ
                                     <font key="titleFont" metaFont="system"/>
                                 </box>
                                 <box fixedFrame="YES" title="Terminology styles" translatesAutoresizingMaskIntoConstraints="NO" id="257">
-                                    <rect key="frame" x="213" y="59" width="194" height="94"/>
+                                    <rect key="frame" x="213" y="45" width="194" height="94"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
                                     <view key="contentView" id="c8M-VP-MAU">
                                         <rect key="frame" x="3" y="3" width="188" height="74"/>
@@ -265,6 +227,37 @@ DQ
                                     </view>
                                     <font key="titleFont" metaFont="system"/>
                                 </box>
+                                <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="311">
+                                    <rect key="frame" x="311" y="-2" width="100" height="32"/>
+                                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
+                                    <buttonCell key="cell" type="push" title="Export" bezelStyle="rounded" alignment="center" enabled="NO" borderStyle="border" inset="2" id="790">
+                                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                        <font key="font" metaFont="system"/>
+                                        <string key="keyEquivalent" base64-UTF8="YES">
+DQ
+</string>
+                                    </buttonCell>
+                                    <connections>
+                                        <action selector="export:" target="347" id="378"/>
+                                        <binding destination="347" name="enabled" keyPath="canExport" id="379"/>
+                                    </connections>
+                                </button>
+                                <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="512">
+                                    <rect key="frame" x="211" y="-2" width="100" height="32"/>
+                                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
+                                    <buttonCell key="cell" type="push" title="Clear" bezelStyle="rounded" alignment="center" enabled="NO" borderStyle="border" inset="2" id="791">
+                                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                        <font key="font" metaFont="system"/>
+                                    </buttonCell>
+                                    <connections>
+                                        <action selector="clear:" target="347" id="522"/>
+                                        <binding destination="391" name="enabled" keyPath="content" id="528">
+                                            <dictionary key="options">
+                                                <string key="NSValueTransformerName">ArrayToBoolean</string>
+                                            </dictionary>
+                                        </binding>
+                                    </connections>
+                                </button>
                             </subviews>
                         </view>
                     </box>
@@ -501,7 +494,7 @@ CA
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                     <clipView key="contentView" drawsBackground="NO" id="nYU-zj-jZn">
                         <rect key="frame" x="1" y="1" width="248" height="298"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <autoresizingMask key="autoresizingMask"/>
                         <subviews>
                             <textView editable="NO" importsGraphics="NO" richText="NO" verticallyResizable="YES" usesFontPanel="YES" usesRuler="YES" spellingCorrection="YES" smartInsertDelete="YES" id="501">
                                 <rect key="frame" x="0.0" y="0.0" width="248" height="298"/>

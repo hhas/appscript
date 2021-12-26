@@ -1,4 +1,4 @@
-"""appscriptsupport -- Provides support for py-/rb-appscript's built-in help system."""
+"""appscriptsupport -- Provides support for py-appscript/rb-scpt's built-in help system."""
 
 from pprint import pprint, pformat
 from io import StringIO

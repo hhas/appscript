@@ -39,7 +39,6 @@ setup(
 				CFBundleShortVersionString=version,
 				NSHumanReadableCopyright="",
 				CFBundleIdentifier="net.sourceforge.appscript.asdictionary",
-				OSAScriptingDefinition=name+'.sdef',
 				CFBundleDocumentTypes = [
 					dict(
 						CFBundleTypeExtensions=["*"],
@@ -48,7 +47,7 @@ setup(
 					),
 				]
 			),
-			resources=[name+'.icns', name+'.sdef'],
+			resources=[name+'.icns'],
 			iconfile=name+'.icns'
 		)
 	)

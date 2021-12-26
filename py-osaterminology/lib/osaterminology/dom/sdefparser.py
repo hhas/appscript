@@ -56,34 +56,42 @@ class Handler(ContentHandler):
 		self._isvisible = True
 		self._stack = [HandlerResult()]
 		self._documentationdepth = 0
+		self._suitename = ''
 		
 	#######
 	
 	def startElement(self, name, attrs):
 		if self._isvisible and attrs.get('hidden') == 'yes': # start of hidden element; all sub-elements will be flagged as hidden too
-			self._hiddenname = name
+			self._hiddenname = name # caution: this assumes <NAME> can't be nested inside another <NAME>
 			self._isvisible = False
-		if not self._documentationdepth: # not inside a documentation element, so process normally
+		if self._documentationdepth == 0: # not inside a documentation element, so process normally
 			fn = getattr(self, 'start_'+name.replace('-', ''), None)
 			if fn:
-				fn(attrs)
-	
+				o = fn(attrs)
+				self._stack.append(o)
+			else:
+				self._stack.append(Ignored(name))
+				
 	def endElement(self, name):
 		if name == self._hiddenname: # end of hidden element
 			self._hiddenname = ''
 			self._isvisible = True
-		if self._documentationdepth:
+		if self._documentationdepth > 0:
 			if name == 'documentation':
 				self._documentationdepth -= 1
-		else:
+		if self._documentationdepth == 0:
 			if name == self._stack[-1].kind:
 				o = self._stack.pop()
-				self._stack[-1]._add_(o)
+				if not isinstance(o, Ignored):
+					self._stack[-1]._add_(o)
+			else:
+				print('mismatch on end', name , self._stack[-1].kind)
 
 	##
 	
 	def start_documentation(self, d): # TO DO: documentation support
 		self._documentationdepth += 1
+		return Ignored('documentation')
 
 
 	#######
@@ -97,7 +105,7 @@ class Handler(ContentHandler):
 		try:
 			return struct.pack('L', int(s, 16))
 		except:
-			return ''
+			return b'????'
 	
 	def _gettype(self, name):
 		name = self.asname(name)
@@ -108,39 +116,53 @@ class Handler(ContentHandler):
 	##
 	
 	def start_dictionary(self, d):
-		self._stack.append(Dictionary(self._visibility, d.get('title', self._path.split('/')[-1] or self._path.split('/')[-2]), self._path)) # OSAGetScriptingDefinition doesn't produce well-formed sdef (missing title) when converting from aete, so compensate here
+		o = Dictionary(self._visibility, d.get('title', self._path.split('/')[-1] or self._path.split('/')[-2]), self._path) # OSAGetScriptingDefinition doesn't produce valid sdef (missing title) when converting from aete, so compensate here # TO DO: is this still an issue?
+		return o
 	
 	def start_suite(self, d):
-		self._stack.append(Suite(self._visibility, d['name'], self.ascode(d['code']), d.get('description', ''), self._isvisible))
+		self._suitename = d['name']
+		o = Suite(self._visibility, d['name'], self.ascode(d['code']), d.get('description', ''), self._isvisible)
+		return o
 	
 	##
 	
 	def start_class(self, d):
 		t = self._gettype(d['name'])
 		t.code = self.ascode(d['code'])
-		suitename = self._stack[-1].name
-		o = Class(self._visibility, t.name, t.code, d.get('description', ''), self._isvisible, 
-				self.asname(d.get('plural', t.name+'s')), suitename, t)
+		o = Class(self._visibility, t.name, t.code, 
+						d.get('description', ''), self._isvisible, 
+						self.asname(d.get('plural', t.name+'s')), self._suitename, t)
 		if 'inherits' in d:
 			o._add_(self._gettype(d['inherits']))
-		self._stack.append(o)
 		self._classes.append(o)
 		t._add_(o)
+		return o
+		
+	def start_classextension(self, d):
+		t = self._gettype(d['extends']) # assumes class is already defined
+		o = Class(self._visibility, t.name, t.code, 
+						d.get('description', ''), self._isvisible, 
+						self.asname(t.pluralname), self._suitename, t)
+		o.kind = 'class-extension'
+		o._add_(self._gettype(d['extends']))
+		self._classes.append(o)
+		t._add_(o)
+		return o
+		
 	
 	def start_contents(self, d):
-		self._stack.append(Contents(self._visibility, self.asname(d.get('name', 'contents')),
-				self.ascode(d.get('code', b'pcnt')), d.get('description', ''), self._isvisible, d.get('access', 'rw')))
+		o = Contents(self._visibility, self.asname(d.get('name', 'contents')),
+				self.ascode(d.get('code', b'pcnt')), d.get('description', ''), self._isvisible, d.get('access', 'rw'))
 		if 'type' in d:
-			self._stack[-1]._add_(self._gettype(d['type']))
-	
-	def end_contents(self, d):
-		self._stack[-1].contents = self._stack.pop()
+			o._add_(self._gettype(d['type']))
+		return o
 	
 	def start_property(self, d):
-		self._stack.append(Property(self._visibility, self.asname(d['name']), self.ascode(d['code']),
-				d.get('description', ''), self._isvisible, d.get('access', 'rw')))
+		o = Property(self._visibility, self.asname(d['name']), self.ascode(d['code']),
+				d.get('description', ''), self._isvisible, d.get('access', 'rw'))
 		if 'type' in d:
-			self._stack[-1]._add_(self._gettype(d['type']))
+			o._add_(self._gettype(d['type']))
+		return o
 	
 	def start_type(self, d): # type elements = alternative to type attribute
 		if 'type' in d:
@@ -149,45 +171,51 @@ class Handler(ContentHandler):
 			t = Type(self._visibility) # kludge where <type list="yes">...</type>
 		if d.get('list') == 'yes':
 			t = ListOfType(self._visibility, t)
-		self._stack.append(t)
+		return t
 	
 	def start_element(self, d):
-		self._stack.append(Element(self._visibility, self._gettype(d['type']), d.get('description', ''), 
-				self._isvisible, d.get('access', 'rw'), self.elementnamesareplural))
+		o = Element(self._visibility, self._gettype(d['type']), d.get('description', ''), 
+				self._isvisible, d.get('access', 'rw'), self.elementnamesareplural)
+		return o
 	
 	def start_accessor(self, d):
-		self._stack.append(Accessor(self._visibility, d['style']))
+		o = Accessor(self._visibility, d['style'])
+		return o
 	
 	def start_respondsto(self, d):
-		self._stack.append(RespondsTo(self._visibility, self.asname(d['command']), self._isvisible)) # TO DO: command attribute may be command name or id
+		o = RespondsTo(self._visibility, self.asname(d['command']), self._isvisible) # TO DO: command attribute may be command name or id
+		return o
 	
 	##
 	
 	def start_command(self, d):
-		suitename = self._stack[-1].name
-		self._stack.append(Command(self._visibility, self.asname(d['name']), self.ascode(d['code']),
-				d.get('description', ''), self._isvisible, suitename))
+		o = Command(self._visibility, self.asname(d['name']), self.ascode(d['code']),
+				d.get('description', ''), self._isvisible, self._suitename)
+		return o
 	
 	def start_parameter(self, d):
-		self._stack.append(Parameter(self._visibility, self.asname(d['name']), self.ascode(d['code']),
-				 d.get('description', ''), self._isvisible, d.get('optional') == 'yes'))
+		o = Parameter(self._visibility, self.asname(d['name']), self.ascode(d['code']),
+				 d.get('description', ''), self._isvisible, d.get('optional') == 'yes')
 		if 'type' in d:
-			self._stack[-1]._add_(self._gettype(d['type']))
+			o._add_(self._gettype(d['type']))
+		return o
 	
 	def start_directparameter(self, d):
-		self._stack.append(DirectParameter(self._visibility, d.get('description', ''), self._isvisible, 
-				d.get('optional') == 'yes'))
+		o = DirectParameter(self._visibility, d.get('description', ''), self._isvisible, d.get('optional') == 'yes')
 		if 'type' in d:
-			self._stack[-1]._add_(self._gettype(d['type']))
+			o._add_(self._gettype(d['type']))
+		return o
 	
 	def start_result(self, d):
-		self._stack.append(Result(self._visibility, d.get('description', '')))
+		o = Result(self._visibility, d.get('description', ''))
 		if 'type' in d:
-			self._stack[-1]._add_(self._gettype(d['type']))
+			o._add_(self._gettype(d['type']))
+		return o
 	
 	def start_event(self, d):
-		self._stack.append(Event(self._visibility, self.asname(d['name']), self.ascode(d['code']), 
-				d.get('description', ''), self._isvisible))
+		o = Event(self._visibility, self.asname(d['name']), self.ascode(d['code']), 
+				d.get('description', ''), self._isvisible)
+		return o
 	
 	##
 	
@@ -196,37 +224,35 @@ class Handler(ContentHandler):
 			inline = int(d['inline'])
 		else:
 			inline = None
-		suitename = self._stack[-1].name
 		o = Enumeration(self._visibility, self.asname(d['name']), self.ascode(d['code']),
-				d.get('description', ''), self._isvisible, inline, suitename)
-		self._stack.append(o)
+				d.get('description', ''), self._isvisible, inline, self._suitename)
 		t = self._gettype(d['name'])
 		t.code = o.code
 		t._add_(o)
+		return o
 	
 	def start_enumerator(self, d):
-		self._stack.append(Enumerator(self._visibility, self.asname(d['name']), self.ascode(d['code']),
-				d.get('description', ''), self._isvisible))
+		o = Enumerator(self._visibility, self.asname(d['name']), self.ascode(d['code']),
+				d.get('description', ''), self._isvisible)
+		return o
 	
 	def start_recordtype(self, d):
-		suitename = self._stack[-1].name
 		o = RecordType(self._visibility, self.asname(d['name']), self.ascode(d['code']),
-				d.get('description', ''), self._isvisible, suitename)
-		self._stack.append(o)
+				d.get('description', ''), self._isvisible, self._suitename)
 		if 'type' in d:
 			o._add_(self._gettype(d['type']))
 		t = self._gettype(d['name'])
 		t.code = o.code
 		t._add_(o)
+		return o
 	
 	def start_valuetype(self, d):
-		suitename = self._stack[-1].name
 		o = ValueType(self._visibility, self.asname(d['name']), self.ascode(d['code']),
-				d.get('description', ''), self._isvisible, suitename)
-		self._stack.append(o)
+				d.get('description', ''), self._isvisible, self._suitename)
 		t = self._gettype(d['name'])
 		t.code = o.code
 		t._add_(o)
+		return o
 	
 	###
 	
@@ -250,7 +276,10 @@ class Handler(ContentHandler):
 	#			print i#,'\t\t',i.special
 		while len(self._stack) > 1: # bad sdef kludge
 			t = self._stack.pop()
-			self._stack[-1]._add_(t)
+			try:
+				self._stack[-1]._add_(t)
+			except:
+				pass
 		return self._stack[-1].result
 
 #######
@@ -291,7 +320,7 @@ class AppscriptHandler(Handler):
 		if (name == 'get' and code != 'coregetd') or (name == 'set' and code != 'coresetd'):
 			d = dict(d)	
 			d['name'] += '_'
-		Handler.start_command(self, d)
+		return Handler.start_command(self, d)
 	
 	def result(self):
 		# convert AppleScript type names to AE codes to appscript type names
@@ -338,7 +367,7 @@ handlers = {
 
 
 def parsexml(sdef, path='', style='appscript'):
-	# quick-n-dirty support for XIncludes, using lxml to merge multiple XML documents into one; TO DO: should really rewite sax-style parser to walk lxml tree
+	# quick-n-dirty support for XIncludes, using lxml to merge multiple XML documents into one; TO DO: should really rewite sax-style parser to walk lxml etree
 	root = etree.ElementTree(etree.XML(sdef))
 	root.xinclude() # resolve any XIncludes, which makes generating glue tables from SDEFs far more complicated and slower than it ought to be as otherwise we could've done it with a simple single-pass SAX parser; no need to build and walk a large DOM; alas the history of AppleScript is full of well-intentioned bad decisions that come back to bite foreverafter
 	sdef = etree.tostring(root)

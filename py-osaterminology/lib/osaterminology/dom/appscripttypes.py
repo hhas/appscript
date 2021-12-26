@@ -26,7 +26,7 @@ class TypeTables:
 		for _, enumerators in typedefs.enumerations:
 			for name, code in enumerators:
 				self.typecodebyname[name] = code
-		for defs in [typedefs.types, typedefs.properties]:
+		for defs in [typedefs.types, typedefs.pseudotypes, typedefs.properties]:
 			for name, code in defs:
 				self.typecodebyname[name] = code
 		for name, code, params in typedefs.commands:
