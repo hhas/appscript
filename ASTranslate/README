@@ -25,7 +25,7 @@ Usage
 
      app('Finder').home.folders[1].get(resulttype=k.alias, timeout=10)
 
-Click on the tabs below the bottom pane to switch between Python and Ruby translations. 
+Click on the Python and Ruby tabs below the bottom pane to switch translations. 
 
 The 'Send events to app' checkbox can be unchecked to prevent Apple events 
 being sent to the target application. This is particularly useful when 
@@ -42,22 +42,22 @@ Notes
   AppleScript to Python/Ruby.
 
 - ASTranslate translates application commands only. Standard Additions 
-  commands are not translated automatically.
+  commands are not translated.
 
-- If the 'Send events to app' option is checked, remember that all Apple 
-  events sent by AppleScript will be passed to applications to be handled as 
-  normal. i.e. Destructive commands (e.g. 'tell "Finder" to delete some file')
-  will still do their destructive thing; invalid or unsuccessful commands will
-  cause AppleScript to raise an error, etc.
+- If the 'Send Apple Events' option is checked, remember that all Apple events 
+  sent by AppleScript will be passed to applications to be handled as normal. 
+  i.e. Destructive commands (e.g. 'tell "Finder" to delete some file') will 
+  still do their destructive thing; unsuccessful commands will cause 
+  AppleScript to raise an error, etc.
 
-- Unchecking the 'Send events to app' option also prevents an application 
-  command from returning a result; if the following AppleScript code expects 
-  a return value, this will likely result in a script error.
-
-- Source code is available via svn; see <http://appscript.sourceforge.net>.
+- Unchecking the 'Send Apple Events' option also prevents application commands
+  returning a result. If the AppleScript code expects a command to return a 
+  value, this will likely result in an AppleScript error.
 
 
 Copyright
 ---------
 
 ASTranslate is released into the public domain.
+
+http://appscript.sourceforge.net/
