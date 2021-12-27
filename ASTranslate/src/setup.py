@@ -25,7 +25,7 @@ version = '0.6.0'
 
 setup(
 	app=["ASTranslate.py"],
-	data_files=["MainMenu.nib", "ASTranslateDocument.nib"],
+	data_files=["MainMenu.xib", "ASTranslateDocument.xib"],
 	ext_modules = [
 		Extension('_astranslate',
 			sources=['_astranslate.c'],
@@ -36,6 +36,7 @@ setup(
 	options=dict(
 		py2app=dict(
 			plist=dict(
+				NSAppleEventsUsageDescription="Optionally sends Apple events to target applications.",
 				CFBundleIdentifier="net.sourceforge.appscript.astranslate",
 				CFBundleVersion=version,
 				CFBundleShortVersionString=version,

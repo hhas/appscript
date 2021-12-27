@@ -73,13 +73,20 @@ def makeCustomSendProc(addResultFn, isLive):
 			else:
 				targetRef = app
 			
+			# kludge: timeOutInTicks constants (kAEDefaultTimeout = -1, kNoTimeOut = -2) screw up when represented as 64-bit instead of 32-bit longs
+			_timeout = timeout
+			if timeout == 0xffffffff:
+				_timeout = -1 # default timeout
+			elif timeout == 0xfffffffe:
+				_timeout = -2 # no timeout
+			
 			# render
 			for key, renderer in [(kLangPython, pythonrenderer), (kLangRuby, rubyrenderer)]:
 				try:
 					addResultFn(key, renderer.renderCommand(
 							appPath, addressdesc, eventcode, 
 							targetRef, directParam, params, 
-							resultType, modeFlags, timeout, 
+							resultType, modeFlags, _timeout, 
 							appData))
 				except (UntranslatedKeywordError, UntranslatedUserPropertyError) as e:
 					s = 'Untranslated event %r\n%s' % (eventcode, e)

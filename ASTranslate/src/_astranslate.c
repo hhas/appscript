@@ -109,6 +109,7 @@ scriptError:
 }
 
 
+// this is installed as Component Instance's send proc (its signature is that of AESend)
 static OSErr 
 GenericSendFunction(const AppleEvent *theAppleEvent,
 					  AppleEvent *reply,

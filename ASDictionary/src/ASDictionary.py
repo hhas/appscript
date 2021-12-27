@@ -243,22 +243,14 @@ class ASDictionary(NSDocument):
 
 	@objc.IBAction
 	def chooseRunningApplications_(self, sender):
-		from appscript import app # TO DO: use NSWorkspace
-		sysev = app('System Events')
-		names = sysev.application_processes.name()
-		names.sort(key=lambda s: s.lower())
-		selection = self.standardAdditions.choose_from_list(
-				names, 
+		apps = {str(app.localizedName()): str(app.bundleURL().path()) for app in NSWorkspace.sharedWorkspace().runningApplications()}
+		names = sorted(apps, key=lambda s: s.lower())
+		selection = self.standardAdditions.choose_from_list(names, 
 				with_prompt='Choose one or more running applications:', 
 				multiple_selections_allowed=True)
-		if selection == False:
-			return
-		for name in selection:
-			fileobj = sysev.application_processes[name].file() # Apple broke process's file property (now returns objspec)
-			if isinstance(fileobj, (mactypes.Alias, mactypes.File)):
-				self._addPathToSelectedFiles_(fileobj.path)
-			elif isinstance(fileobj, appscript.Reference):
-				self._addPathToSelectedFiles_(fileobj.POSIX_path())
+		if selection:
+			for name in selection:
+				self._addPathToSelectedFiles_(apps[name])
 
 
 	#######
