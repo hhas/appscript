@@ -49,8 +49,9 @@ class ASTranslateDocument(NSDocument):
 		else:
 			self._resultStores[kind].append(val)
 		if kind == self.currentStyle() or kind == kLangAll:
-			self.resultView.textStorage().appendAttributedString_(
-				NSAttributedString.alloc().initWithString_('%s\n\n' % self._resultStores[self.currentStyle()][-1]))
+			self.resultView.textStorage().mutableString().appendString_(
+					('%s\n\n' % self._resultStores[self.currentStyle()][-1]))
+			self.resultView.setTextColor_(NSColor.textColor())
 	
 	
 	def windowNibName(self): # a default NSWindowController is created automatically

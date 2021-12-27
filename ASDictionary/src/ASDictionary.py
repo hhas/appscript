@@ -257,9 +257,9 @@ class ASDictionary(NSDocument):
 	# 'Export' button method
 
 	def writeToLogWindow_(self, text):
-		store = self.logTextView.textStorage()
-		store.appendAttributedString_(NSAttributedString.alloc().initWithString_(text))
-		self.logTextView.scrollRangeToVisible_([store.length(), 0])
+		self.logTextView.textStorage().mutableString().appendString_(text)
+		self.logTextView.setTextColor_(NSColor.textColor())
+		self.logTextView.scrollRangeToVisible_([self.logTextView.textStorage().length(), 0])
 
 
 	@objc.IBAction
