@@ -27,12 +27,12 @@ class TC_OSAX(unittest.TestCase):
 	def test_4(self):
 		sa = osax.OSAX(id='com.apple.finder')
 		sa.activate()
-		self.assertEqual({osax.k.button_returned: '', osax.k.gave_up: True}, sa.display_dialog('test', giving_up_after=1))
+		self.assertEqual({osax.k.button_returned: '', osax.k.gave_up: True}, sa.display_dialog('test', giving_up_after=1, with_icon=osax.k.stop))
 		self.assertEqual(mactypes.Alias("/System/Library/CoreServices/Finder.app/"), sa.path_to(None))
 	
 	
 	def test_5(self):
-		p = subprocess.Popen("top -l1 | grep Finder | awk '{ print $1 }'", 
+		p = subprocess.Popen("top -l1 | grep ' Finder ' | awk '{ print $1 }'", 
 				shell=True, stdout=subprocess.PIPE, close_fds=True)
 		out, err = p.communicate()
 		pid = int(out)
@@ -45,7 +45,7 @@ class TC_OSAX(unittest.TestCase):
 	def test_6(self):
 		sa = osax.OSAX(aemapp=aem.Application("/System/Library/CoreServices/Finder.app/"))
 		sa.activate()
-		self.assertEqual({osax.k.button_returned: '', osax.k.gave_up: True}, sa.display_dialog('test', giving_up_after=1))
+		self.assertEqual({osax.k.button_returned: '', osax.k.gave_up: True}, sa.display_dialog('test', giving_up_after=1, with_icon=osax.k.note))
 		self.assertEqual(mactypes.Alias("/System/Library/CoreServices/Finder.app/"), sa.path_to(None))
 	
 

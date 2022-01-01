@@ -11,13 +11,13 @@ class TC_appscriptNewApp(unittest.TestCase):
 				'Finder.app',
 				'System Events'
 		]:
-			a = appscript.app(name)
+			a = appscript.app(name, terms='sdef')
 			self.assertNotEqual(None, a)
 			self.assertEqual(appscript.reference.Application, a.__class__)
 			self.assertEqual(appscript.reference.Reference, a.name.__class__)
 		
-		self.assertEqual("app('/System/Applications/TextEdit.app')", str(appscript.app('TextEdit')))
-		self.assertEqual("app('/System/Applications/TextEdit.app')", str(appscript.app(name='TextEdit')))
+		self.assertEqual("app('/System/Applications/TextEdit.app')", str(appscript.app('TextEdit', terms='sdef')))
+		self.assertEqual("app('/System/Applications/TextEdit.app')", str(appscript.app(name='TextEdit', terms='sdef')))
 		
 		self.assertRaises(appscript.ApplicationNotFoundError, appscript.app, '/non-existent/app')
 		self.assertRaises(appscript.ApplicationNotFoundError, appscript.app, 'non-existent.app')
@@ -28,12 +28,12 @@ class TC_appscriptNewApp(unittest.TestCase):
 				'com.apple.textedit',
 				'com.apple.finder',
 		]:
-			a = appscript.app(id=name)
+			a = appscript.app(id=name, terms='sdef')
 			self.assertNotEqual(None, a)
 			self.assertEqual(appscript.reference.Application, a.__class__)
 			self.assertEqual(appscript.reference.Reference, a.name.__class__)
 		
-		self.assertEqual("app('/System/Applications/TextEdit.app')", str(appscript.app(id='com.apple.textedit')))
+		self.assertEqual("app('/System/Applications/TextEdit.app')", str(appscript.app(id='com.apple.textedit', terms='sdef')))
 		
 		self.assertRaises(appscript.ApplicationNotFoundError, appscript.app, id='non.existent.app')
 		
@@ -43,7 +43,7 @@ class TC_appscriptNewApp(unittest.TestCase):
 				shell=True, stdout=subprocess.PIPE, close_fds=True)
 		out, err = p.communicate()
 		pid = int(out)
-		a = appscript.app(pid=pid)
+		a = appscript.app(pid=pid, terms='sdef')
 		self.assertEqual(appscript.reference.Application, a.__class__)
 		self.assertEqual(appscript.reference.Reference, a.name.__class__)
 		self.assertEqual("app(pid=%i)" % pid, str(a))
@@ -51,7 +51,7 @@ class TC_appscriptNewApp(unittest.TestCase):
 	
 	
 	def test_by_aem_app(self):
-		a = appscript.app(aemapp=aem.Application('/System/Applications/TextEdit.app'))
+		a = appscript.app(aemapp=aem.Application('/System/Applications/TextEdit.app'), terms='sdef')
 		self.assertEqual(appscript.reference.Application, a.__class__)
 		self.assertEqual(appscript.reference.Reference, a.name.__class__)
 		self.assertEqual("app(aemapp=aem.Application('/System/Applications/TextEdit.app'))", str(a))
@@ -62,8 +62,8 @@ class TC_appscriptNewApp(unittest.TestCase):
 class TC_appscriptCommands(unittest.TestCase):
 
 	def setUp(self):
-		self.te = appscript.app('TextEdit')
-		self.f = appscript.app('Finder')
+		self.te = appscript.app('TextEdit', terms='sdef')
+		self.f = appscript.app('Finder', terms='sdef')
 	
 	
 	def test_commands_1(self):

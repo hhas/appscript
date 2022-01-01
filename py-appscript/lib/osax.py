@@ -1,15 +1,12 @@
 """osax.py -- Allows scripting additions (a.k.a. OSAXen) to be called from Python. """
 
-from xml.etree import ElementTree
-import io, string
 
 from appscript import *
 from appscript import reference, terminology
-from appscript.reservedkeywords import kReservedKeywords
 import aem
 
 
-__all__ = ['OSAX', 'scriptingadditions', 'ApplicationNotFoundError', 'CommandError', 'k', 'mactypes']
+__all__ = ['OSAX', 'ApplicationNotFoundError', 'CommandError', 'k', 'mactypes']
 
 
 ######################################################################
@@ -17,145 +14,9 @@ __all__ = ['OSAX', 'scriptingadditions', 'ApplicationNotFoundError', 'CommandErr
 ######################################################################
 
 
-class TreeBuilderIgnoreDoctype(ElementTree.TreeBuilder):
-	""" Suppress XMLParser.doctype() deprecation warnings in ElementTree 1.3 """
-	
-	def doctype(self, name, pubid, system):
-		pass
+_osaxpath = '/System/Library/ScriptingAdditions/StandardAdditions.osax'
 
-
-class SdefParser: # TO DO: replace with tablesforsdef(sdefforurl(…))
-	""" Parse scripting addition sdef.
-		
-		Note:
-		
-		- OSAX terminology can only be retrieved via OSACopyScriptingDefinitionFromURL.
-		
-		- xi:include or class-extension elements are not supported, but osaxen are unlikely to use these anyway.
-		
-		- Synonyms are not supported. (While possible, it would require additional work to ensure that synonym names/codes don't accidentally mask the primary terms.)
-	"""
-	
-	_keywordcache = {}
-	_reservedwords = set(kReservedKeywords)
-	_specialconversions = {
-			' ': '_',
-			'-': '_',
-			'&': 'and',
-			'/': '_',
-	}
-	_legalchars = string.ascii_letters + '_'
-	_alphanum = _legalchars + string.digits
-	
-	commands = property(lambda self: list(self._commands.values()))
-
-	def __init__(self):
-		self.classes, self.enums, self.properties, self.elements, self._commands = [], [], [], [], {}
-	
-	def _name(self, s):
-		if s not in self._keywordcache:
-			legal = self._legalchars
-			res = ''
-			for c in s:
-				if c in legal:
-					res += c
-				elif c in self._specialconversions:
-					res += self._specialconversions[c]
-				else:
-					if res == '':
-						res = '_' # avoid creating an invalid identifier
-					res += '0x{:X}'.format(ord(c))
-				legal = self._alphanum
-			if res in self._reservedwords or res.startswith('_') or res.startswith('AS_'):
-				res += '_'
-			self._keywordcache[s] = str(res)
-		return self._keywordcache[s]
-	
-	def _code(self, s):
-		return s.encode('macroman')
-	
-	def _addnamecode(self, node, collection):
-		name = self._name(node.get('name'))
-		code = self._code(node.get('code'))
-		if name and len(code) == 4 and (name, code) not in collection:
-			collection.append((name, code))
-	
-	def _addcommand(self, node):
-		name = self._name(node.get('name'))
-		code = self._code(node.get('code'))
-		parameters = []
-		# Note: overlapping command definitions (e.g. 'path to') should be processed as follows:
-		# - If their names and codes are the same, only the last definition is used; other definitions are ignored and will not compile.
-		# - If their names are the same but their codes are different, only the first definition is used; other definitions are ignored and will not compile.
-		if name and len(code) == 8 and (name not in self._commands or self._commands[name][1] == code):
-			self._commands[name] =(name, code, parameters)
-			for pnode in node.findall('parameter'):
-				self._addnamecode(pnode, parameters)
-	
-	def parse(self, xml):
-		""" Extract name-code mappings from an sdef.
-		
-			xml : bytes | str -- sdef data
-		"""
-		xml = ElementTree.parse(io.BytesIO(xml), ElementTree.XMLParser(target=TreeBuilderIgnoreDoctype()))
-		for suite in xml.findall('suite'):
-			for node in suite:
-				try:
-					if node.tag in ['command', 'event']:
-						self._addcommand(node)
-					elif node.tag in ['class', 'record-type', 'value-type']:
-						self._addnamecode(node, self.classes)
-						for prop in node.findall('property'):
-							self._addnamecode(prop, self.properties)
-						if node.tag == 'class': # elements
-							name = self._name(node.get('plural', 
-									node.get('name', '') + 's'))
-							code = self._code(node.get('code'))
-							if name and name != 's' and len(code) == 4:
-								self.elements.append((name, code))
-					elif node.tag == 'enumeration':
-						for enum in node.findall('enumerator'):
-							self._addnamecode(enum, self.enums)
-				except:
-					pass # ignore problem definitions
-	
-	def parsefile(self, path):
-		""" Extract name-code mappings from an sdef.
-		
-			path :  str -- path to .sdef file
-		"""
-		self.parse(aem.ae.scriptingdefinitionfromurl(aem.ae.convertpathtourl(path, 0)))
-
-
-##
-
-
-kStandardAdditionsEnums = [ # codes from StandardAdditions aete
-		('stop', b'\x00\x00\x00\x00'),
-		('note', b'\x00\x00\x00\x01'),
-		('caution', b'\x00\x00\x00\x02')]
-
-
-######################################################################
-
-
-_osaxcache = {} # a dict of form: {'osax name': ['/path/to/osax', cached_terms_or_None], ...}
-
-_osaxnames = [] # names of all currently available osaxen
-
-def _initcaches():
-		_se = aem.Application(aem.findapp.byid('com.apple.systemevents'))
-		osaxen = aem.app.property(b'flds').property(b'$scr').elements(b'file').byfilter(
-				aem.its.property(b'asty').eq('osax').OR(aem.its.property(b'extn').eq('osax')))
-		if _se.event(b'coredoex', {b'----': osaxen.property(b'pnam')}).send(): # domain has ScriptingAdditions folder
-			names = _se.event(b'coregetd', {b'----': osaxen.property(b'pnam')}).send()
-			paths = _se.event(b'coregetd', {b'----': osaxen.property(b'posx')}).send()
-			for name, path in zip(names, paths):
-				if name.lower().endswith('.osax'): # remove name extension, if any
-					name = name[:-5]
-				if name.lower() not in _osaxcache:
-					_osaxnames.append(name)
-					_osaxcache[name.lower()] = [path, None]
+_terms = None
 
 
 ######################################################################
@@ -163,29 +24,16 @@ def _initcaches():
 ######################################################################
 
 def scriptingadditions():
-	if not _osaxnames:
-		_initcaches()
-	return _osaxnames[:]
+	return ['StandardAdditions']
 
 
 class OSAX(reference.Application):
 
-	def __init__(self, *, name=None, id=None, pid=None, url=None, aemapp=None, terms=True):
-		if not _osaxcache:
-			_initcaches()
-		self._osaxname = osaxname = 'StandardAdditions'
-		osaxname = osaxname.lower()
-		if terms == True:
-			try:
-				osaxpath, terms = _osaxcache[osaxname]
-			except KeyError as e:
-				raise ValueError("Scripting addition not found: {!r}".format(self._osaxname)) from e
-			if not terms:
-				p = SdefParser()
-				p.parsefile(osaxpath)
-				p.enums += kStandardAdditionsEnums # patch in missing codes for compatibility # TO DO: this shouldn't be needed any more
-				terms = _osaxcache[osaxname][1] = terminology.tablesformodule(p)
-		reference.Application.__init__(self, name, id, pid, url, aemapp, terms)
+	def __init__(self, *, name=None, id=None, pid=None, url=None, aemapp=None):
+		global _terms
+		if not _terms:
+			_terms = terminology.tablesforsdef(terminology.sdefforurl(aem.ae.convertpathtourl(_osaxpath, 0)))
+		reference.Application.__init__(self, name, id, pid, url, aemapp, _terms)
 		try:
 			self.AS_appdata.target().event(b'ascrgdut').send(300) # make sure target application has loaded event handlers for all installed OSAXen
 		except aem.EventError as e:
@@ -218,41 +66,4 @@ class OSAX(reference.Application):
 			return command
 		
 	__repr__ = __str__
-
-
-##
-
-def dump(osaxname, modulepath):
-	"""Dump scripting addition terminology data to Python module.
-		osaxname : str -- name of installed scripting addition
-		modulepath : str -- path to generated module
-		
-	Generates a Python module containing a scripting addition's basic terminology 
-	(names and codes) as used by osax.
-	
-	Call the dump() function to dump faulty sdefs to Python module, e.g.:
-	
-		dump('MyOSAX', '/path/to/site-packages/myosaxglue.py')
-	
-	Patch any errors by hand, then import the patched module into your script 
-	and pass it to osax's OSAX() constructor via its 'terms' argument, e.g.:
-	
-		from osax import *
-		import myosaxglue
-		
-		myapp = OSAX('MyOSAX', terms=myosaxglue)
-	"""
-	if not _osaxnames:
-		_initcaches()
-	originalname = osaxname
-	osaxname = osaxname.lower()
-	if osaxname.endswith('.osax'):
-		osaxname = osaxname[:-5]
-	try:
-		osaxpath, terms = _osaxcache[osaxname]
-	except KeyError as e:
-		raise ValueError("Scripting addition not found: {!r}".format(originalname)) from e
-	p = SdefParser()
-	p.parsefile(osaxpath)
-	terminology.dumptables((p.classes, p.enums, p.properties, p.elements, p.commands), osaxpath, modulepath)
 
