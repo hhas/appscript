@@ -43,7 +43,7 @@ jobs:
         run: |
           cd ./py-appscript
           # python -m build  # seems like the build package doesn't allow to specify a lower macOS version
-          python setup.py sdist bdist_wheel --plat-name 'macosx-10.6-x86_64'
+          python setup.py sdist bdist_wheel --plat-name 'macosx-10.9-x86_64'
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:
