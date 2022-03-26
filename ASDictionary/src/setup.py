@@ -7,7 +7,7 @@ Requirements (available from PyPI except where noted):
 
 - py-appscript 1.2.0+
 
-- py-osaterminology 0.15.0+ (from appscript repository)
+- py-osaterminology 0.16.0+ (from appscript repository)
 
 - py2app 0.26.1+
 
@@ -26,7 +26,7 @@ import py2app
 import os
 
 name = 'ASDictionary'
-version='0.14.0'
+version='0.15.0'
 
 
 setup(

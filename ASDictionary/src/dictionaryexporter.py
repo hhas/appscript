@@ -20,6 +20,7 @@ kStyleToSuffix = {
 		'applescript': '-AS',
 		'py-appscript': '-py', 
 		'rb-scpt': '-rb', 
+		'nodeautomation': '-node',
 }
 
 
@@ -38,11 +39,13 @@ kFrameHTML = b'FHTM'
 kASStyle = b'AScr'
 kPyStyle = b'PyAp'
 kRbStyle = b'RbAp'
+kNodeStyle = b'NoAp'
 
 kAECodeToStyle = {
 	kASStyle: 'applescript',
 	kPyStyle: 'py-appscript',
 	kRbStyle: 'rb-scpt',
+	kNodeStyle: 'nodeautomation',
 }
 
 class AEProgress:

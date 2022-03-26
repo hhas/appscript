@@ -229,11 +229,18 @@ class RbAppscriptParser(_AppscriptParser):
 	typemodule = appscripttypes.typetables('rb-scpt')
 
 
+class NodeautomationParser(_AppscriptParser):
+	_asname = staticmethod(makeidentifier.getconverter('nodeautomation'))
+	typemodule = appscripttypes.typetables('nodeautomation')
+
+
+
 _parsers = {
 		'applescript': AppleScriptParser, 
 		'appscript': PyAppscriptParser,
 		'py-appscript': PyAppscriptParser,
 		'rb-scpt': RbAppscriptParser,
+		'nodeautomation': NodeautomationParser,
 }
 
 

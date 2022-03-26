@@ -109,7 +109,7 @@ class ASDictionary(NSDocument):
 		hasSelectedFiles = bool(self.selectedFiles())
 		willExportDict = self.htmlOptionsEnabled()
 		hasSelectedStyles = bool([name for name 
-				in ['applescriptStyle', 'pythonStyle', 'rubyStyle'] 
+				in ['applescriptStyle', 'pythonStyle', 'rubyStyle', 'nodeStyle'] 
 				if userDefaults.boolForKey_(name)])
 		self.setCanExport_(hasSelectedFiles and (willExportDict and hasSelectedStyles))
 
@@ -284,7 +284,9 @@ class ASDictionary(NSDocument):
 			styles = [style for key, style in [
 					('applescriptStyle', 'applescript'),
 					('pythonStyle', 'py-appscript'),
-					('rubyStyle', 'rb-scpt')] if userDefaults.boolForKey_(key)]
+					('rubyStyle', 'rb-scpt'),
+					('nodeStyle', 'nodeautomation'),
+					] if userDefaults.boolForKey_(key)]
 			exportToSubfolders = userDefaults.boolForKey_('exportToSubfolders')
 			# files to process, sorted by name
 			selection = self.selectedFiles()[:]

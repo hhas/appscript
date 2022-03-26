@@ -76,6 +76,38 @@ class RbAppscriptTypeRenderer(AppscriptTypeRenderer):
 	_keyword = ':%s'
 
 
+class NodeAutomationTypeRenderer(TypeRendererBase):
+	_type = 'k.fromTypeCode(%s)'
+	_enum = 'k.fromEnumCode(%s)'
+	_keyword = 'k.%s'
+	
+	def _render(self, type):
+		if type.kind == 'enumeration':
+			return ' / '.join([e.name and self._keyword % e.name or self._enum % self.escapecode(e.code) 
+					for e in type.enumerators()])
+		else:
+			return type.name or self._type % self.escapecode(type.code)
+	
+	def escapecode(self, s):
+		if isinstance(s, bytes): s = str(s, 'macroman')
+		res = ''
+		for c in s:
+			n = ord(c)
+			if 31 < n < 128 and c not in '\\\'"':
+				res += c
+			else:
+				n = 0
+				for c in s[::-1]:
+					n *= 256
+					n += ord(c)
+				return '0x{:08x}'.format(n)
+		return "'#{}'".format(res)
+	
+	def elementname(self, type): # appscript uses plural names for elements
+		type = type.realvalue()
+		return getattr(type, 'pluralname', type.name) or self._render(type)
+
+
 ######################################################################
 
 
@@ -102,6 +134,7 @@ typerenderers = {
 	'appscript': PyAppscriptTypeRenderer,
 	'py-appscript': PyAppscriptTypeRenderer,
 	'rb-scpt': RbAppscriptTypeRenderer,
+	'nodeautomation': NodeAutomationTypeRenderer,
 	}
 
 ######################################################################

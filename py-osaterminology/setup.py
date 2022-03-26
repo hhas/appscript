@@ -4,7 +4,7 @@ from setuptools import setup
 
 setup(
 		name = "osaterminology",
-		version = "0.15.0",
+		version = "0.16.0",
 		description = "Parse and render aete/sdef resources.",
 		url='http://appscript.sourceforge.net',
 		license='Public Domain',

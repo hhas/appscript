@@ -1,4 +1,4 @@
-""" rubyrenderer -- Render rb-scpt style references from py-appscript references """
+""" rubyrenderer -- Render rb-scpt style references from py-appscript references; for rb-scpt's built-in help system """
 
 import types, datetime
 

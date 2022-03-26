@@ -5,6 +5,8 @@ def getterms(style='py-appscript'):
 		from . import pyappscript as terms
 	elif style == 'rb-scpt':
 		from . import rbappscript as terms
+	elif style == 'nodeautomation':
+		from . import nodeautomation as terms
 	else:
 		raise KeyError('Unknown style %r' % style)
 	return terms

@@ -7,7 +7,7 @@ try:
 except: # Python 2.3
 	from sets import Set as set
 
-from . import pyappscript, rbappscript
+from . import pyappscript, rbappscript, nodeautomation
 
 
 ######################################################################
@@ -97,6 +97,7 @@ _converters = {
 	'applescript': lambda s:s,
 	'py-appscript': UnderscoreConverter(pyappscript.kReservedWords).convert,
 	'rb-scpt': UnderscoreConverter(rbappscript.kReservedWords).convert,
+	'nodeautomation': CamelCaseConverter(nodeautomation.kReservedWords).convert,
 }
 
 

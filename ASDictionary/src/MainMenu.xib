@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="19529" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="20037" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <deployment version="101200" identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="19529"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="20037"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -16,23 +16,23 @@
         <window title="Export" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" animationBehavior="default" id="21" userLabel="ExportWindow">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" bottomStrut="YES"/>
-            <rect key="contentRect" x="0.0" y="338" width="443" height="447"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="1280" height="775"/>
+            <rect key="contentRect" x="0.0" y="338" width="443" height="448"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1920" height="1055"/>
             <value key="minSize" type="size" width="442" height="300"/>
             <value key="maxSize" type="size" width="1000" height="1000"/>
             <view key="contentView" id="2">
-                <rect key="frame" x="0.0" y="0.0" width="443" height="447"/>
+                <rect key="frame" x="0.0" y="0.0" width="443" height="448"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <scrollView fixedFrame="YES" horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="312">
-                        <rect key="frame" x="-1" y="170" width="444" height="278"/>
+                        <rect key="frame" x="-1" y="178" width="444" height="271"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <clipView key="contentView" id="0a7-c8-JiO">
-                            <rect key="frame" x="1" y="1" width="442" height="276"/>
+                            <rect key="frame" x="1" y="1" width="442" height="269"/>
                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             <subviews>
                                 <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" columnReordering="NO" autosaveColumns="NO" headerView="804" id="313">
-                                    <rect key="frame" x="0.0" y="0.0" width="442" height="253"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="442" height="246"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <size key="intercellSpacing" width="3" height="2"/>
                                     <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -78,11 +78,11 @@
                             </subviews>
                         </clipView>
                         <scroller key="horizontalScroller" wantsLayer="YES" verticalHuggingPriority="750" doubleValue="0.5" horizontal="YES" id="803">
-                            <rect key="frame" x="1" y="261" width="442" height="16"/>
+                            <rect key="frame" x="1" y="254" width="442" height="16"/>
                             <autoresizingMask key="autoresizingMask"/>
                         </scroller>
                         <scroller key="verticalScroller" wantsLayer="YES" verticalHuggingPriority="750" horizontal="NO" id="805">
-                            <rect key="frame" x="427" y="24" width="16" height="253"/>
+                            <rect key="frame" x="427" y="24" width="16" height="246"/>
                             <autoresizingMask key="autoresizingMask"/>
                         </scroller>
                         <tableHeaderView key="headerView" wantsLayer="YES" id="804">
@@ -91,10 +91,10 @@
                         </tableHeaderView>
                     </scrollView>
                     <box fixedFrame="YES" boxType="oldStyle" borderType="none" title="Title" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="589">
-                        <rect key="frame" x="17" y="20" width="407" height="142"/>
+                        <rect key="frame" x="17" y="20" width="407" height="151"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <view key="contentView" id="acu-QJ-gKj">
-                            <rect key="frame" x="0.0" y="0.0" width="407" height="142"/>
+                            <rect key="frame" x="0.0" y="0.0" width="407" height="151"/>
                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             <subviews>
                                 <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="603">
@@ -109,7 +109,7 @@
                                     </connections>
                                 </button>
                                 <box fixedFrame="YES" title="File formats" translatesAutoresizingMaskIntoConstraints="NO" id="243">
-                                    <rect key="frame" x="1" y="27" width="194" height="112"/>
+                                    <rect key="frame" x="1" y="37" width="194" height="112"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
                                     <view key="contentView" id="u1r-bi-L5y">
                                         <rect key="frame" x="3" y="3" width="188" height="92"/>
@@ -181,17 +181,17 @@
                                     <font key="titleFont" metaFont="system"/>
                                 </box>
                                 <box fixedFrame="YES" title="Terminology styles" translatesAutoresizingMaskIntoConstraints="NO" id="257">
-                                    <rect key="frame" x="213" y="45" width="194" height="94"/>
+                                    <rect key="frame" x="213" y="37" width="194" height="112"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
                                     <view key="contentView" id="c8M-VP-MAU">
-                                        <rect key="frame" x="3" y="3" width="188" height="74"/>
+                                        <rect key="frame" x="3" y="3" width="188" height="92"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         <subviews>
                                             <matrix verticalHuggingPriority="750" fixedFrame="YES" mode="track" selectionByRect="NO" translatesAutoresizingMaskIntoConstraints="NO" id="302">
-                                                <rect key="frame" x="14" y="9" width="104" height="58"/>
+                                                <rect key="frame" x="14" y="9" width="125" height="78"/>
                                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES"/>
                                                 <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                                                <size key="cellSize" width="104" height="18"/>
+                                                <size key="cellSize" width="125" height="18"/>
                                                 <size key="intercellSpacing" width="4" height="2"/>
                                                 <buttonCell key="prototype" type="check" title="Radio" bezelStyle="regularSquare" imagePosition="left" alignment="left" inset="2" id="800">
                                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -218,6 +218,13 @@
                                                             <font key="font" metaFont="system"/>
                                                             <connections>
                                                                 <binding destination="361" name="value" keyPath="values.rubyStyle" id="376"/>
+                                                            </connections>
+                                                        </buttonCell>
+                                                        <buttonCell type="check" title="nodeautomation" bezelStyle="regularSquare" imagePosition="left" alignment="left" inset="2" id="b4k-Ea-HKO">
+                                                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                                            <font key="font" metaFont="system"/>
+                                                            <connections>
+                                                                <binding destination="361" name="value" keyPath="values.nodeStyle" id="H5M-0a-XaA"/>
                                                             </connections>
                                                         </buttonCell>
                                                     </column>
@@ -266,7 +273,7 @@ DQ
             <connections>
                 <outlet property="delegate" destination="347" id="398"/>
             </connections>
-            <point key="canvasLocation" x="162.5" y="29.5"/>
+            <point key="canvasLocation" x="162.5" y="30"/>
         </window>
         <menu title="htmldictionary" systemMenu="main" id="29" userLabel="MainMenu">
             <items>
@@ -403,7 +410,7 @@ CA
             <windowStyleMask key="styleMask" titled="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
             <rect key="contentRect" x="568" y="473" width="360" height="135"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="1280" height="775"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1920" height="1055"/>
             <value key="minSize" type="size" width="213" height="107"/>
             <view key="contentView" id="343">
                 <rect key="frame" x="0.0" y="0.0" width="360" height="135"/>
@@ -523,7 +530,7 @@ CA
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
             <rect key="contentRect" x="608" y="478" width="480" height="134"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="1280" height="775"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1920" height="1055"/>
             <value key="minSize" type="size" width="213" height="107"/>
             <view key="contentView" id="631">
                 <rect key="frame" x="0.0" y="0.0" width="480" height="134"/>

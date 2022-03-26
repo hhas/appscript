@@ -354,11 +354,18 @@ class RbAppscriptHandler(AppscriptHandler):
 	appscripttypemodule = appscripttypes.typetables('rb-scpt')
 
 
+class NodeautomationHandler(AppscriptHandler):
+	asname = staticmethod(makeidentifier.getconverter('nodeautomation'))
+	appscripttypemodule = appscripttypes.typetables('nodeautomation')
+
+
+
 handlers = {
 		'applescript': AppleScriptHandler,
 		'appscript': PyAppscriptHandler,
 		'py-appscript': PyAppscriptHandler,
 		'rb-scpt': RbAppscriptHandler,
+		'nodeautomation': NodeautomationHandler,
 }
 
 ######################################################################
