@@ -1,27 +1,28 @@
 """
 Requirements (available from PyPI except where noted):
 
-- py-appscript 1.2.0+
+- py-appscript
 
-- py-osaterminology 0.15.0+ (from appscript repository)
+- py-osaterminology (from appscript repository)
 
-- py2app 0.26.1+
+- py2app
 
-- pyobjc 8.1+
+- pyobjc
 
 --
 
 To build, cd to this directory and run:
 
-	python setup.py py2app
+	python3 setup.py py2app
 
 """
 
+
+appversion='0.7.1' # update this and build.sh for new release
+
+
 from setuptools import setup, Extension
 import py2app
-
-version = '0.6.0'
-
 
 setup(
 	app=["ASTranslate.py"],
@@ -38,8 +39,8 @@ setup(
 			plist=dict(
 				NSAppleEventsUsageDescription="Optionally sends Apple events to target applications.",
 				CFBundleIdentifier="net.sourceforge.appscript.astranslate",
-				CFBundleVersion=version,
-				CFBundleShortVersionString=version,
+				CFBundleVersion=appversion,
+				CFBundleShortVersionString=appversion,
 				NSHumanReadableCopyright="",
 				CFBundleDocumentTypes = [
 					dict(

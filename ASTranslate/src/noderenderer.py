@@ -1,4 +1,4 @@
-""" rubyrenderer -- render Apple events as Ruby 1.8+ code """
+""" noderenderer -- render Apple events as Node.js code """
 
 import types, datetime, os.path
 
@@ -12,7 +12,7 @@ from constants import *
 #######
 
 _codecs = aem.Codecs()
-_terminology = TerminologyTableBuilder('rb-scpt')
+_terminology = TerminologyTableBuilder('nodeautomation')
 
 ######################################################################
 # PRIVATE
@@ -35,8 +35,7 @@ class _Formatter:
 				bool: self.formatBool,
 				int: self.formatInt,
 				float: self.formatFloat,
-				bytes: self.formatStr,
-				str: self.formatUnicodeText, 
+				str: self.formatUnicodeText,
 				list: self.formatList,
 				dict: self.formatDict,
 				datetime.datetime: self.formatDatetime,
@@ -53,7 +52,7 @@ class _Formatter:
 	# scalar/collection formatter
 		
 	def formatNone(self, val):
-		return 'nil'
+		return 'null'
 	
 	def formatBool(self, val):
 		return val and 'true' or 'false'
@@ -66,32 +65,32 @@ class _Formatter:
 	
 	##
 	
-	def formatUnicodeText(self, val): # str, unicode
-		s = val.replace('\\', '\\\\').replace('"', '\\"').replace('#{', '\\#{').replace('\r', '\\r').replace('\n', '\\n').replace('\t', '\\t') # "
+	def formatUnicodeText(self, val):
+		s = val.replace('\\', '\\\\').replace('"', '\\"').replace('\r', '\\r').replace('\n', '\\n').replace('\t', '\\t')
 		r = []
 		for c in s:
 			i = ord(c)
-			if 32 <= i < 127:
+			if i < 32:
+				r.append('\\x{:02x}'.format(i))
+			elif i < 127:
 				r.append(c)
 			else:
-				r.append('\\%03o' % i)
+				r.append('\\u{:04x}'.format(i))
 		s = ''.join(r)
-		return '"%s"' % s
-	
-	def formatStr(self, val):
-		return self.formatUnicodeText(_codecs.unpack(_codecs.pack(val).coerce(b'utxt')))
+		return '"{}"'.format(s)
 	
 	##
 		
 	def formatDatetime(self, val):
-		return 'Time.local(%i, %i, %i, %i, %i, %i)' % (val.year, val.month, val.day, val.hour, val.minute, val.second)
+		return 'new Date(%i, %i, %i, %i, %i, %i)' % (val.year, val.month, val.day, val.hour, val.minute, val.second)
 	
 	def formatAlias(self, val):
-		return 'MacTypes::Alias.path(%s)' % self.format(val.path)
+		return 'new File({})'.format(self.format(val.path))
+
 	
 	def formatFile(self, val):
-		return 'MacTypes::FileURL.path(%s)' % self.format(val.path)
-	
+		return 'new File({})'.format(self.format(val.path))
+
 	##
 	
 	def formatList(self, val):
@@ -110,7 +109,7 @@ class _Formatter:
 			self._indent += '    '
 			tmp = []
 			for k, v in list(val.items()):
-				s = '\n%s%s => ' % (self._indent, self.format(k))
+				s = '\n%s%s: ' % (self._indent, self.format(k))
 				indent = self._indent
 				indent2 = len(s)
 				self._indent += ' ' * (indent2 - 5)
@@ -126,11 +125,9 @@ class _Formatter:
 	
 	def formatConstant(self, val): # type, enumerator, property, keyword
 		try:
-			return ':%s' % (self._typebycode[val.code]) # .AS_name
+			return 'k.%s' % (self._typebycode[val.code]) # .AS_name
 		except KeyError:
-			raise UntranslatedKeywordError('constant', val.code, 'Ruby')
-
-
+			raise UntranslatedKeywordError('constant', val.code, 'Node.js')
 
 	#######
 	# reference formatter
@@ -142,11 +139,11 @@ class _Formatter:
 			try:
 				self.result = '%s.%s' % (self.result, self._referencebycode[kElement+code][1])
 			except KeyError:
-				raise UntranslatedKeywordError('property', code, 'Ruby')
+				raise UntranslatedKeywordError('property', code, 'Node.js')
 		return self
 	
 	def userproperty(self, name):
-		raise UntranslatedUserPropertyError(name, 'Ruby')
+		raise UntranslatedUserPropertyError(name, 'Node.js')
 	
 	def elements(self, code):
 		try:
@@ -155,36 +152,35 @@ class _Formatter:
 			try:
 				self.result = '%s.%s' % (self.result, self._referencebycode[kProperty+code][1])
 			except KeyError:
-				raise UntranslatedKeywordError('element', code, 'Ruby')
+				raise UntranslatedKeywordError('element', code, 'Node.js')
 		return self
 	
 	def byname(self, sel):
-		self.result = '%s[%s]' % (self.result, self.format(sel))
+		self.result = '%s.named(%s)' % (self.result, self.format(sel))
 		return self
 	
 	def byindex(self, sel):
-		self.result = '%s[%s]' % (self.result, self.format(sel))
+		self.result = '%s.at(%s)' % (self.result, self.format(sel))
 		return self
-	
 	
 	def byid(self, sel):
 		self.result = '%s.ID(%r)' % (self.result, self.format(sel))
 		return self
 	
 	def byrange(self, sel1, sel2):
-		self.result = '%s[%s, %s]' % (self.result, self.format(sel1), self.format(sel2))
+		self.result = '%s.thru(%s, %s)' % (self.result, self.format(sel1), self.format(sel2))
 		return self
 		
 	def byfilter(self, sel):
-		self.result = '%s[%s]' % (self.result, self.format(sel))
+		self.result = '%s.where(%s)' % (self.result, self.format(sel))
 		return self
 	
 	def previous(self, sel):
-		self.result = '%s.previous(:%s)' % (self.result, self._typebycode[sel])
+		self.result = '%s.previous(k.%s)' % (self.result, self._typebycode[sel])
 		return self
 	
 	def next(self, sel):
-		self.result = '%s.next(:%s)' % (self.result, self._typebycode[sel])
+		self.result = '%s.next(k.%s)' % (self.result, self._typebycode[sel])
 		return self
 	
 	def __getattr__(self, name):
@@ -226,13 +222,14 @@ class _Formatter:
 	def le(self, sel):
 		self.result = '%s.le(%s)' % (self.result, self.format(sel))
 		return self
+
 	
 	def beginswith(self, sel):
-		self.result = '%s.begins_with(%s)' % (self.result, self.format(sel))
+		self.result = '%s.beginsWith(%s)' % (self.result, self.format(sel))
 		return self
 	
 	def endswith(self, sel):
-		self.result = '%s.ends_with(%s)' % (self.result, self.format(sel))
+		self.result = '%s.endsWith(%s)' % (self.result, self.format(sel))
 		return self
 	
 	def contains(self, sel):
@@ -240,19 +237,19 @@ class _Formatter:
 		return self
 	
 	def isin(self, sel):
-		self.result = '%s.is_in(%s)' % (self.result, self.format(sel))
+		self.result = '%s.isIn(%s)' % (self.result, self.format(sel))
 		return self
 	
 	def AND(self, *operands):
 		if len(operands) == 1:
 			operands = operands[0]
-		self.result ='(%s).and(%s)' % (self.result, self.format(operands))
+		self.result = '(%s).and(%s)' % (self.result, self.format(operands))
 		return self
 		
 	def OR(self, *operands):
 		if len(operands) == 1:
 			operands = operands[0]
-		self.result ='(%s).or(%s)' % (self.result,self.format(operands))
+		self.result = '(%s).or(%s)' % (self.result, self.format(operands))
 		return self
 	
 	#######
@@ -300,30 +297,30 @@ def renderCommand(apppath, addressdesc,
 	try:
 		commandname, paramnamebycode = referencebycode[kCommand+eventcode][1]
 	except KeyError:
-		raise UntranslatedKeywordError('event', eventcode, 'Ruby')
+		raise UntranslatedKeywordError('event', eventcode, 'Node.js')
 	
 	args = []
 	f = _Formatter(typebycode, referencebycode, appvar, kNested)
 	
 	if directparam is not kNoParam:
-		args.append(f.format(directparam))
+		args.append('_: %s' % f.format(directparam))
 	
 	for k, v in list(paramsdict.items()):
 		try:
-			args.append(':%s => %s' % (paramnamebycode[k], f.format(v)))
+			args.append('%s: %s' % (paramnamebycode[k], f.format(v)))
 		except KeyError:
-			raise UntranslatedKeywordError('parameter', k, 'Ruby')
+			raise UntranslatedKeywordError('parameter', k, 'Node.js')
 	
 	if resulttype:
-		args.append(':result_type => %s' % f.format(resulttype))
+		args.append('asType: %s' % f.format(resulttype))
 	if timeout != -1:
-		args.append(':timeout => %i' % (timeout / 60))
-	if modeflags & 3 == aem.kae.kAENoReply:
-		args.append(':wait_reply => false')
+		args.append('timeout: %i' % (timeout / 60))
+#	if modeflags & 3 == aem.kae.kAENoReply:
+#		args.append('waitReply: false') # TO DO: sendOptions
 	
 	if args:
-		args = '(%s)' % ', '.join(args)
+		args = '{%s}' % ', '.join(args)
 	else:
 		args = ''
-	return '%s.%s%s' % (target, commandname, args)
+	return '%s.%s(%s)' % (target, commandname, args)
 

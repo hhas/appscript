@@ -1,0 +1,5 @@
+replace LSOpenApplication() with LSOpenFromURLSpec()
+
+use LSCopyApplicationURLsForBundleIdentifier() to find all installed apps with given bundle ID
+
+problem: LSFindApplicationForInfo() has no LS replacement for looking up by app name; looks like -[NSWorkspace fullPathForApplication:] is only alternative

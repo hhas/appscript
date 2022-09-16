@@ -2,7 +2,7 @@ About ASTranslate
 =================
 
 A simple tool for converting application commands written in AppleScript into 
-their appscript equivalent.
+their py-appscript/rb-scpt/nodeautomation equivalent.
 
 
 Usage
@@ -25,7 +25,8 @@ Usage
 
      app('Finder').home.folders[1].get(resulttype=k.alias, timeout=10)
 
-Click on the Python and Ruby tabs below the bottom pane to switch translations. 
+Click on the Python, Ruby, and Node.js tabs below the bottom pane to switch 
+translations. 
 
 The 'Send events to app' checkbox can be unchecked to prevent Apple events 
 being sent to the target application. This is particularly useful when 
@@ -35,11 +36,10 @@ obtaining translations of potentially destructive commands such as 'delete'.
 Notes
 -----
 
-- ASTranslate only sniffs outgoing Apple events sent by AppleScript; it's 
-  not a full-blown AppleScript->Python/Ruby code converter. The output 
-  is not intended to be production-ready code, but should be helpful when 
-  figuring out how to translate a particular reference or command from 
-  AppleScript to Python/Ruby.
+- ASTranslate only sniffs outgoing Apple events sent by AppleScript; it is 
+  not a full transpiler. The output is not intended to be production-ready 
+  code, but should be helpful when figuring out how to translate a particular 
+  reference or command from AppleScript to Python/Ruby/Node.js.
 
 - ASTranslate translates application commands only. Standard Additions 
   commands are not translated.
@@ -52,7 +52,8 @@ Notes
 
 - Unchecking the 'Send Apple Events' option also prevents application commands
   returning a result. If the AppleScript code expects a command to return a 
-  value, this will likely result in an AppleScript error.
+  value (e.g. for use in another command), this will likely result in an 
+  AppleScript error.
 
 
 Copyright
@@ -60,4 +61,4 @@ Copyright
 
 ASTranslate is released into the public domain.
 
-http://appscript.sourceforge.net/
+https://appscript.sourceforge.io/

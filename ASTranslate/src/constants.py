@@ -1,10 +1,11 @@
 """ constants """
 
-kLanguageCount = 2
+kLanguageCount = 3
 
 # (note: these are same as indexes of segmented control in window)
 kLangPython = 0
 kLangRuby = 1
+kLangNode = 2
 
 kLangAll = None
 

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="19529" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="20037" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <deployment version="1050" identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="19529"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="20037"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -19,7 +19,7 @@
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" topStrut="YES"/>
             <rect key="contentRect" x="0.0" y="467" width="482" height="539"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="1280" height="775"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1920" height="1055"/>
             <value key="minSize" type="size" width="482" height="101"/>
             <view key="contentView" id="2">
                 <rect key="frame" x="0.0" y="0.0" width="482" height="539"/>
@@ -110,13 +110,14 @@
                         </textFieldCell>
                     </textField>
                     <segmentedControl verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="AHx-Nx-P5U">
-                        <rect key="frame" x="72" y="12" width="121" height="24"/>
+                        <rect key="frame" x="72" y="12" width="192" height="24"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <segmentedCell key="cell" borderStyle="border" alignment="left" style="rounded" trackingMode="selectOne" id="Xwn-kN-tqC">
                             <font key="font" metaFont="system"/>
                             <segments>
-                                <segment label="Python" width="56"/>
-                                <segment label="Ruby" width="56" selected="YES" tag="1"/>
+                                <segment label="Python" width="60" selected="YES"/>
+                                <segment label="Ruby" width="60" tag="1"/>
+                                <segment label="Node.js" width="60" tag="2"/>
                             </segments>
                             <connections>
                                 <binding destination="-2" name="selectedIndex" keyPath="currentStyle" id="AVb-gp-ADf">

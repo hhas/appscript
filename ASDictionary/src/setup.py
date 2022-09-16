@@ -1,42 +1,43 @@
 """
 Requirements (available from PyPI except where noted):
 
-- htmlemplate 2.2.1+
+- htmlemplate
 
-- py-aemreceive 0.5.0+ (from appscript repository)
+- py-appscript
 
-- py-appscript 1.2.0+
+- py-aemreceive (from appscript repository)
 
-- py-osaterminology 0.16.0+ (from appscript repository)
+- py-osaterminology (from appscript repository)
 
-- py2app 0.26.1+
+- py2app
 
-- pyobjc 8.1+
+- pyobjc
 
 --
 
 To build, cd to this directory and run:
 
-	python setup.py py2app
+	python3 setup.py py2app
 
 """
+
+appname='ASDictionary'
+
+appversion='0.15.1' # update this and build.sh for new release
+
 
 from setuptools import setup
 import py2app
 import os
 
-name = 'ASDictionary'
-version='0.15.0'
-
-
 setup(
-	app=[name+".py"],
+	app=[appname+".py"],
 	data_files=["MainMenu.xib"],
 	options=dict(
 		py2app=dict(
 			plist=dict(
-				CFBundleVersion=version,
-				CFBundleShortVersionString=version,
+				CFBundleVersion=appversion,
+				CFBundleShortVersionString=appversion,
 				NSHumanReadableCopyright="",
 				CFBundleIdentifier="net.sourceforge.appscript.asdictionary",
 				CFBundleDocumentTypes = [
@@ -45,10 +46,11 @@ setup(
 						CFBundleTypeName="public.item",
 						CFBundleTypeRole="Viewer",
 					),
-				]
+				],
+				NSAppleEventsUsageDescription="View application terminologies and object models."
 			),
-			resources=[name+'.icns'],
-			iconfile=name+'.icns'
+			resources=[appname+'.icns'],
+			iconfile=appname+'.icns'
 		)
 	)
 )

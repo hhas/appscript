@@ -8,7 +8,7 @@ from aem import kae, ae
 import appscript, aem, mactypes
 import appscript.reference
 
-import pythonrenderer, rubyrenderer
+import pythonrenderer, rubyrenderer, noderenderer
 from constants import *
 
 _standardCodecs = aem.Codecs()
@@ -75,13 +75,13 @@ def makeCustomSendProc(addResultFn, isLive):
 			
 			# kludge: timeOutInTicks constants (kAEDefaultTimeout = -1, kNoTimeOut = -2) screw up when represented as 64-bit instead of 32-bit longs
 			_timeout = timeout
-			if timeout == 0xffffffff:
+			if timeout == 0xffffffff or timeout > 0x888888888888:
 				_timeout = -1 # default timeout
 			elif timeout == 0xfffffffe:
 				_timeout = -2 # no timeout
 			
 			# render
-			for key, renderer in [(kLangPython, pythonrenderer), (kLangRuby, rubyrenderer)]:
+			for key, renderer in [(kLangPython, pythonrenderer), (kLangRuby, rubyrenderer), (kLangNode, noderenderer)]:
 				try:
 					addResultFn(key, renderer.renderCommand(
 							appPath, addressdesc, eventcode, 
