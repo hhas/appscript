@@ -18,12 +18,12 @@ jobs:
     strategy:
       matrix:
         os: [macos-latest]
-        python-version: ['3.7', '3.8', '3.9', '3.10']
+        python-version: ['3.10']
         architecture: ['x64']
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
           architecture: ${{ matrix.architecture }}
@@ -33,19 +33,23 @@ jobs:
           if [ ${GITHUB_REF::9} = "refs/tags" ]; then
             version_string=${GITHUB_REF:10}
           else
-            version_string=${GITHUB_SHA::8}
+            version_string=0.0.0+${GITHUB_SHA::8}
           fi;
           sed -i '' -e "s/__version__ = 'dev'/__version__ = '$version_string'/" ./py-appscript/lib/appscript/__init__.py
       - name: Install dependencies
         run: |
-          python -m pip install wheel twine build
+          python -m pip install wheel twine build cibuildwheel
       - name: Build Wheels
         run: |
           cd ./py-appscript
-          # python -m build  # seems like the build package doesn't allow to specify a lower macOS version
-          python setup.py sdist bdist_wheel --plat-name 'macosx-10.9-x86_64'
+          python setup.py sdist
+          python -m cibuildwheel --output-dir dist
+        env:
+          CIBW_BUILD: "cp37-* cp38-* cp39-* cp310-* cp311-*"
+          CIBW_TEST_SKIP: "*_arm64"
+          CIBW_ARCHS_MACOS: "x86_64 arm64"
       - name: Upload artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: dist
           path: ./py-appscript/dist
@@ -56,16 +60,16 @@ jobs:
     if: github.event_name == 'release'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: '3.10'
           architecture: 'x64'
       - name: Install Python dependencies
         run: python -m pip install twine
       - name: Download source package and wheels from previous job
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: dist
           path: dist
