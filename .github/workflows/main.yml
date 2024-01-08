@@ -45,7 +45,7 @@ jobs:
           python setup.py sdist
           python -m cibuildwheel --output-dir dist
         env:
-          CIBW_BUILD: "cp37-* cp38-* cp39-* cp310-* cp311-*"
+          CIBW_BUILD: "cp38-* cp39-* cp310-* cp311-* cp312-*"
           CIBW_TEST_SKIP: "*_arm64"
           CIBW_ARCHS_MACOS: "x86_64 universal2"
       - name: Upload artifacts
