@@ -375,7 +375,7 @@ static PyObject *AEDesc_AESendMessage(AEDescObject *_self, PyObject *_args) // t
 	
 	mach_port_t replyPort = MACH_PORT_NULL;
 	
-	if (sendMode & kAEWaitReply && pthread_main_np() == 0) {
+	if ((sendMode & (kAENoReply | kAEQueueReply | kAEWaitReply) == kAEWaitReply) && pthread_main_np() == 0) {
 		_err = (OSErr)mach_port_allocate(mach_task_self(), MACH_PORT_RIGHT_RECEIVE, &replyPort);
 		if (_err == noErr) {
 			_err = AEPutAttributePtr(&_self->ob_itself, keyReplyPortAttr, typeMachPort, &replyPort, sizeof(replyPort));
