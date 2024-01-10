@@ -375,6 +375,9 @@ static PyObject *AEDesc_AESendMessage(AEDescObject *_self, PyObject *_args) // t
 	
 	mach_port_t replyPort = MACH_PORT_NULL;
 	
+	// if sending an AppleEvent on a non-main thread with kAEWaitReply, allocate a Mach port to RECEIVE the reply AE
+	// (for kAEQueueReply, AESendMessage returns immediately and the reply AE will be received on the main event loop)
+	// (for kAENoReply, AESendMessage returns immediately)
 	if ((sendMode & (kAENoReply | kAEQueueReply | kAEWaitReply) == kAEWaitReply) && pthread_main_np() == 0) {
 		_err = (OSErr)mach_port_allocate(mach_task_self(), MACH_PORT_RIGHT_RECEIVE, &replyPort);
 		if (_err == noErr) {
@@ -388,8 +391,57 @@ static PyObject *AEDesc_AESendMessage(AEDescObject *_self, PyObject *_args) // t
 							 sendMode,
 							 timeOutInTicks);
 	}
+	
+	/*
+		
+	Andrei P.
+	
+		I've been going deeper down the rabbit hole, and it turns out a 20-year old forum thread pointed me in the right direction. 
+		
+		https://macosx-dev.omnigroup.narkive.com/rVzgWNAi/crash-in-pthread-c-failed-assertion
+
+		This particular paragraph gave me a hint:
+
+		> mach_port_deallocate() is a no-op on a port with only receive rights, so that's not going to do anything.
+	
+	
+	https://gist.github.com/tom-seddon/87ff7c4ab5157d87a0f229b07cf6600f#mach_port_deallocate-is-for-send-rights-only
+		
+		mach_port_deallocate is for send rights only
+		
+		mach_port_deallocate will return KERN_INVALID_RIGHT for a receive right.
+
+		For receive rights, use mach_port_destroy.
+
+		(If you’ve got a send/receive port right, due perhaps to having called mach_port_insert_right, you need to call both…)
+	
+	
+	https://web.mit.edu/darwin/src/modules/xnu/osfmk/man/mach_port_destroy.html
+	
+		The mach_port_destroy function de-allocates all rights denoted by a name. The name becomes immediately available for reuse.
+
+		For most purposes, mach_port_mod_refs and mach_port_deallocate are preferable. 
+	
+	
+	https://web.mit.edu/darwin/src/modules/xnu/osfmk/man/mach_port_mod_refs.html
+	
+		The mach_port_mod_refs function requests that the number of user references a task has for a right be changed. This results in the right being destroyed, if the number of user references is changed to zero. 
+		
+		The name parameter should denote the specified right. The number of user references for the right is changed by the amount delta, subject to the following restrictions: port sets, receive rights, and send-once rights may only have one user reference. The resulting number of user references can't be negative. If the resulting number of user references is zero, the effect is to de-allocate the right. For dead names and send rights, there is an implementation-defined maximum number of user references.
+
+		If the call destroys the right, then the effect is as described for mach_port_destroy, with the exception that mach_port_destroy simultaneously destroys all the rights denoted by a name, while mach_port_mod_refs can only destroy one right. The name will be available for reuse if it only denoted the one right.
+	
+	
+	has
+	
+		The omnigroup thread mentioned an AE bug that prevented the port being safely disposed - this was fixed in 10.5.
+		
+		https://developer.apple.com/documentation/coreservices/1442994-aesendmessage?language=objc
+		
+	 */
 	if (replyPort != MACH_PORT_NULL) {
-		mach_port_deallocate(mach_task_self(), replyPort);
+		// decrement the RECEIVE port's refcount to destroy it
+		mach_port_mod_refs(mach_task_self(), replyPort, MACH_PORT_RIGHT_RECEIVE, -1);
 	}
 	
 	Py_END_ALLOW_THREADS
