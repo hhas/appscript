@@ -378,7 +378,7 @@ static PyObject *AEDesc_AESendMessage(AEDescObject *_self, PyObject *_args) // t
 	// if sending an AppleEvent on a non-main thread with kAEWaitReply, allocate a Mach port to RECEIVE the reply AE
 	// (for kAEQueueReply, AESendMessage returns immediately and the reply AE will be received on the main event loop)
 	// (for kAENoReply, AESendMessage returns immediately)
-	if ((sendMode & (kAENoReply | kAEQueueReply | kAEWaitReply) == kAEWaitReply) && pthread_main_np() == 0) {
+	if (((sendMode & (kAENoReply | kAEQueueReply | kAEWaitReply)) == kAEWaitReply) && pthread_main_np() == 0) {
 		_err = (OSErr)mach_port_allocate(mach_task_self(), MACH_PORT_RIGHT_RECEIVE, &replyPort);
 		if (_err == noErr) {
 			_err = AEPutAttributePtr(&_self->ob_itself, keyReplyPortAttr, typeMachPort, &replyPort, sizeof(replyPort));
@@ -977,7 +977,7 @@ static OSErr GenericEventHandler(const AppleEvent *request, AppleEvent *reply, S
 		err = -1;
 		goto cleanup;
 	}
-	res = PyEval_CallObject(handler, args);
+	res = PyObject_Call(handler, args, NULL);
 	requestObject->ob_itself.descriptorType = 'null';
 	requestObject->ob_itself.dataHandle = NULL;
 	replyObject->ob_itself.descriptorType = 'null';
@@ -1013,7 +1013,7 @@ static OSErr GenericCoercionHandler(const AEDesc *fromDesc, DescType toType, SRe
 		err = -1;
 		goto cleanup;
 	}
-	res = PyEval_CallObject(handler, args);
+	res = PyObject_Call(handler, args, NULL);
 	fromObject->ob_itself.descriptorType = 'null';
 	fromObject->ob_itself.dataHandle = NULL;
 	Py_DECREF(args);
