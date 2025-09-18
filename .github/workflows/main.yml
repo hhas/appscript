@@ -18,12 +18,12 @@ jobs:
     strategy:
       matrix:
         os: [macos-13]
-        python-version: ['3.10']
+        python-version: ['3.14']
         architecture: ['x64']
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
           architecture: ${{ matrix.architecture }}
@@ -38,21 +38,28 @@ jobs:
           sed -i '' -e "s/__version__ = 'dev'/__version__ = '$version_string'/" ./py-appscript/lib/appscript/__init__.py
       - name: Install dependencies
         run: |
-          python -m pip install wheel twine build cibuildwheel
+          python -m pip install wheel twine build cibuildwheel setuptools
       - name: Build Wheels
         run: |
           cd ./py-appscript
           python setup.py sdist
           python -m cibuildwheel --output-dir dist
         env:
-          CIBW_BUILD: "cp39-* cp310-* cp311-* cp312-* cp313-*"
+          CIBW_BUILD: "cp310-* cp311-* cp312-* cp313-* cp314-*"
           CIBW_TEST_SKIP: "*_arm64"
           CIBW_ARCHS_MACOS: "x86_64 universal2"
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: dist
-          path: ./py-appscript/dist
+          path: ./py-appscript/dist/
+
+      # - uses: actions/download-artifact@v5
+      #   with:
+      #     name: dist
+      #     path: dist
+      # - name: Display structure of downloaded files
+      #   run: ls -R dist
 
   publish:
     name: Publish
@@ -60,16 +67,16 @@ jobs:
     if: github.event_name == 'release'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v6
         with:
-          python-version: '3.10'
+          python-version: '3.14'
           architecture: 'x64'
       - name: Install Python dependencies
         run: python -m pip install twine
       - name: Download source package and wheels from previous job
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v5
         with:
           name: dist
           path: dist
