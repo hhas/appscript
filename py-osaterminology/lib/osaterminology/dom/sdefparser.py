@@ -183,7 +183,7 @@ class Handler(ContentHandler):
 		return o
 	
 	def start_respondsto(self, d):
-		o = RespondsTo(self._visibility, self.asname(d['command']), self._isvisible) # TO DO: command attribute may be command name or id
+		o = RespondsTo(self._visibility, self.asname(d.get('command') or d['name']), self._isvisible) # TO DO: command attribute may be command name or id
 		return o
 	
 	##
