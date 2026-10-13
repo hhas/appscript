@@ -17,7 +17,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-13]
+        os: [macos-26]
         python-version: ['3.15']
         architecture: ['x64']
     steps:
